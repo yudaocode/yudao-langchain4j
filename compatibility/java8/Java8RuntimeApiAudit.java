@@ -6,7 +6,11 @@ import java.util.jar.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.Type;
 
-/** Audits static JDK member references against an actual Java 8 runtime. @author 芋道源码 */
+/**
+ * Audits static JDK member references against an actual Java 8 runtime.
+ *
+ * @author 芋道源码
+ */
 public final class Java8RuntimeApiAudit {
     private static final Map<String, String> results = new HashMap<>();
     private static final Map<String, Set<String>> findings = new TreeMap<>();
