@@ -13,7 +13,15 @@ GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langch
 
 切换到 `main-jdk8`。兼容版统一使用 `cn.iocoder.langchain4j`，版本为 `2.0.0-SNAPSHOT`，保留对应的 artifactId 与 `dev.langchain4j` Java 包名。**尚未发布 Maven Central 或远端 SNAPSHOT 仓库**；当前需先按兼容分支的构建说明安装到本地 Maven 仓库。正式发布后将使用 `2.x` 版本线。
 
+使用官方 `spring-boot-starter-parent:2.7.18` 时，还需设置以下三个属性：Boot 父 POM 直接管理这些依赖，Maven 中导入 BOM 不能覆盖父 POM 的直接声明。仅导入 Boot BOM 的项目应将兼容 BOM 放在 Boot BOM 前，并核对最终依赖树。
+
 ```xml
+<properties>
+    <httpclient5.version>5.6.5</httpclient5.version>
+    <httpcore5.version>5.4.4</httpcore5.version>
+    <logback.version>1.2.13</logback.version>
+</properties>
+
 <dependencyManagement>
     <dependencies>
         <dependency>
