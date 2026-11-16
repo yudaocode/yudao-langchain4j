@@ -48,7 +48,7 @@ class AnthropicChatModelErrorsTest {
 
     @BeforeEach
     void setUp() {
-        seed = new Random().nextDouble(0.0, 1.0);
+        seed = new Random().nextDouble();
     }
 
     public static Stream<Arguments> errors() {

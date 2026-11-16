@@ -322,7 +322,7 @@ public class ClassPathDocumentLoader {
                     return loadDocuments(
                             classPathSource,
                             directoryOnClasspath,
-                            fs.getPath(directoryOnClasspath),
+                            fs.getPath(directoryOnClasspath).toAbsolutePath(),
                             pathMatcher,
                             documentParser,
                             pathStreamFunction);
@@ -410,7 +410,8 @@ public class ClassPathDocumentLoader {
     private static String getRelativePath(
             String directoryOnClasspath, ClassPathSource rootDirectoryClassPathSource, Path subPath) {
         if (rootDirectoryClassPathSource.isInsideArchive()) {
-            return subPath.toString();
+            // ClassLoader resources are relative, including absolute paths from Java 8 ZipFS.
+            return subPath.toString().replaceFirst("^/+", "");
         }
 
         try {

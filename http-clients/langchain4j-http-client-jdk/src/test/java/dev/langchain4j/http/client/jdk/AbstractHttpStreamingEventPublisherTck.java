@@ -61,6 +61,10 @@ public abstract class AbstractHttpStreamingEventPublisherTck extends PublisherVe
             wireMockServer.stop();
             wireMockServer = null;
         }
+        if (jdkClient != null) {
+            ((org.springframework.ai.compat.jdkhttp.HttpClient) (Object) jdkClient).close();
+            jdkClient = null;
+        }
     }
 
     @Override
@@ -99,8 +103,12 @@ public abstract class AbstractHttpStreamingEventPublisherTck extends PublisherVe
                 .body("{}")
                 .build();
 
-        java.net.http.HttpRequest jdkRequest = JdkHttpClient.builder().build().toJdkRequest(httpRequest);
-        return toPublisher(createHttpPublisher(jdkClient, jdkRequest, new DefaultServerSentEventParser()));
+        try (JdkHttpClient requestClient = JdkHttpClient.builder().build()) {
+            java.net.http.HttpRequest jdkRequest = requestClient.toJdkRequest(httpRequest);
+            return toPublisher(createHttpPublisher(jdkClient, jdkRequest, new DefaultServerSentEventParser()));
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
     }
 
     protected abstract Flow.Publisher<HttpStreamingEvent> createHttpPublisher(

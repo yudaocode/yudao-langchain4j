@@ -111,6 +111,8 @@ class AiServicesNonBlockingTest {
     @BeforeAll
     static void installBlockHound() {
         BlockHound.builder()
+                // Share Mockito's agent rather than loading Java 8 libattach in a second class loader.
+                .with(net.bytebuddy.agent.ByteBuddyAgent.install())
                 .nonBlockingThreadPredicate(prev -> prev.or(thread -> thread.getName()
                         .startsWith("ai-service-delivery")))
                 // Pool bookkeeping, not application blocking: idle workers park on the work queue (getTask),

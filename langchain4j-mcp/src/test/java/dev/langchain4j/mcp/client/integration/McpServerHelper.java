@@ -91,8 +91,12 @@ public class McpServerHelper {
 
     static void destroyProcessTree(Process process) {
         if (isWindows()) {
-            ProcessHandle handle = process.toHandle();
-            handle.descendants().forEach(ProcessHandle::destroyForcibly);
+            long pid = dev.langchain4j.internal.compat.Java8Platform.pidForLogging(process);
+            if (pid > 0) {
+                try { new ProcessBuilder("taskkill", "/PID", Long.toString(pid), "/T", "/F").start().waitFor(); }
+                catch (IOException e) { log.warn("Could not terminate the Windows process tree", e); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            }
             process.destroyForcibly();
         } else {
             process.destroyForcibly();

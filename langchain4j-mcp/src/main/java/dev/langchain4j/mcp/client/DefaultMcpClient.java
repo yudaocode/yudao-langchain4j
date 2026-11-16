@@ -1434,7 +1434,7 @@ public class DefaultMcpClient implements McpClient {
             } else {
                 // we need to fetch a new value from the server
                 CompletableFuture<T> newUpdate = new CompletableFuture<>();
-                CompletableFuture<T> updateInProgress = updateInProgressReference.compareAndExchange(null, newUpdate);
+                CompletableFuture<T> updateInProgress = dev.langchain4j.internal.compat.Java8Platform.compareAndExchange(updateInProgressReference, null, newUpdate);
                 if (updateInProgress == null) {
                     // if no update is in progress, start one and retrieve a fresh value
                     try {

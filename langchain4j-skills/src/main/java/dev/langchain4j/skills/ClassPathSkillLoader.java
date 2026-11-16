@@ -126,6 +126,12 @@ public class ClassPathSkillLoader {
 
         try {
             Path realSkillDirectory = skillDirectory.path.toRealPath();
+            // Java 8 ZipPath.relativize treats a trailing separator as an extra parent segment.
+            // Strip it before resolving resources, preserving the archive root itself.
+            if (skillDirectory.jarFileSystem != null && realSkillDirectory.toString().length() > 1) {
+                realSkillDirectory = skillDirectory.jarFileSystem.getPath(
+                        realSkillDirectory.toString().replaceAll("/+$", ""));
+            }
             String markdown = SkillLoaderCommon.readSkillMarkdown(realSkillDirectory);
 
             Map<String, List<String>> frontMatter = SkillLoaderCommon.parseFrontMatter(markdown);

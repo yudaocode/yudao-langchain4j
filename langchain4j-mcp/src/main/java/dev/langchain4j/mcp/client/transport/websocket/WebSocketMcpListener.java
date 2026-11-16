@@ -5,7 +5,7 @@ import static dev.langchain4j.internal.ValidationUtils.ensureGreaterThanZero;
 import dev.langchain4j.mcp.client.transport.McpOperationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.net.http.WebSocket;
+import dev.langchain4j.mcp.client.transport.websocket.compat.WebSocket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;

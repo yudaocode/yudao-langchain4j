@@ -1,23 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>dev.langchain4j</groupId>
+        <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
-
     <artifactId>langchain4j-test</artifactId>
     <name>LangChain4j :: Test</name>
     <description>Testing utility classes and interfaces of LangChain4j</description>
-
     <!-- The package dev/langchain4j/test/mock is also compiled into the tests of langchain4j-core and langchain4j, and
          dev/langchain4j/test/guardrail into the tests of langchain4j-core (see their poms). The mocks are left out of
          their test-jars and test-sources jars, so they are published only here. After changing these packages, build
          with -pl langchain4j-test -am -amd -->
-
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -25,84 +21,71 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <properties>
         <!-- Tell the compiler to stop warning us about Java8 -->
         <Xlint>-options</Xlint>
         <!-- TODO: remove enforcer.skipRules -->
         <enforcer.skipRules>requireUpperBoundDeps</enforcer.skipRules>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>io.smallrye.reactive</groupId>
-            <artifactId>mutiny-zero</artifactId>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-mutiny-zero-compat</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <!-- test dependencies -->
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <!-- only for the judge tests with a real model (RealModelJudgeIT), which run when OPENAI_API_KEY is set -->
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams</artifactId>
             <version>${reactive-streams-tck.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams-tck</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- Runs the TestNG-based Reactive Streams TCK (PublisherVerification) under the JUnit Platform -->
         <dependency>
             <groupId>org.junit.support</groupId>
             <artifactId>testng-engine</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -119,7 +102,7 @@
                         <configuration>
                             <classpathDependencyExcludes>
                                 <!-- langchain4j and its own compile dependencies that this module does not have, as for a user without it: keep in sync with langchain4j/pom.xml -->
-                                <classpathDependencyExclude>dev.langchain4j:langchain4j</classpathDependencyExclude>
+                                <classpathDependencyExclude>cn.iocoder.langchain4j:langchain4j</classpathDependencyExclude>
                                 <classpathDependencyExclude>org.apache.opennlp:opennlp-tools</classpathDependencyExclude>
                             </classpathDependencyExcludes>
                             <test>dev/langchain4j/test/OptionalLangChain4jTest.java,dev/langchain4j/test/guardrail/**/*Test.java,dev/langchain4j/test/judge/**/*Test.java,dev/langchain4j/test/internal/**/*Test.java,dev/langchain4j/test/model/ChatRequestAssertTest.java,dev/langchain4j/test/mock/**/*Test.java</test>
@@ -130,7 +113,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -142,7 +124,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -159,7 +140,6 @@
             </plugin>
         </plugins>
     </build>
-
     <reporting>
         <plugins>
             <plugin>
@@ -176,5 +156,4 @@
             </plugin>
         </plugins>
     </reporting>
-
 </project>

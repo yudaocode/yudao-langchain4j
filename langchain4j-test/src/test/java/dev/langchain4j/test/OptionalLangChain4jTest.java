@@ -41,7 +41,7 @@ class OptionalLangChain4jTest {
 
     @Test
     void recording_listeners_should_load_and_ignore_events_when_nothing_is_recorded() {
-        assertThat(ServiceLoader.load(ObservabilityListenersProvider.class).stream().map(ServiceLoader.Provider::get))
+        assertThat(dev.langchain4j.internal.compat.Java8ServiceLoader.load(ObservabilityListenersProvider.class).map(dev.langchain4j.internal.compat.Java8ServiceLoader.Provider::get))
                 .hasAtLeastOneElementOfType(CaptureListenersProvider.class);
 
         AiServiceListenerRegistrar registrar = AiServiceListenerRegistrar.newInstance();

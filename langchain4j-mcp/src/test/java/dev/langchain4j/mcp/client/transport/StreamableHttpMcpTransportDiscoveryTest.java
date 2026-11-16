@@ -153,7 +153,7 @@ class StreamableHttpMcpTransportDiscoveryTest {
         CompletableFuture<Void> headersSent = new CompletableFuture<>();
         String result = "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[]}}";
         server.createContext("/mcp", exchange -> {
-            try (exchange) {
+            try {
                 exchange.getRequestBody().readAllBytes();
                 exchange.getResponseHeaders().set("Content-Type", "text/event-stream");
                 exchange.sendResponseHeaders(200, 0);
@@ -165,6 +165,8 @@ class StreamableHttpMcpTransportDiscoveryTest {
                 }
             } catch (Exception e) {
                 headersSent.completeExceptionally(e);
+            } finally {
+                exchange.close();
             }
         });
         server.start();
@@ -196,7 +198,7 @@ class StreamableHttpMcpTransportDiscoveryTest {
             }
         }
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
-        try (var loader = new URLClassLoader(urls.toArray(URL[]::new), ClassLoader.getPlatformClassLoader())) {
+        try (var loader = new URLClassLoader(urls.toArray(URL[]::new), ClassLoader.getSystemClassLoader().getParent())) {
             Thread.currentThread().setContextClassLoader(loader);
             assertThatThrownBy(() -> loader.loadClass(JdkHttpClientBuilder.class.getName()))
                     .isInstanceOf(ClassNotFoundException.class);

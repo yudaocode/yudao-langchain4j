@@ -86,7 +86,7 @@ class StdioMcpTransportTest {
     private static StdioMcpTransport.Builder workingDirectoryProcessBuilder(ExecutorService executorService)
             throws URISyntaxException {
         String javaExecutable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
-        Path java = Path.of(System.getProperty("java.home"), "bin", javaExecutable);
+        Path javaPath = Path.of(System.getProperty("java.home"), "bin", javaExecutable);
         Path testClasses = Path.of(WorkingDirectoryProcess.class
                 .getProtectionDomain()
                 .getCodeSource()
@@ -94,17 +94,10 @@ class StdioMcpTransportTest {
                 .toURI());
         return new StdioMcpTransport.Builder()
                 .command(List.of(
-                        java.toString(), "-cp", testClasses.toString(), WorkingDirectoryProcess.class.getName()))
+                        javaPath.toString(), "-cp", testClasses.toString(), WorkingDirectoryProcess.class.getName()))
                 .executorService(executorService);
     }
 
-    public static class WorkingDirectoryProcess {
-        public static void main(String[] args) throws IOException {
-            System.out.println(Path.of("").toRealPath().toUri());
-            // Keep the process alive until the transport closes its input or destroys it.
-            System.in.read();
-        }
-    }
 
     /**
      * When {@link StdioMcpTransport#start} is called again (as happens during reconnection triggered

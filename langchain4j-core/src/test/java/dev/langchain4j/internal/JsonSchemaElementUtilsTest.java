@@ -407,11 +407,7 @@ class JsonSchemaElementUtilsTest {
     void should_create_schema_for_enum() {
 
         // given
-        enum MyEnum {
-            A,
-            B,
-            C;
-        }
+
 
         // when
         JsonSchemaElement schema = jsonSchemaElementFrom(MyEnum.class);
@@ -425,16 +421,7 @@ class JsonSchemaElementUtilsTest {
     void should_create_schema_for_enum_with_custom_toString() {
 
         // given
-        enum MyEnumWithToString {
-            A,
-            B,
-            C;
 
-            @Override
-            public String toString() {
-                return "[" + name() + "]";
-            }
-        }
 
         assertThat(MyEnumWithToString.A.toString()).isEqualTo("[A]");
 
@@ -587,4 +574,21 @@ class JsonSchemaElementUtilsTest {
 
         assertThat(map).containsEntry("foo", "bar");
     }
+
+    enum MyEnum {
+            A,
+            B,
+            C;
+        }
+
+    enum MyEnumWithToString {
+            A,
+            B,
+            C;
+
+            @Override
+            public String toString() {
+                return "[" + name() + "]";
+            }
+        }
 }

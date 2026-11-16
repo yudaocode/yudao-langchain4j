@@ -97,8 +97,8 @@ public interface ContentRetriever {
         if (this instanceof ListeningContentRetriever listeningContentRetriever) {
             return listeningContentRetriever.withAdditionalListeners(listeners);
         }
-        if (listeners instanceof List<ContentRetrieverListener> listenersList) {
-            return new ListeningContentRetriever(this, listenersList);
+        if (listeners instanceof List<?>) {
+            return new ListeningContentRetriever(this, (List<ContentRetrieverListener>) listeners);
         } else {
             return new ListeningContentRetriever(this, new ArrayList<>(listeners));
         }

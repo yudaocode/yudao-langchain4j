@@ -92,7 +92,7 @@ public interface ScoringModel {
      */
     @Experimental
     default ScoringResponse score(ScoringRequest request) {
-        ScoringRequest finalRequest = withDefaultParameters(request);
+        ScoringRequest finalRequest = ScoringModelJava8Support.withDefaultParameters(this, request);
         List<ScoringModelListener> listeners = ObservabilityListeners.scoring(listeners());
         ModelProvider provider = provider();
         Map<Object, Object> attributes = new ConcurrentHashMap<>();
@@ -169,7 +169,7 @@ public interface ScoringModel {
         Map<Object, Object> attributes;
         UUID invocationId = CurrentInvocation.invocationId();
         try {
-            finalRequest = withDefaultParameters(request);
+            finalRequest = ScoringModelJava8Support.withDefaultParameters(this, request);
             listeners = ObservabilityListeners.scoring(listeners());
             provider = provider();
             attributes = new ConcurrentHashMap<>();
@@ -256,11 +256,22 @@ public interface ScoringModel {
         return OTHER;
     }
 
-    private ScoringRequest withDefaultParameters(ScoringRequest request) {
+
+}
+
+/**
+ * Java 8 replacement for private interface implementation methods.
+ *
+ * @author 芋道源码
+ */
+final class ScoringModelJava8Support {
+    private ScoringModelJava8Support() {}
+
+    static ScoringRequest withDefaultParameters(ScoringModel self, ScoringRequest request) {
         return ScoringRequest.builder()
                 .documents(request.documents())
                 .query(request.query())
-                .parameters(defaultRequestParameters().overrideWith(request.parameters()))
+                .parameters(self.defaultRequestParameters().overrideWith(request.parameters()))
                 .build();
     }
 }

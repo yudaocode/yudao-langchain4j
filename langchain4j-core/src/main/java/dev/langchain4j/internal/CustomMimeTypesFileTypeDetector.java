@@ -39,6 +39,11 @@ public class CustomMimeTypesFileTypeDetector extends FileTypeDetector {
 
     static {
         defaultMappings.put("pdf", "application/pdf");
+        defaultMappings.put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        defaultMappings.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+        defaultMappings.put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        defaultMappings.put("zip", "application/zip");
+        defaultMappings.put("rar", "application/vnd.rar");
         defaultMappings.put("yml", "text/yaml");
         defaultMappings.put("yaml", "text/yaml");
         defaultMappings.put("json", "application/json");
@@ -131,6 +136,10 @@ public class CustomMimeTypesFileTypeDetector extends FileTypeDetector {
             return mappings.get(extension);
         }
 
+        // Java 8's platform detector does not recognize several common extensions.
+        if (defaultMappings.containsKey(extension)) {
+            return defaultMappings.get(extension);
+        }
         try {
             return Files.probeContentType(path);
         } catch (IOException e) {
@@ -196,6 +205,6 @@ public class CustomMimeTypesFileTypeDetector extends FileTypeDetector {
         }
         String fileName = fileNamePath.toString();
         int lastDotPosition = fileName.lastIndexOf('.');
-        return lastDotPosition > 0 ? fileName.substring(lastDotPosition + 1) : "";
+        return lastDotPosition >= 0 ? fileName.substring(lastDotPosition + 1) : "";
     }
 }

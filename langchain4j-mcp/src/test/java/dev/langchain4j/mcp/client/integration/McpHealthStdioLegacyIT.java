@@ -52,7 +52,7 @@ class McpHealthStdioLegacyIT {
     void health() throws ExecutionException, InterruptedException {
         mcpClient.checkHealth();
         destroyProcessTree(process);
-        process.onExit().get();
+        dev.langchain4j.internal.compat.Java8Platform.onExit(process).get();
         assertThatThrownBy(() -> mcpClient.checkHealth())
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Process is not alive");

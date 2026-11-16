@@ -496,7 +496,7 @@ class AiServiceCaptureTest {
 
             assertThat(capture.output(Booking.class)).isEqualTo(new Booking("MS-777"));
             assertThat(capture.output(String.class)).isEqualTo("Hello!");
-            assertThat(capture.output(Record.class)).isEqualTo(new Booking("MS-777")); // a subtype matches too
+            assertThat(capture.output(dev.langchain4j.internal.compat.Java8RecordBase.class)).isEqualTo(new Booking("MS-777")); // a subtype matches too
             assertThatThrownBy(capture::output)
                     .isInstanceOf(AssertionError.class)
                     .hasMessageContaining("Expected a single top-level AI Service invocation, but 2 were captured")

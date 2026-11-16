@@ -1,107 +1,91 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>dev.langchain4j</groupId>
+        <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
-
     <artifactId>langchain4j-ollama</artifactId>
-    <version>1.24.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>LangChain4j :: Integration :: Ollama</name>
-
     <properties>
         <skipOllamaITs>${skipITs}</skipOllamaITs>
     </properties>
-
     <dependencies>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client-jdk</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- test dependencies -->
-
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>ollama</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
@@ -113,9 +97,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -138,7 +120,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <!--
             Runs this module's existing tests with langchain4j-core-jackson3 on the test classpath,
@@ -150,13 +131,12 @@
             <id>jackson3</id>
             <dependencies>
                 <dependency>
-                    <groupId>dev.langchain4j</groupId>
+                    <groupId>cn.iocoder.langchain4j</groupId>
                     <artifactId>langchain4j-core-jackson3</artifactId>
-                    <version>${langchain4j.beta.version}</version>
+                    <version>2.0.0-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
         </profile>
     </profiles>
-
 </project>

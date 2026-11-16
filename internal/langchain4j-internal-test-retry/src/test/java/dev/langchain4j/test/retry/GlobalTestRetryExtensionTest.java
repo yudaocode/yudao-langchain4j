@@ -42,7 +42,7 @@ class GlobalTestRetryExtensionTest extends AbstractRetryTestBase {
         }
 
         assertEquals(
-                List.of(
+                java.util.Arrays.asList(
                         "baseBeforeEach", "beforeEach", "test", // first attempt
                         "afterEach", "baseAfterEach", "baseBeforeEach", "beforeEach", // state reset
                         "test"), // second attempt
@@ -54,6 +54,6 @@ class GlobalTestRetryExtensionTest extends AbstractRetryTestBase {
 
         events.add("test");
 
-        assertEquals(List.of("baseBeforeEach", "beforeEach", "test"), events);
+        assertEquals(java.util.Arrays.asList("baseBeforeEach", "beforeEach", "test"), events);
     }
 }

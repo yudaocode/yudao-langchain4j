@@ -68,7 +68,7 @@ class StreamableHttpMcpTransportTest {
     }
 
     @Test
-    void shouldUseHttp2ByDefault() throws Exception {
+    void shouldPreserveHttp2PreferenceByDefault() throws Exception {
         StreamableHttpMcpTransport transport =
                 StreamableHttpMcpTransport.builder().url("http://localhost/mcp").build();
 

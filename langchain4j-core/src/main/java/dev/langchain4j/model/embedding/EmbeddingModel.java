@@ -58,7 +58,7 @@ public interface EmbeddingModel {
     @Experimental
     default EmbeddingResponse embed(EmbeddingRequest request) {
 
-        EmbeddingRequest finalRequest = validatedRequest(request);
+        EmbeddingRequest finalRequest = EmbeddingModelJava8Support.validatedRequest(this, request);
 
         List<EmbeddingModelListener> listeners = ObservabilityListeners.embedding(listeners());
         if (isNullOrEmpty(listeners)) {
@@ -135,14 +135,14 @@ public interface EmbeddingModel {
         EmbeddingRequest finalRequest;
         List<EmbeddingModelListener> listeners;
         try {
-            finalRequest = validatedRequest(request);
+            finalRequest = EmbeddingModelJava8Support.validatedRequest(this, request);
             listeners = ObservabilityListeners.embedding(listeners());
         } catch (Exception error) {
             return CompletableFuture.failedFuture(error);
         }
 
         if (isNullOrEmpty(listeners)) {
-            return invokeDoEmbedAsync(finalRequest);
+            return EmbeddingModelJava8Support.invokeDoEmbedAsync(this, finalRequest);
         }
 
         List<TextSegment> textSegments;
@@ -166,7 +166,7 @@ public interface EmbeddingModel {
                         .build(),
                 listeners);
 
-        CompletableFuture<EmbeddingResponse> inFlight = invokeDoEmbedAsync(finalRequest);
+        CompletableFuture<EmbeddingResponse> inFlight = EmbeddingModelJava8Support.invokeDoEmbedAsync(this, finalRequest);
         CompletableFuture<EmbeddingResponse> result = inFlight.whenComplete((response, error) -> {
             if (error != null) {
                 Throwable cause = unwrapCompletionException(error);
@@ -205,49 +205,9 @@ public interface EmbeddingModel {
         return result;
     }
 
-    private CompletableFuture<EmbeddingResponse> invokeDoEmbedAsync(EmbeddingRequest finalRequest) {
-        // A provider's doEmbedAsync should return a failed future on error, but guard a synchronous throw so the
-        // async contract holds regardless.
-        try {
-            return doEmbedAsync(finalRequest);
-        } catch (Exception error) {
-            return CompletableFuture.failedFuture(error);
-        }
-    }
 
-    private EmbeddingRequest validatedRequest(EmbeddingRequest request) {
 
-        EmbeddingRequestParameters finalParameters =
-                defaultRequestParameters().overrideWith(request.parameters());
 
-        Set<EmbeddingParameter<?>> unsupported = new LinkedHashSet<>(finalParameters.presentParameters());
-        unsupported.removeAll(supportedParameters());
-        if (!unsupported.isEmpty()) {
-            String names = unsupported.stream().map(EmbeddingParameter::name).collect(Collectors.joining(", "));
-            throw new UnsupportedFeatureException("EmbeddingModel '" + getClass().getName()
-                    + "' does not support the following per-call parameter(s): " + names
-                    + ". Only the following are supported: "
-                    + supportedParameters().stream()
-                            .map(EmbeddingParameter::name)
-                            .collect(Collectors.joining(", ")));
-        }
-
-        Set<ContentType> unsupportedContentTypes = new LinkedHashSet<>();
-        for (EmbeddingInput input : request.inputs()) {
-            unsupportedContentTypes.addAll(input.contentTypes());
-        }
-        unsupportedContentTypes.removeAll(supportedContentTypes());
-        if (!unsupportedContentTypes.isEmpty()) {
-            throw new UnsupportedFeatureException("EmbeddingModel '" + getClass().getName()
-                    + "' does not support the following content type(s): " + unsupportedContentTypes
-                    + ". Only the following are supported: " + supportedContentTypes());
-        }
-
-        return EmbeddingRequest.builder()
-                .inputs(request.inputs())
-                .parameters(finalParameters)
-                .build();
-    }
 
     /**
      * The {@link EmbeddingModelListener}s that are notified around {@link #embed(EmbeddingRequest)}.
@@ -471,5 +431,58 @@ public interface EmbeddingModel {
             return listeningEmbeddingModel.withAdditionalListeners(listeners);
         }
         return new ListeningEmbeddingModel(this, listeners);
+    }
+}
+
+/**
+ * Java 8 replacement for private interface implementation methods.
+ *
+ * @author 芋道源码
+ */
+final class EmbeddingModelJava8Support {
+    private EmbeddingModelJava8Support() {}
+
+    static CompletableFuture<EmbeddingResponse> invokeDoEmbedAsync(EmbeddingModel self, EmbeddingRequest finalRequest) {
+        // A provider's doEmbedAsync should return a failed future on error, but guard a synchronous throw so the
+        // async contract holds regardless.
+        try {
+            return self.doEmbedAsync(finalRequest);
+        } catch (Exception error) {
+            return CompletableFuture.failedFuture(error);
+        }
+    }
+
+    static EmbeddingRequest validatedRequest(EmbeddingModel self, EmbeddingRequest request) {
+
+        EmbeddingRequestParameters finalParameters =
+                self.defaultRequestParameters().overrideWith(request.parameters());
+
+        Set<EmbeddingParameter<?>> unsupported = new LinkedHashSet<>(finalParameters.presentParameters());
+        unsupported.removeAll(self.supportedParameters());
+        if (!unsupported.isEmpty()) {
+            String names = unsupported.stream().map(EmbeddingParameter::name).collect(Collectors.joining(", "));
+            throw new UnsupportedFeatureException("EmbeddingModel '" + self.getClass().getName()
+                    + "' does not support the following per-call parameter(s): " + names
+                    + ". Only the following are supported: "
+                    + self.supportedParameters().stream()
+                            .map(EmbeddingParameter::name)
+                            .collect(Collectors.joining(", ")));
+        }
+
+        Set<ContentType> unsupportedContentTypes = new LinkedHashSet<>();
+        for (EmbeddingInput input : request.inputs()) {
+            unsupportedContentTypes.addAll(input.contentTypes());
+        }
+        unsupportedContentTypes.removeAll(self.supportedContentTypes());
+        if (!unsupportedContentTypes.isEmpty()) {
+            throw new UnsupportedFeatureException("EmbeddingModel '" + self.getClass().getName()
+                    + "' does not support the following content type(s): " + unsupportedContentTypes
+                    + ". Only the following are supported: " + self.supportedContentTypes());
+        }
+
+        return EmbeddingRequest.builder()
+                .inputs(request.inputs())
+                .parameters(finalParameters)
+                .build();
     }
 }

@@ -2,7 +2,7 @@ package dev.langchain4j.classloading;
 
 import dev.langchain4j.spi.classloading.ClassMetadataProviderFactory;
 import java.util.ServiceLoader;
-import java.util.ServiceLoader.Provider;
+import dev.langchain4j.internal.compat.Java8ServiceLoader.Provider;
 
 /**
  * Utility class for returning metadata about a class and its methods. Intended to allow downstream frameworks (like Quarkus
@@ -25,7 +25,7 @@ public final class ClassMetadataProvider {
      *         to the default implementation.
      */
     public static <MethodKey> ClassMetadataProviderFactory<MethodKey> getClassMetadataProviderFactory() {
-        return ServiceLoader.load(ClassMetadataProviderFactory.class).stream()
+        return dev.langchain4j.internal.compat.Java8ServiceLoader.load(ClassMetadataProviderFactory.class)
                 .filter(provider ->
                         !DEFAULT_CLASS_METADATA_PROVIDER_FACTORY.getClass().equals(provider.type()))
                 .map(Provider::get)

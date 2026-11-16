@@ -330,7 +330,7 @@ public class ApacheHttpClient implements HttpClient {
             } else if (errorBody != null) {
                 byte[] chunk = new byte[src.remaining()];
                 src.get(chunk);
-                errorBody.writeBytes(chunk);
+                errorBody.write(chunk, 0, chunk.length);
             }
         }
 

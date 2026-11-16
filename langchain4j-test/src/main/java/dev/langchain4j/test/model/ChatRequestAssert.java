@@ -129,6 +129,6 @@ public final class ChatRequestAssert extends AbstractObjectAssert<ChatRequestAss
 
     private String describeMessages() {
         List<ChatMessage> messages = actual.messages();
-        return ChatMessageTexts.describe(messages, MAX_MESSAGE_LENGTH).indent(2).stripTrailing();
+        return dev.langchain4j.internal.compat.Java8Platform.indent(ChatMessageTexts.describe(messages, MAX_MESSAGE_LENGTH), 2).stripTrailing();
     }
 }

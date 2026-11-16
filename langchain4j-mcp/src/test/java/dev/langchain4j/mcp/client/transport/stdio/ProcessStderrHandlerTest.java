@@ -26,7 +26,6 @@ class ProcessStderrHandlerTest {
             Process process = mock(Process.class);
             when(process.getErrorStream())
                     .thenReturn(new ByteArrayInputStream(("server log" + System.lineSeparator()).getBytes()));
-            when(process.pid()).thenReturn(123L);
 
             new ProcessStderrHandler(process).run();
 
@@ -47,7 +46,6 @@ class ProcessStderrHandlerTest {
             when(process.getErrorStream())
                     .thenReturn(new ByteArrayInputStream(
                             ("caf\u00e9 \ud55c\uae00 \ud83d\ude80" + System.lineSeparator()).getBytes(UTF_8)));
-            when(process.pid()).thenReturn(123L);
 
             new ProcessStderrHandler(process).run();
 

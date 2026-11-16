@@ -1,0 +1,371 @@
+package dev.langchain4j.openai.spring;
+
+import dev.langchain4j.http.client.HttpClientBuilder;
+import dev.langchain4j.http.client.apache.ApacheHttpClient;
+import dev.langchain4j.model.chat.listener.ChatModelListener;
+import dev.langchain4j.model.decision.listener.DecisionModelListener;
+import dev.langchain4j.model.openai.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+
+import java.util.Collection;
+
+import static dev.langchain4j.openai.spring.Properties.PREFIX;
+
+@AutoConfiguration
+@EnableConfigurationProperties(Properties.class)
+public class AutoConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(AutoConfig.class);
+
+
+    private static final String CHAT_MODEL_HTTP_CLIENT_BUILDER = "openAiChatModelHttpClientBuilder";
+
+    private static final String STREAMING_CHAT_MODEL_HTTP_CLIENT_BUILDER = "openAiStreamingChatModelHttpClientBuilder";
+
+    private static final String LANGUAGE_MODEL_HTTP_CLIENT_BUILDER = "openAiLanguageModelHttpClientBuilder";
+
+    private static final String STREAMING_LANGUAGE_MODEL_HTTP_CLIENT_BUILDER = "openAiStreamingLanguageModelHttpClientBuilder";
+
+    private static final String EMBEDDING_MODEL_HTTP_CLIENT_BUILDER = "openAiEmbeddingModelHttpClientBuilder";
+
+    private static final String MODERATION_MODEL_HTTP_CLIENT_BUILDER = "openAiModerationModelHttpClientBuilder";
+
+    private static final String IMAGE_MODEL_HTTP_CLIENT_BUILDER = "openAiImageModelHttpClientBuilder";
+
+    private static final String DECISION_MODEL_HTTP_CLIENT_BUILDER = "openAiDecisionModelHttpClientBuilder";
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".chat-model.api-key")
+    OpenAiChatModel openAiChatModel(
+            @Qualifier(CHAT_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties,
+            ObjectProvider<ChatModelListener> listeners
+    ) {
+        ChatModelProperties chatModelProperties = properties.chatModel();
+        return OpenAiChatModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(chatModelProperties.baseUrl())
+                .apiKey(chatModelProperties.apiKey())
+                .organizationId(chatModelProperties.organizationId())
+                .projectId(chatModelProperties.projectId())
+                .modelName(chatModelProperties.modelName())
+                .temperature(chatModelProperties.temperature())
+                .topP(chatModelProperties.topP())
+                .stop(chatModelProperties.stop())
+                .maxTokens(chatModelProperties.maxTokens())
+                .maxCompletionTokens(chatModelProperties.maxCompletionTokens())
+                .presencePenalty(chatModelProperties.presencePenalty())
+                .frequencyPenalty(chatModelProperties.frequencyPenalty())
+                .logitBias(chatModelProperties.logitBias())
+                .responseFormat(chatModelProperties.responseFormat())
+                .supportedCapabilities(chatModelProperties.supportedCapabilities())
+                .strictJsonSchema(chatModelProperties.strictJsonSchema())
+                .seed(chatModelProperties.seed())
+                .user(chatModelProperties.user())
+                .strictTools(chatModelProperties.strictTools())
+                .parallelToolCalls(chatModelProperties.parallelToolCalls())
+                .store(chatModelProperties.store())
+                .metadata(chatModelProperties.metadata())
+                .serviceTier(chatModelProperties.serviceTier())
+                .defaultRequestParameters(OpenAiChatRequestParameters.builder()
+                        .reasoningEffort(chatModelProperties.reasoningEffort())
+                        .customParameters(chatModelProperties.customParameters())
+                        .build())
+                .returnThinking(chatModelProperties.returnThinking())
+                .timeout(chatModelProperties.timeout())
+                .maxRetries(chatModelProperties.maxRetries())
+                .logRequests(chatModelProperties.logRequests())
+                .logResponses(chatModelProperties.logResponses())
+                .customHeaders(chatModelProperties.customHeaders())
+                .customQueryParams(chatModelProperties.customQueryParams())
+                .listeners(listeners.orderedStream().toList())
+                .build();
+    }
+
+    @Bean(CHAT_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".chat-model.api-key")
+    @ConditionalOnMissingBean(name = CHAT_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiChatModelHttpClientBuilder(ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".streaming-chat-model.api-key")
+    OpenAiStreamingChatModel openAiStreamingChatModel(
+            @Qualifier(STREAMING_CHAT_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties,
+            ObjectProvider<ChatModelListener> listeners
+    ) {
+        ChatModelProperties chatModelProperties = properties.streamingChatModel();
+        warnIfSet(chatModelProperties.supportedCapabilities(), "streaming-chat-model",
+                "supported-capabilities", "OpenAiStreamingChatModel does not support it");
+        warnIfSet(chatModelProperties.maxRetries(), "streaming-chat-model", "max-retries",
+                "a response that has already started streaming cannot be retried");
+        return OpenAiStreamingChatModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(chatModelProperties.baseUrl())
+                .apiKey(chatModelProperties.apiKey())
+                .organizationId(chatModelProperties.organizationId())
+                .projectId(chatModelProperties.projectId())
+                .modelName(chatModelProperties.modelName())
+                .temperature(chatModelProperties.temperature())
+                .topP(chatModelProperties.topP())
+                .stop(chatModelProperties.stop())
+                .maxTokens(chatModelProperties.maxTokens())
+                .maxCompletionTokens(chatModelProperties.maxCompletionTokens())
+                .presencePenalty(chatModelProperties.presencePenalty())
+                .frequencyPenalty(chatModelProperties.frequencyPenalty())
+                .logitBias(chatModelProperties.logitBias())
+                .responseFormat(chatModelProperties.responseFormat())
+                .seed(chatModelProperties.seed())
+                .user(chatModelProperties.user())
+                .strictTools(chatModelProperties.strictTools())
+                .strictJsonSchema(chatModelProperties.strictJsonSchema())
+                .parallelToolCalls(chatModelProperties.parallelToolCalls())
+                .store(chatModelProperties.store())
+                .metadata(chatModelProperties.metadata())
+                .serviceTier(chatModelProperties.serviceTier())
+                .defaultRequestParameters(OpenAiChatRequestParameters.builder()
+                        .reasoningEffort(chatModelProperties.reasoningEffort())
+                        .customParameters(chatModelProperties.customParameters())
+                        .build())
+                .returnThinking(chatModelProperties.returnThinking())
+                .timeout(chatModelProperties.timeout())
+                .logRequests(chatModelProperties.logRequests())
+                .logResponses(chatModelProperties.logResponses())
+                .customHeaders(chatModelProperties.customHeaders())
+                .customQueryParams(chatModelProperties.customQueryParams())
+                .listeners(listeners.orderedStream().toList())
+                .build();
+    }
+
+    @Bean(STREAMING_CHAT_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".streaming-chat-model.api-key")
+    @ConditionalOnMissingBean(name = STREAMING_CHAT_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiStreamingChatModelHttpClientBuilder(
+            ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".language-model.api-key")
+    OpenAiLanguageModel openAiLanguageModel(
+            @Qualifier(LANGUAGE_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties
+    ) {
+        LanguageModelProperties languageModelProperties = properties.languageModel();
+        return OpenAiLanguageModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(languageModelProperties.baseUrl())
+                .apiKey(languageModelProperties.apiKey())
+                .organizationId(languageModelProperties.organizationId())
+                .projectId(languageModelProperties.projectId())
+                .modelName(languageModelProperties.modelName())
+                .temperature(languageModelProperties.temperature())
+                .timeout(languageModelProperties.timeout())
+                .maxRetries(languageModelProperties.maxRetries())
+                .logRequests(languageModelProperties.logRequests())
+                .logResponses(languageModelProperties.logResponses())
+                .customHeaders(languageModelProperties.customHeaders())
+                .customQueryParams(languageModelProperties.customQueryParams())
+                .build();
+    }
+
+    @Bean(LANGUAGE_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".language-model.api-key")
+    @ConditionalOnMissingBean(name = LANGUAGE_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiLanguageModelHttpClientBuilder(ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".streaming-language-model.api-key")
+    OpenAiStreamingLanguageModel openAiStreamingLanguageModel(
+            @Qualifier(STREAMING_LANGUAGE_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties
+    ) {
+        LanguageModelProperties languageModelProperties = properties.streamingLanguageModel();
+        warnIfSet(languageModelProperties.maxRetries(), "streaming-language-model", "max-retries",
+                "a response that has already started streaming cannot be retried");
+        return OpenAiStreamingLanguageModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(languageModelProperties.baseUrl())
+                .apiKey(languageModelProperties.apiKey())
+                .organizationId(languageModelProperties.organizationId())
+                .projectId(languageModelProperties.projectId())
+                .modelName(languageModelProperties.modelName())
+                .temperature(languageModelProperties.temperature())
+                .timeout(languageModelProperties.timeout())
+                .logRequests(languageModelProperties.logRequests())
+                .logResponses(languageModelProperties.logResponses())
+                .customHeaders(languageModelProperties.customHeaders())
+                .customQueryParams(languageModelProperties.customQueryParams())
+                .build();
+    }
+
+    @Bean(STREAMING_LANGUAGE_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".streaming-language-model.api-key")
+    @ConditionalOnMissingBean(name = STREAMING_LANGUAGE_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiStreamingLanguageModelHttpClientBuilder(
+            ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".embedding-model.api-key")
+    OpenAiEmbeddingModel openAiEmbeddingModel(
+            @Qualifier(EMBEDDING_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties
+    ) {
+        EmbeddingModelProperties embeddingModelProperties = properties.embeddingModel();
+        return OpenAiEmbeddingModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(embeddingModelProperties.baseUrl())
+                .apiKey(embeddingModelProperties.apiKey())
+                .organizationId(embeddingModelProperties.organizationId())
+                .projectId(embeddingModelProperties.projectId())
+                .modelName(embeddingModelProperties.modelName())
+                .dimensions(embeddingModelProperties.dimensions())
+                .maxSegmentsPerBatch(embeddingModelProperties.maxSegmentsPerBatch())
+                .user(embeddingModelProperties.user())
+                .timeout(embeddingModelProperties.timeout())
+                .maxRetries(embeddingModelProperties.maxRetries())
+                .logRequests(embeddingModelProperties.logRequests())
+                .logResponses(embeddingModelProperties.logResponses())
+                .customHeaders(embeddingModelProperties.customHeaders())
+                .customQueryParams(embeddingModelProperties.customQueryParams())
+                .build();
+    }
+
+    @Bean(EMBEDDING_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".embedding-model.api-key")
+    @ConditionalOnMissingBean(name = EMBEDDING_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiEmbeddingModelHttpClientBuilder(ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".moderation-model.api-key")
+    OpenAiModerationModel openAiModerationModel(
+            @Qualifier(MODERATION_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties
+    ) {
+        ModerationModelProperties moderationModelProperties = properties.moderationModel();
+        return OpenAiModerationModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(moderationModelProperties.baseUrl())
+                .apiKey(moderationModelProperties.apiKey())
+                .organizationId(moderationModelProperties.organizationId())
+                .projectId(moderationModelProperties.projectId())
+                .modelName(moderationModelProperties.modelName())
+                .timeout(moderationModelProperties.timeout())
+                .maxRetries(moderationModelProperties.maxRetries())
+                .logRequests(moderationModelProperties.logRequests())
+                .logResponses(moderationModelProperties.logResponses())
+                .customHeaders(moderationModelProperties.customHeaders())
+                .customQueryParams(moderationModelProperties.customQueryParams())
+                .build();
+    }
+
+    @Bean(MODERATION_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".moderation-model.api-key")
+    @ConditionalOnMissingBean(name = MODERATION_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiModerationModelHttpClientBuilder(ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".decision-model.api-key")
+    OpenAiDecisionModel openAiDecisionModel(
+            @Qualifier(DECISION_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties,
+            ObjectProvider<DecisionModelListener> listeners
+    ) {
+        DecisionModelProperties decisionModelProperties = properties.decisionModel();
+        return OpenAiDecisionModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(decisionModelProperties.baseUrl())
+                .apiKey(decisionModelProperties.apiKey())
+                .organizationId(decisionModelProperties.organizationId())
+                .projectId(decisionModelProperties.projectId())
+                .modelName(decisionModelProperties.modelName())
+                .timeout(decisionModelProperties.timeout())
+                .maxRetries(decisionModelProperties.maxRetries())
+                .logRequests(decisionModelProperties.logRequests())
+                .logResponses(decisionModelProperties.logResponses())
+                .customHeaders(decisionModelProperties.customHeaders())
+                .customQueryParams(decisionModelProperties.customQueryParams())
+                .listeners(listeners.orderedStream().toList())
+                .build();
+    }
+
+    @Bean(DECISION_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".decision-model.api-key")
+    @ConditionalOnMissingBean(name = DECISION_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiDecisionModelHttpClientBuilder(ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+    @Bean
+    @ConditionalOnProperty(PREFIX + ".image-model.api-key")
+    OpenAiImageModel openAiImageModel(
+            @Qualifier(IMAGE_MODEL_HTTP_CLIENT_BUILDER) HttpClientBuilder httpClientBuilder,
+            Properties properties
+    ) {
+        ImageModelProperties imageModelProperties = properties.imageModel();
+        return OpenAiImageModel.builder()
+                .httpClientBuilder(httpClientBuilder)
+                .baseUrl(imageModelProperties.baseUrl())
+                .apiKey(imageModelProperties.apiKey())
+                .organizationId(imageModelProperties.organizationId())
+                .projectId(imageModelProperties.projectId())
+                .modelName(imageModelProperties.modelName())
+                .size(imageModelProperties.size())
+                .quality(imageModelProperties.quality())
+                .user(imageModelProperties.user())
+                .background(imageModelProperties.background())
+                .outputFormat(imageModelProperties.outputFormat())
+                .outputCompression(imageModelProperties.outputCompression())
+                .moderation(imageModelProperties.moderation())
+                .timeout(imageModelProperties.timeout())
+                .maxRetries(imageModelProperties.maxRetries())
+                .logRequests(imageModelProperties.logRequests())
+                .logResponses(imageModelProperties.logResponses())
+                .customHeaders(imageModelProperties.customHeaders())
+                .customQueryParams(imageModelProperties.customQueryParams())
+                .build();
+    }
+
+    @Bean(IMAGE_MODEL_HTTP_CLIENT_BUILDER)
+    @ConditionalOnProperty(PREFIX + ".image-model.api-key")
+    @ConditionalOnMissingBean(name = IMAGE_MODEL_HTTP_CLIENT_BUILDER)
+    HttpClientBuilder openAiImageModelHttpClientBuilder(ListableBeanFactory beanFactory) {
+        return ApacheHttpClient.builder();
+    }
+
+    /**
+     * Some properties are shared between the sync and the streaming variants of a model, but the streaming model
+     * cannot honour all of them. Rather than silently ignoring such a property, say so once at startup.
+     */
+    private static void warnIfSet(Object value, String model, String property, String reason) {
+        boolean set = value instanceof Collection<?> collection ? !collection.isEmpty() : value != null;
+        if (set) {
+            log.warn("{}.{}.{} is set, but it is ignored: {}", PREFIX, model, property, reason);
+        }
+    }
+}

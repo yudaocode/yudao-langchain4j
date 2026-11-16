@@ -66,8 +66,8 @@ public class StdioMcpTransport implements McpTransport {
             synchronized (this) {
                 process = startedProcess;
             }
-            log.debug("PID of the started process: {}", startedProcess.pid());
-            startedProcess.onExit().thenRun(() -> {
+            log.debug("PID of the started process: {}", dev.langchain4j.internal.compat.Java8Platform.pidForLogging(startedProcess));
+            dev.langchain4j.internal.compat.Java8Platform.onExit(startedProcess).thenRun(() -> {
                 McpOperationHandler handlerToCancel;
                 synchronized (this) {
                     handlerToCancel = process == startedProcess ? messageHandler : null;

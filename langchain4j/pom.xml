@@ -1,101 +1,84 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>dev.langchain4j</groupId>
+        <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
-
     <artifactId>langchain4j</artifactId>
-    <version>1.24.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>LangChain4j</name>
     <description>Build LLM-powered applications in Java: chatbots, agents, RAG, and much more</description>
-
     <properties>
-        <opennlp-tools.version>2.5.12</opennlp-tools.version>
+        <opennlp-tools.version>1.9.5</opennlp-tools.version>
     </properties>
-
     <dependencies>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.opennlp</groupId>
             <artifactId>opennlp-tools</artifactId>
             <version>${opennlp-tools.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>io.smallrye.reactive</groupId>
-            <artifactId>mutiny-zero</artifactId>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-mutiny-zero-compat</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <!-- test dependencies -->
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!--  Contains references to a jar file created specifically for the ClasspathFileSystemDocumentLoaderTest tests  -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
@@ -103,34 +86,28 @@
             <version>999-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>io.projectreactor.tools</groupId>
             <artifactId>blockhound</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams-tck</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- Runs the TestNG-based Reactive Streams TCK (PublisherVerification) under the JUnit Platform -->
         <dependency>
             <groupId>org.junit.support</groupId>
             <artifactId>testng-engine</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
     <!--  Contains references to a jar file created specifically for the ClasspathFileSystemDocumentLoaderTest tests  -->
     <repositories>
         <repository>
@@ -143,10 +120,8 @@
             <url>file:///${project.basedir}/src/test/externalLib</url>
         </repository>
     </repositories>
-
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -154,10 +129,9 @@
                     <!-- AiServicesNonBlockingTest runs BlockHound, which needs this flag to
                          instrument JDK classes on JDK 13+. Keep the parent's argLine and the mockito
                          agent. Benign for tests that don't use BlockHound. -->
-                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -XX:+AllowRedefinitionToAddDeleteMethods</argLine>
+                    <argLine>@{argLine}</argLine>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -177,7 +151,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- The model mocks live in langchain4j-test, but this module cannot depend on it: langchain4j-test depends on -->
             <!-- this module. So their sources are copied into the test sources of this module, as langchain4j-core does. -->
             <!-- Maven does not see this copy as a dependency, so a change in the mocks alone does not select this module in incremental builds -->
@@ -192,7 +165,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/generated-test-sources/langchain4j-test</outputDirectory>
+                            <outputDirectory>${project.build.directory}/java8-test-input/langchain4j-test</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.basedir}/../langchain4j-test/src/main/java</directory>
@@ -223,7 +196,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -244,7 +216,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.honton.chas</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -255,7 +226,33 @@
                     </excludes>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>java8-shared-test-sources</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${maven.test.skip}</skip>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>--source</argument>
+                                <argument>17</argument>
+                                <argument>-cp</argument>
+                                <classpath/>
+                                <argument>${maven.multiModuleProjectDirectory}/compatibility/java8/Java8SourceGenerator.java</argument>
+                                <argument>${project.build.directory}/java8-test-input/langchain4j-test</argument>
+                                <argument>${project.build.directory}/generated-test-sources/langchain4j-test</argument>
+                            </arguments>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -270,13 +267,12 @@
             <id>jackson3</id>
             <dependencies>
                 <dependency>
-                    <groupId>dev.langchain4j</groupId>
+                    <groupId>cn.iocoder.langchain4j</groupId>
                     <artifactId>langchain4j-core-jackson3</artifactId>
-                    <version>${langchain4j.beta.version}</version>
+                    <version>2.0.0-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
         </profile>
     </profiles>
-
 </project>

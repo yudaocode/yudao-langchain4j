@@ -38,7 +38,7 @@ class ProcessStderrHandler implements Runnable, Closeable {
                     throw new RuntimeException(e);
                 }
             }
-            log.debug("ProcessErrorPrinter has finished reading error output from process with PID = " + process.pid());
+            log.debug("ProcessErrorPrinter has finished reading error output from process with PID = " + dev.langchain4j.internal.compat.Java8Platform.pidForLogging(process));
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

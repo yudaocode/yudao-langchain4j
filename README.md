@@ -1,3 +1,73 @@
+# 芋道 LangChain4j 兼容版
+
+本仓库基于官方 LangChain4j 新版源码，为仍使用 **JDK 8 / Spring Boot 2.x** 的项目提供兼容分支，尽量保留新版本功能。上游作者、许可证和 Java 包名保留；以下说明之后继续保留官方 README。
+
+| 分支 | 运行环境 | 使用方式 |
+| --- | --- | --- |
+| `main` | JDK 17+；Spring Boot 3.x / 4.x 使用对应官方 starter | 跟踪官方源码，优先使用官方 `dev.langchain4j` 制品 |
+| `main-jdk8` | JDK 8；Spring Boot 2.7.18 / Spring 5.3 | 使用 `cn.iocoder.langchain4j` 兼容制品 |
+
+GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langchain4j) · Gitee：[zhijiantianya/yudao-langchain4j](https://gitee.com/zhijiantianya/yudao-langchain4j)
+
+## JDK 8 / Boot 2 如何使用
+
+切换到 `main-jdk8`。兼容版统一使用 `cn.iocoder.langchain4j`，版本为 `2.0.0-SNAPSHOT`，保留对应的 artifactId 与 `dev.langchain4j` Java 包名。**尚未发布 Maven Central 或远端 SNAPSHOT 仓库**；当前需先按兼容分支的构建说明安装到本地 Maven 仓库。正式发布后将使用 `2.x` 版本线。
+
+使用官方 `spring-boot-starter-parent:2.7.18` 时，还需设置以下三个属性：Boot 父 POM 直接管理这些依赖，Maven 中导入 BOM 不能覆盖父 POM 的直接声明。仅导入 Boot BOM 的项目应将兼容 BOM 放在 Boot BOM 前，并核对最终依赖树。
+
+```xml
+<properties>
+    <httpclient5.version>5.6.5</httpclient5.version>
+    <httpcore5.version>5.4.4</httpcore5.version>
+    <logback.version>1.2.13</logback.version>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-bom</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>cn.iocoder.langchain4j</groupId>
+        <artifactId>langchain4j-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>cn.iocoder.langchain4j</groupId>
+        <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
+    </dependency>
+</dependencies>
+```
+
+```yaml
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://api.openai.com/v1
+      api-key: ${OPENAI_API_KEY}
+      model-name: gpt-4o-mini
+```
+
+```java
+@AiService
+public interface Assistant {
+    String chat(String message);
+}
+```
+
+通过 Spring 注入 `Assistant` 后调用 `chat`。独立 Java 项目可以引入兼容版 `langchain4j` 和 `langchain4j-open-ai`，使用原有 builder API。不要在同一个运行时混用官方与兼容版同名核心模块；它们的 Java 包名相同。Java 8 的 `Flow` 等新 JDK API 使用窄桥接类型，不能将它视为与官方 JDK 17 制品完全二进制兼容。
+
+支持范围、构建步骤与验证边界见 **`main-jdk8` 分支的 [COMPATIBILITY.md](https://github.com/yudaocode/yudao-langchain4j/blob/main-jdk8/COMPATIBILITY.md)**。BOM 仅列入已纳入兼容构建的模块；其余上游模块源码保留，不代表已经支持 Java 8。
+
+---
+
 # LangChain4j: idiomatic, open-source Java library for building LLM-powered applications on the JVM
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/langchain4j/langchain4j/main.yaml?branch=main&style=for-the-badge&label=CI%20BUILD&logo=github)](https://github.com/langchain4j/langchain4j/actions/workflows/main.yaml)

@@ -80,7 +80,7 @@ public class DocumentBySentenceSplitter extends HierarchicalDocumentSplitter {
     }
 
     private SentenceModel createSentenceModel() {
-        String sentenceModelFilePath = "/opennlp/opennlp-en-ud-ewt-sentence-1.2-2.5.0.bin";
+        String sentenceModelFilePath = "/opennlp/opennlp-en-ud-ewt-sentence-1.0-1.9.3.bin";
         try (InputStream is = getClass().getResourceAsStream(sentenceModelFilePath)) {
             return new SentenceModel(is);
         } catch (Exception e) {

@@ -1,0 +1,1 @@
+New Java classes use @author 芋道源码; retain upstream authors/licenses. Build tools JDK17, target/runtime Java8. Generated sources stay under target. Preserve the main README official suffix. Distinguish compile, target-VM tests, full dependency/bytecode/runtime acceptance, commits/push and Maven publication.

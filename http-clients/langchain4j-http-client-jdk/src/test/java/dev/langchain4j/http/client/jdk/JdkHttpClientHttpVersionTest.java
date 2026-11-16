@@ -31,7 +31,7 @@ class JdkHttpClientHttpVersionTest {
     void beforeEach() {
         // HTTP/2 over plain HTTP disabled, so the server neither accepts the h2c upgrade nor hides its headers
         wireMockServer = new WireMockServer(
-                WireMockConfiguration.options().dynamicPort().http2PlainDisabled(true));
+                WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
         wireMockServer.stubFor(WireMock.post("/endpoint")
                 .willReturn(WireMock.aResponse()
@@ -139,7 +139,7 @@ class JdkHttpClientHttpVersionTest {
     }
 
     @Test
-    void should_request_h2c_upgrade_for_plain_http_when_custom_http_client_builder_has_no_version() {
+    void should_use_http1_for_plain_http_with_a_custom_builder() {
 
         // given
         JdkHttpClient client = JdkHttpClient.builder()
@@ -150,11 +150,12 @@ class JdkHttpClientHttpVersionTest {
         client.execute(request());
 
         // then
-        wireMockServer.verify(postRequestedFor(urlEqualTo("/endpoint")).withHeader("Upgrade", equalTo("h2c")));
+        // Apache's Java8 bridge negotiates TLS HTTP2 but does not implement h2c Upgrade.
+        assertNoUpgradeAndBodyReceived(singleRequest());
     }
 
     @Test
-    void should_keep_http_version_of_custom_http_client_builder() {
+    void should_fall_back_to_http1_for_plain_http_with_http2_preference() {
 
         // given
         JdkHttpClient client = JdkHttpClient.builder()
@@ -166,7 +167,8 @@ class JdkHttpClientHttpVersionTest {
         client.execute(request());
 
         // then
-        wireMockServer.verify(postRequestedFor(urlEqualTo("/endpoint")).withHeader("Upgrade", equalTo("h2c")));
+        // Apache's Java8 bridge negotiates TLS HTTP2 but does not implement h2c Upgrade.
+        assertNoUpgradeAndBodyReceived(singleRequest());
     }
 
     private HttpRequest request() {

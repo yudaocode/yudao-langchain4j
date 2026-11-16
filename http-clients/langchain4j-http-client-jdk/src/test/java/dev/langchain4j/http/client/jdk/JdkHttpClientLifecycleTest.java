@@ -19,7 +19,7 @@ class JdkHttpClientLifecycleTest {
 
     @Test
     void should_close_underlying_client_when_supported() throws Exception {
-        CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+        java.net.http.HttpClient delegate = mock(java.net.http.HttpClient.class);
         JdkHttpClient client = client(delegate);
 
         client.close();
@@ -29,7 +29,7 @@ class JdkHttpClientLifecycleTest {
 
     @Test
     void should_report_close_failure() throws Exception {
-        CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+        java.net.http.HttpClient delegate = mock(java.net.http.HttpClient.class);
         Exception failure = new Exception("close failed");
         doAnswer(invocation -> {
                     throw failure;
@@ -44,7 +44,7 @@ class JdkHttpClientLifecycleTest {
 
     @Test
     void should_preserve_interrupt_status_when_close_is_interrupted() throws Exception {
-        CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+        java.net.http.HttpClient delegate = mock(java.net.http.HttpClient.class);
         doAnswer(invocation -> {
                     throw new InterruptedException("interrupted");
                 })
@@ -76,11 +76,8 @@ class JdkHttpClientLifecycleTest {
 
             client.close();
 
-            if (Runtime.version().feature() >= 21) {
-                assertThatThrownBy(() -> client.execute(request)).hasCauseInstanceOf(IOException.class);
-            } else {
-                assertThat(client.execute(request).body()).isEqualTo("hello");
-            }
+            // The Java8 HTTP bridge owns closeable resources on every supported VM.
+            assertThatThrownBy(() -> client.execute(request)).hasCauseInstanceOf(IOException.class);
         } finally {
             server.stop();
         }
@@ -92,5 +89,5 @@ class JdkHttpClientLifecycleTest {
         return JdkHttpClient.builder().httpClientBuilder(builder).build();
     }
 
-    abstract static class CloseableHttpClient extends java.net.http.HttpClient implements AutoCloseable {}
+
 }

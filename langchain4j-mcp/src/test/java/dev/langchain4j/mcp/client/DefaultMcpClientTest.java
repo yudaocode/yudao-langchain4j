@@ -368,10 +368,8 @@ public class DefaultMcpClientTest {
 
         // then: the subprocess started for the failed attempt is gone
         final long pid = Long.parseLong(Files.readString(pidFile).trim());
-        final var subprocess = ProcessHandle.of(pid);
-        if (subprocess.isPresent()) {
-            assertThat(subprocess.get().onExit()).succeedsWithin(Duration.ofSeconds(10));
-        }
+        org.awaitility.Awaitility.await().atMost(Duration.ofSeconds(10))
+                .until(() -> !dev.langchain4j.internal.compat.Java8Platform.isProcessAlive(pid));
     }
 
     @Test

@@ -18,7 +18,7 @@ final class MockThreads {
     static Executor newThreadPerTask(String name) {
         return task -> {
             ClassLoader callerClassLoader = Thread.currentThread().getContextClassLoader();
-            Thread thread = new Thread(null, task, name, 0, false);
+            Thread thread = dev.langchain4j.internal.compat.Java8Platform.newThreadWithoutInheritedLocals(task, name);
             thread.setContextClassLoader(callerClassLoader);
             thread.setDaemon(true);
             thread.start();

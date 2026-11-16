@@ -81,6 +81,7 @@ class ComparisonValueTypeTest {
                 Stream.of(
                         List.of("a"),
                         Map.of("a", "b"),
+                        new StringBuilder("a"), // StringBuilder is not Comparable until Java 11.
                         new int[] {1},
                         new AtomicInteger(1),
                         new Object()));
@@ -88,7 +89,6 @@ class ComparisonValueTypeTest {
 
     static Stream<Comparable<?>> unsupportedComparableValues() {
         return Stream.of(
-                new StringBuilder("a"),
                 'x',
                 // not final, so a subclass could change toString(); only the exact classes are accepted
                 new Date(0) {

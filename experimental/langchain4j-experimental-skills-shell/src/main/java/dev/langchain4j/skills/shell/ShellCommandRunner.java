@@ -102,7 +102,7 @@ class ShellCommandRunner {
             if (!finished) {
                 timedOut.set(true);
                 try {
-                    process.descendants().forEach(ProcessHandle::destroyForcibly);
+                    Java8ProcessTree.destroyDescendants(process);
                 } catch (Exception ignored) {
                 }
                 try {

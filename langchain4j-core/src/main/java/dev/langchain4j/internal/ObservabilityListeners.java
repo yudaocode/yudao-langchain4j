@@ -154,16 +154,15 @@ public final class ObservabilityListeners {
      */
     public static List<ObservabilityListenersProvider> load(ClassLoader classLoader) {
         List<ObservabilityListenersProvider> providers = new ArrayList<>();
-        Iterator<ServiceLoader.Provider<ObservabilityListenersProvider>> iterator = ServiceLoader.load(
+        Iterator<dev.langchain4j.internal.compat.Java8ServiceLoader.Provider<ObservabilityListenersProvider>> iterator = dev.langchain4j.internal.compat.Java8ServiceLoader.load(
                         ObservabilityListenersProvider.class, classLoader)
-                .stream()
                 .iterator();
         for (int failures = 0; failures < MAX_LOAD_FAILURES; ) {
             try {
                 if (!iterator.hasNext()) {
                     break;
                 }
-                ServiceLoader.Provider<ObservabilityListenersProvider> provider = iterator.next();
+                dev.langchain4j.internal.compat.Java8ServiceLoader.Provider<ObservabilityListenersProvider> provider = iterator.next();
                 String className = provider.type().getName();
                 if (className.startsWith(ACCEPTED_PACKAGE_PREFIX)) {
                     providers.add(provider.get());

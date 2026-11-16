@@ -1,16 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version='1.0' encoding='UTF-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>dev.langchain4j</groupId>
+    <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>langchain4j-parent</artifactId>
-    <version>1.24.0-beta34-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
     <name>LangChain4j :: Parent POM</name>
     <description>${project.name}</description>
-    <url>https://github.com/langchain4j/langchain4j/tree/main</url>
-
+    <url>https://github.com/yudaocode/yudao-langchain4j</url>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -18,7 +15,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <developers>
         <developer>
             <id>dliubarskyi</id>
@@ -26,66 +22,73 @@
             <email>info@langchain4j.dev</email>
             <url>https://github.com/dliubarskyi</url>
         </developer>
+        <developer>
+            <id>yudaocode</id>
+            <name>芋道源码</name>
+            <url>https://github.com/yudaocode</url>
+        </developer>
     </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/langchain4j/langchain4j.git</connection>
-        <developerConnection>scm:git:git@github.com:langchain4j/langchain4j.git</developerConnection>
-        <url>https://github.com/langchain4j/langchain4j/tree/main</url>
+    <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
+        <connection>scm:git:https://github.com/yudaocode/yudao-langchain4j.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/yudaocode/yudao-langchain4j.git</developerConnection>
+        <url>https://github.com/yudaocode/yudao-langchain4j/tree/main-jdk8</url>
     </scm>
-
     <properties>
-        <langchain4j.beta.version>1.24.0-beta34-SNAPSHOT</langchain4j.beta.version>
-        <java.version>17</java.version>
-        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <langchain4j.beta.version>2.0.0-SNAPSHOT</langchain4j.beta.version>
+        <java.version>8</java.version>
+        <maven.compiler.release>8</maven.compiler.release>
         <kotlin.code.style>official</kotlin.code.style>
-        <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.9</kotlin.compiler.languageVersion>
         <kotlin.compiler.apiVersion>1.9</kotlin.compiler.apiVersion>
         <kotlin-compiler.version>2.1.21</kotlin-compiler.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.outputTimestamp>1793205960</project.build.outputTimestamp>
-        <argLine></argLine>
+        <argLine/>
+        <compat.test.log.level>debug</compat.test.log.level>
         <!-- Dependency Versions -->
         <dokka.version>2.1.0-Beta</dokka.version>
         <ai-mocks.version>0.4.6</ai-mocks.version>
         <archunit.version>1.5.1</archunit.version>
-        <assertj.version>4.0.0-M1</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <assertk.version>0.28.1</assertk.version>
         <awaitility.version>4.3.0</awaitility.version>
         <aws.java.sdk.version>2.57.12</aws.java.sdk.version>
         <azure-sdk.version>1.3.9</azure-sdk.version>
         <blockhound.version>1.0.18.RELEASE</blockhound.version>
-        <jackson.version>2.23.0</jackson.version>
+        <jackson.version>2.21.4</jackson.version>
         <jackson3.version>3.3.0</jackson3.version>
         <jspecify.version>1.0.1</jspecify.version>
         <jtokkit.version>1.1.0</jtokkit.version>
-        <junit.version>6.0.3</junit.version>
+        <junit.version>5.13.4</junit.version>
         <kotest.version>5.9.1</kotest.version>
         <kotlin.version>1.9.25</kotlin.version>
         <kotlinx-coroutines.version>1.8.1</kotlinx-coroutines.version>
         <log4j.version>2.26.1</log4j.version>
-        <logback.version>1.6.6</logback.version>
-        <mockito-kotlin.version>5.4.0</mockito-kotlin.version>
-        <mockito.version>5.23.0</mockito.version>
-        <mutiny-zero.version>1.3.1</mutiny-zero.version>
+        <logback.version>1.2.13</logback.version>
+        <mockito-kotlin.version>4.1.0</mockito-kotlin.version>
+        <mockito.version>4.11.0</mockito.version>
         <okhttp.version>4.12.1</okhttp.version>
         <reactive-streams-tck.version>1.0.4</reactive-streams-tck.version>
         <retrofit.version>2.9.0</retrofit.version>
-        <slf4j.version>2.0.20</slf4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
         <testcontainers.version>1.21.4</testcontainers.version>
-        <testng.version>7.12.0</testng.version>
+        <testng.version>7.5.1</testng.version>
         <testng-engine.version>1.0.5</testng-engine.version>
         <tinylog.version>2.7.0</tinylog.version>
-        <wiremock.version>3.13.2</wiremock.version>
+        <wiremock.version>2.35.2</wiremock.version>
         <hibernate.version>7.4.15.Final</hibernate.version>
         <jsoup.version>1.23.2</jsoup.version>
         <onnxruntime.version>1.23.2</onnxruntime.version>
+        <opennlp-tools.version>1.9.5</opennlp-tools.version>
+        <compat.test.jvm>${java.home}/bin/java</compat.test.jvm>
+        <httpclient5.version>5.6.5</httpclient5.version>
+        <httpcore5.version>5.4.4</httpcore5.version>
+        <compat.fixture.test.jvm>${java.home}/bin/java</compat.fixture.test.jvm>
+        <revapi.skip>true</revapi.skip>
     </properties>
-
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -93,7 +96,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <!--
                 Jackson 3 is used only by the opt-in langchain4j-core-jackson3 module, but its
                 version is managed here so that a user adding a Jackson 3 datatype or dataformat
@@ -106,27 +108,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-bom</artifactId>
+                <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.squareup.retrofit2</groupId>
                 <artifactId>retrofit</artifactId>
                 <version>${retrofit.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.squareup.retrofit2</groupId>
                 <artifactId>converter-jackson</artifactId>
                 <version>${retrofit.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp-bom</artifactId>
@@ -134,13 +130,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
-                <groupId>dev.langchain4j</groupId>
+                <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
-                <version>${langchain4j.beta.version}</version>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
-
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-bom</artifactId>
@@ -148,7 +142,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>
                 <artifactId>kotlinx-coroutines-core-jvm</artifactId>
@@ -161,42 +154,36 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.jetbrains.kotlinx</groupId>
                 <artifactId>kotlinx-coroutines-test-jvm</artifactId>
                 <version>${kotlinx-coroutines.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>io.kotest</groupId>
                 <artifactId>kotest-assertions-core-jvm</artifactId>
                 <version>${kotest.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.willowtreeapps.assertk</groupId>
                 <artifactId>assertk-coroutines-jvm</artifactId>
                 <version>${assertk.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.willowtreeapps.assertk</groupId>
                 <artifactId>assertk</artifactId>
                 <version>${assertk.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>io.kotest</groupId>
                 <artifactId>kotest-assertions-json-jvm</artifactId>
                 <version>${kotest.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
@@ -204,7 +191,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
@@ -212,48 +198,41 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.junit.support</groupId>
                 <artifactId>testng-engine</artifactId>
                 <version>${testng-engine.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.reactivestreams</groupId>
                 <artifactId>reactive-streams-tck</artifactId>
                 <version>${reactive-streams-tck.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>io.projectreactor.tools</groupId>
                 <artifactId>blockhound</artifactId>
                 <version>${blockhound.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit</artifactId>
                 <version>${archunit.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
-                <groupId>io.smallrye.reactive</groupId>
-                <artifactId>mutiny-zero</artifactId>
-                <version>${mutiny-zero.version}</version>
+                <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-mutiny-zero-compat</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
-
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-bom</artifactId>
@@ -261,14 +240,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.mockito.kotlin</groupId>
                 <artifactId>mockito-kotlin</artifactId>
                 <version>${mockito-kotlin.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-bom</artifactId>
@@ -276,19 +253,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.tinylog</groupId>
                 <artifactId>tinylog-impl</artifactId>
                 <version>${tinylog.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.tinylog</groupId>
                 <artifactId>slf4j-tinylog</artifactId>
                 <version>${tinylog.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>
@@ -296,7 +270,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.azure</groupId>
                 <artifactId>azure-sdk-bom</artifactId>
@@ -304,33 +277,28 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.wiremock</groupId>
-                <artifactId>wiremock-standalone</artifactId>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8-standalone</artifactId>
                 <version>${wiremock.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <!-- Pinned ahead of log4j-bom, which imports an older jspecify than mutiny-zero requires. -->
             <dependency>
-                <groupId>org.jspecify</groupId>
-                <artifactId>jspecify</artifactId>
-                <version>${jspecify.version}</version>
+                <groupId>cn.iocoder.spring-ai</groupId>
+                <artifactId>spring-ai-jspecify-compat</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-bom</artifactId>
@@ -338,39 +306,63 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.22.0</version>
             </dependency>
-
             <dependency>
                 <groupId>com.azure</groupId>
                 <artifactId>azure-cosmos</artifactId>
                 <version>4.83.0</version>
             </dependency>
-
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>${jsoup.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.microsoft.onnxruntime</groupId>
                 <artifactId>onnxruntime</artifactId>
                 <version>${onnxruntime.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-core</artifactId>
+                <version>3.7.19</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-reactive</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-internal-test-retry</artifactId>
-            <version>${langchain4j.beta.version}</version>
+            <version>2.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -404,8 +396,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wiremock</groupId>
-            <artifactId>wiremock-standalone</artifactId>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8-standalone</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -451,8 +443,13 @@
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>4.11.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
     <repositories>
         <repository>
             <releases>
@@ -466,7 +463,6 @@
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </repository>
     </repositories>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -561,7 +557,7 @@
                     <version>${kotlin-compiler.version}</version>
                     <extensions>true</extensions>
                     <configuration combine.self="append">
-                        <jvmTarget>${java.version}</jvmTarget>
+                        <jvmTarget>${kotlin.compiler.jvmTarget}</jvmTarget>
                         <javaParameters>true</javaParameters>
                         <args>
                             <arg>-Werror</arg>
@@ -674,9 +670,7 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <plugins>
-
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -690,7 +684,7 @@
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                                <sourceDir>${project.build.directory}/generated-sources/java8</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
@@ -702,7 +696,7 @@
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/test/java</sourceDir>
+                                <sourceDir>${project.build.directory}/generated-test-sources/java8</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
@@ -713,7 +707,17 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.16.0</version>
                 <configuration>
-                    <annotationProcessorPaths></annotationProcessorPaths>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.github.bsideup.jabel</groupId>
+                            <artifactId>jabel-javac-plugin</artifactId>
+                            <version>1.0.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <release>8</release>
+                    <compilerArgs>
+                        <arg>-XDstringConcat=inline</arg>
+                    </compilerArgs>
                 </configuration>
                 <executions>
                     <!-- Disabling default-compile/testCompile via skipMain/skip so that
@@ -747,7 +751,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -776,26 +779,27 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration combine.children="append">
-                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+                    <argLine>@{argLine}</argLine>
                     <systemPropertyVariables>
-                        <tinylog.level>debug</tinylog.level>
+                        <tinylog.level>${compat.test.log.level}</tinylog.level>
                     </systemPropertyVariables>
+                    <jvm>${compat.test.jvm}</jvm>
                 </configuration>
             </plugin>
-
             <plugin>
                 <!-- failsafe will be in charge of running the integration tests (everything that ends in IT) -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration combine.children="append">
                     <systemPropertyVariables>
-                        <tinylog.level>debug</tinylog.level>
+                        <tinylog.level>${compat.test.log.level}</tinylog.level>
                     </systemPropertyVariables>
+                    <argLine>@{argLine}</argLine>
+                    <jvm>${compat.test.jvm}</jvm>
                 </configuration>
                 <executions>
                     <execution>
@@ -806,7 +810,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
@@ -820,7 +823,6 @@
                     <waitMaxTime>3600</waitMaxTime>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.simpligility.maven.plugins</groupId>
                 <artifactId>android-maven-plugin</artifactId>
@@ -846,7 +848,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -860,7 +861,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -872,18 +872,17 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <banDuplicatePomDependencyVersions></banDuplicatePomDependencyVersions>
-                                <dependencyConvergence></dependencyConvergence>
+                                <banDuplicatePomDependencyVersions/>
+                                <dependencyConvergence/>
                                 <requireMavenVersion>
                                     <version>3.8</version>
                                 </requireMavenVersion>
-                                <requireUpperBoundDeps></requireUpperBoundDeps>
+                                <requireUpperBoundDeps/>
                             </rules>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -910,7 +909,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -935,7 +933,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.revapi</groupId>
                 <artifactId>revapi-maven-plugin</artifactId>
@@ -948,12 +945,116 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.3</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.github.javaparser</groupId>
+                        <artifactId>javaparser-core</artifactId>
+                        <version>3.28.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.github.javaparser</groupId>
+                        <artifactId>javaparser-symbol-solver-core</artifactId>
+                        <version>3.28.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-tree</artifactId>
+                        <version>9.7</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <includePluginDependencies>true</includePluginDependencies>
+                    <classpathScope>compile</classpathScope>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>java8-main-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>--source</argument>
+                                <argument>17</argument>
+                                <argument>-cp</argument>
+                                <classpath/>
+                                <argument>${maven.multiModuleProjectDirectory}/compatibility/java8/Java8SourceGenerator.java</argument>
+                                <argument>${project.basedir}/src/main/java</argument>
+                                <argument>${project.build.directory}/generated-sources/java8</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>java8-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>--source</argument>
+                                <argument>17</argument>
+                                <argument>-cp</argument>
+                                <classpath/>
+                                <argument>${maven.multiModuleProjectDirectory}/compatibility/java8/Java8SourceGenerator.java</argument>
+                                <argument>${project.basedir}/src/test/java</argument>
+                                <argument>${project.build.directory}/generated-test-sources/java8</argument>
+                            </arguments>
+                            <skip>${maven.test.skip}</skip>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>java8-main-record-metadata</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>--source</argument>
+                                <argument>17</argument>
+                                <argument>-cp</argument>
+                                <classpath/>
+                                <argument>${maven.multiModuleProjectDirectory}/compatibility/java8/Java8RecordMetadata.java</argument>
+                                <argument>${project.build.outputDirectory}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>java8-test-record-metadata</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>--source</argument>
+                                <argument>17</argument>
+                                <argument>-cp</argument>
+                                <classpath/>
+                                <argument>${maven.multiModuleProjectDirectory}/compatibility/java8/Java8RecordMetadata.java</argument>
+                                <argument>${project.build.testOutputDirectory}</argument>
+                            </arguments>
+                            <skip>${maven.test.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <sourceDirectory>${project.build.directory}/generated-sources/java8</sourceDirectory>
+        <testSourceDirectory>${project.build.directory}/generated-test-sources/java8</testSourceDirectory>
     </build>
-
     <profiles>
-
         <profile>
             <id>sign</id>
             <activation>
@@ -980,7 +1081,6 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>compliance</id>
             <activation>
@@ -1044,7 +1144,6 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>kotlin</id>
             <build>
@@ -1064,7 +1163,6 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>spotless</id>
             <build>
@@ -1084,7 +1182,5 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
-
 </project>

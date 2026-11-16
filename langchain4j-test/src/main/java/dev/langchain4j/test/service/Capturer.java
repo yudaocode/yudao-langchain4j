@@ -285,7 +285,7 @@ final class Capturer {
                             context.invocationId(),
                             context.timestamp() == null
                                     ? "?"
-                                    : Duration.between(context.timestamp(), Instant.now()).toSeconds(),
+                                    : Duration.between(context.timestamp(), Instant.now()).getSeconds(),
                             invocation.lastEvent().eventClass().getSimpleName());
                 }
             }

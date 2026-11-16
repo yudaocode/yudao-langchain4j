@@ -53,6 +53,9 @@ class MultipartBodyPublisher {
     HttpRequest.BodyPublisher build() {
         String end = "--" + BOUNDARY + "--" + CRLF;
         parts.add(end.getBytes(UTF_8));
-        return HttpRequest.BodyPublishers.ofByteArrays(parts);
+        return HttpRequest.BodyPublishers.ofInputStream(() -> new java.io.SequenceInputStream(
+                java.util.Collections.enumeration(parts.stream()
+                        .map(java.io.ByteArrayInputStream::new)
+                        .collect(java.util.stream.Collectors.toList()))));
     }
 }

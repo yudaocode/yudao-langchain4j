@@ -53,7 +53,7 @@ class McpHealthStreamableHttpIT {
     void health() throws ExecutionException, InterruptedException {
         mcpClient.checkHealth();
         destroyProcessTree(process);
-        process.onExit().get();
+        dev.langchain4j.internal.compat.Java8Platform.onExit(process).get();
         assertThatThrownBy(() -> mcpClient.checkHealth()).rootCause().isInstanceOf(ClosedChannelException.class);
     }
 }

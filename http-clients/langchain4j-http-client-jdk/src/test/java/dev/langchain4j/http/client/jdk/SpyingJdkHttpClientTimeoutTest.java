@@ -42,7 +42,7 @@ class SpyingJdkHttpClientTimeoutTest {
             assertTimeoutPreemptively(
                     ofSeconds(30),
                     () -> assertThatThrownBy(() -> httpClient.execute(request))
-                            .hasRootCauseInstanceOf(HttpTimeoutException.class));
+                            .hasCauseInstanceOf(HttpTimeoutException.class));
             assertThat(spyingHttpClient.request()).isSameAs(request);
         }
     }

@@ -77,8 +77,8 @@ public class JdkHttpClient implements HttpClient, AutoCloseable {
     }
 
     /**
-     * Closes the underlying JDK HTTP client on Java 21 and later. On earlier Java versions,
-     * which do not support explicitly closing HTTP clients, this method does nothing.
+     * Closes the underlying Java8 HTTP compatibility client and its connection pools.
+     * Complete or cancel outstanding requests before closing this client.
      * <p>
      * The caller owns this client and should close it when it is no longer needed. Complete
      * or cancel outstanding requests, including streaming subscriptions, before closing it,
@@ -88,7 +88,7 @@ public class JdkHttpClient implements HttpClient, AutoCloseable {
      */
     @Override
     public void close() throws IOException {
-        if (delegate instanceof AutoCloseable closeable) {
+        if ((Object) delegate instanceof AutoCloseable closeable) {
             try {
                 closeable.close();
             } catch (InterruptedException e) {
@@ -155,7 +155,9 @@ public class JdkHttpClient implements HttpClient, AutoCloseable {
         java.net.http.HttpRequest jdkRequest = toJdkRequest(request);
 
         delegate.sendAsync(jdkRequest, BodyHandlers.ofInputStream())
-                .thenAccept(jdkResponse -> {
+                // The Java8 bridge completes headers on an I/O thread. Blocking stream
+                // parsing must run on the shared blocking-work executor instead.
+                .thenAcceptAsync(jdkResponse -> {
                     if (!isSuccessful(jdkResponse)) {
                         HttpException exception = new HttpException(jdkResponse.statusCode(), readBody(jdkResponse));
                         ignoringExceptions(() -> listener.onError(exception));
@@ -171,7 +173,7 @@ public class JdkHttpClient implements HttpClient, AutoCloseable {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                })
+                }, dev.langchain4j.internal.DefaultExecutorProvider.getDefaultExecutor())
                 .exceptionally(throwable -> {
                     if (throwable.getCause() instanceof HttpTimeoutException) {
                         ignoringExceptions(() -> listener.onError(new TimeoutException(throwable)));

@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>dev.langchain4j</groupId>
+        <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
-
     <artifactId>langchain4j-reactive-streaming</artifactId>
     <name>LangChain4j :: Reactive Streaming</name>
     <description>
@@ -15,46 +14,39 @@
         and the shared non-blocking contract test (TCK). Sits below the streaming providers and above core,
         http-client and mutiny-zero.
     </description>
-
     <dependencies>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
-            <groupId>io.smallrye.reactive</groupId>
-            <artifactId>mutiny-zero</artifactId>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-mutiny-zero-compat</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams-tck</artifactId>
+            <scope>test</scope>
         </dependency>
-
         <!-- test: the shared non-blocking TCKs use BlockHound; AbstractChatModelNonBlockingIT also uses WireMock -->
         <dependency>
             <groupId>io.projectreactor.tools</groupId>
             <artifactId>blockhound</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.wiremock</groupId>
-            <artifactId>wiremock-standalone</artifactId>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8-standalone</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <!-- Publish the test-jar so streaming providers can extend the shared TCK. -->
@@ -71,5 +63,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

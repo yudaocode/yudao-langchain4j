@@ -35,7 +35,7 @@ class ApacheHttpClientConnectTimeoutTest {
 
     @BeforeEach
     void beforeEach() {
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().bindAddress("127.0.0.1").dynamicPort());
         wireMockServer.start();
         wireMockServer.stubFor(WireMock.get("/endpoint").willReturn(WireMock.ok()));
     }
@@ -80,7 +80,7 @@ class ApacheHttpClientConnectTimeoutTest {
     private HttpRequest request() {
         return HttpRequest.builder()
                 .method(GET)
-                .url(String.format("http://localhost:%s/endpoint", wireMockServer.port()))
+                .url(String.format("http://127.0.0.1:%s/endpoint", wireMockServer.port()))
                 .build();
     }
 

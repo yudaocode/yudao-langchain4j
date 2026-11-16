@@ -106,8 +106,7 @@ class JsonCodecTest {
                 .hasMessageContaining("married");
 
         // if required, user can override the default behaviour and ignore unknown properties
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        record LenientPersonRecord(String name, int age) {}
+
 
         LenientPersonRecord lenientPerson = codec.fromJson(json, LenientPersonRecord.class);
         assertThat(lenientPerson).isEqualTo(new LenientPersonRecord("Klaus", 42));
@@ -325,7 +324,7 @@ class JsonCodecTest {
     void inner_record(Json.JsonCodec codec) {
 
         // given
-        record PersonInnerRecord(String name, int age) {}
+
 
         // when
         PersonInnerRecord pojo = codec.fromJson(PERSON_JSON, PersonInnerRecord.class);
@@ -409,4 +408,9 @@ class JsonCodecTest {
         assertThat(pojo.name).isEqualTo("Klaus");
         assertThat(pojo.age).isEqualTo(42);
     }
+    // Java 8 has no local records; keep the same immutable JSON fixtures as members.
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record LenientPersonRecord(String name, int age) {}
+
+    record PersonInnerRecord(String name, int age) {}
 }

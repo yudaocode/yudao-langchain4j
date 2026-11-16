@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ConnectException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.WebSocket;
+import dev.langchain4j.mcp.client.transport.websocket.compat.WebSocket;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
@@ -43,9 +42,11 @@ public class WebSocketMcpTransport implements McpTransport {
     private final Duration connectTimeout;
     private final int maxMessageSize;
     private volatile SSLContext sslContext;
-    private volatile HttpClient httpClient;
+    private volatile WebSocket.Client httpClient;
+    private final java.util.List<WebSocket.Client> ownedClients = new java.util.concurrent.CopyOnWriteArrayList<>();
     private final Executor executor;
     private final AtomicReference<CompletableFuture<WebSocket>> webSocketRef = new AtomicReference<>();
+    private Object connectionToken;
     private volatile boolean closed = false;
     private volatile Runnable actionOnFailure;
 
@@ -63,15 +64,10 @@ public class WebSocketMcpTransport implements McpTransport {
         this.httpClient = createHttpClient();
     }
 
-    private HttpClient createHttpClient() {
-        HttpClient.Builder clientBuilder = HttpClient.newBuilder().connectTimeout(connectTimeout);
-        if (sslContext != null) {
-            clientBuilder.sslContext(sslContext);
-        }
-        if (executor != null) {
-            clientBuilder.executor(executor);
-        }
-        return clientBuilder.build();
+    private WebSocket.Client createHttpClient() {
+        WebSocket.Client client = new WebSocket.Client(connectTimeout, sslContext, executor, maxMessageSize);
+        ownedClients.add(client);
+        return client;
     }
 
     private synchronized WebSocket getWebSocket() {
@@ -116,6 +112,8 @@ public class WebSocketMcpTransport implements McpTransport {
         WebSocket.Builder builder = this.httpClient.newWebSocketBuilder();
         headersSupplier.apply(null).forEach((key, value) -> builder.header(key, value));
         builder.connectTimeout(connectTimeout);
+        Object token = new Object();
+        this.connectionToken = token;
         CompletableFuture<WebSocket> newWebSocketFuture = builder.buildAsync(
                 URI.create(url),
                 new WebSocketMcpListener(
@@ -128,7 +126,11 @@ public class WebSocketMcpTransport implements McpTransport {
                             // Don't eagerly re-create it because the WebSocket transport does not have proper recovery
                             // capabilities,
                             // so all running operations were lost anyway.
-                            webSocketRef.set(null);
+                            synchronized (WebSocketMcpTransport.this) {
+                                if (connectionToken == token) {
+                                    webSocketRef.set(null);
+                                }
+                            }
                         },
                         actionOnFailure,
                         maxMessageSize));
@@ -193,7 +195,8 @@ public class WebSocketMcpTransport implements McpTransport {
      * the HTTP client: the next {@link #start} opens a new connection.
      */
     @Override
-    public void stop() {
+    public synchronized void stop() {
+        connectionToken = null;
         initializeRequest = null;
         CompletableFuture<WebSocket> current = webSocketRef.getAndSet(null);
         if (current != null) {
@@ -207,12 +210,8 @@ public class WebSocketMcpTransport implements McpTransport {
     public void close() throws IOException {
         this.closed = true;
         closeWebSocket(webSocketRef.get());
-        // The httpClient.close() method only exists on JDK 21+, so invoke it only if we can.
-        // Replace this with a normal method call when switching the base to JDK 21+.
-        try {
-            httpClient.getClass().getMethod("close").invoke(httpClient);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-        }
+        for (WebSocket.Client client : ownedClients) client.close();
+        ownedClients.clear();
     }
 
     private void closeWebSocket(CompletableFuture<WebSocket> future) {

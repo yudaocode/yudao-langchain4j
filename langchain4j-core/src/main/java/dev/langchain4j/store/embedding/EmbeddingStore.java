@@ -213,8 +213,8 @@ public interface EmbeddingStore<Embedded> {
         if (isNullOrEmpty(listeners)) {
             return this;
         }
-        if (this instanceof ListeningEmbeddingStore<Embedded> listeningEmbeddingStore) {
-            return listeningEmbeddingStore.withAdditionalListeners(listeners);
+        if (this instanceof ListeningEmbeddingStore<?>) {
+            return ((ListeningEmbeddingStore<Embedded>) this).withAdditionalListeners(listeners);
         }
         return new ListeningEmbeddingStore<>(this, listeners);
     }

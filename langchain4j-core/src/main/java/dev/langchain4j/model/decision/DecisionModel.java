@@ -58,7 +58,7 @@ public interface DecisionModel {
      * @return one answer per question, keyed by question name.
      */
     default DecisionResponse decide(DecisionRequest request) {
-        DecisionRequest finalRequest = withDefaultParameters(request);
+        DecisionRequest finalRequest = DecisionModelJava8Support.withDefaultParameters(this, request);
         List<DecisionModelListener> listeners = ObservabilityListeners.decision(listeners());
         Map<Object, Object> attributes = new ConcurrentHashMap<>();
         UUID invocationId = CurrentInvocation.invocationId();
@@ -95,7 +95,7 @@ public interface DecisionModel {
     default CompletableFuture<DecisionResponse> decideAsync(DecisionRequest request) {
         DecisionRequest finalRequest;
         try {
-            finalRequest = withDefaultParameters(request);
+            finalRequest = DecisionModelJava8Support.withDefaultParameters(this, request);
         } catch (Exception error) {
             return CompletableFuture.failedFuture(error);
         }
@@ -170,9 +170,20 @@ public interface DecisionModel {
         return defaultRequestParameters().modelName();
     }
 
-    private DecisionRequest withDefaultParameters(DecisionRequest request) {
+
+}
+
+/**
+ * Java 8 replacement for private interface implementation methods.
+ *
+ * @author 芋道源码
+ */
+final class DecisionModelJava8Support {
+    private DecisionModelJava8Support() {}
+
+    static DecisionRequest withDefaultParameters(DecisionModel self, DecisionRequest request) {
         return request.toBuilder()
-                .parameters(defaultRequestParameters().overrideWith(request.parameters()))
+                .parameters(self.defaultRequestParameters().overrideWith(request.parameters()))
                 .build();
     }
 }
