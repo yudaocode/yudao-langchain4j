@@ -123,3 +123,15 @@ Native8 unit gates:51+35+64=150 cases, no failures/errors/skips. Separate actual
 Chroma1.1 cosine queries showed one-ULP vector round-trip differences, and the unchanged exact-equality contract also failed on Java17. Production results and shared assertions were not changed. The V2 generic store contract now uses an L2 collection to retain exact-vector checks, converting its expected unit-vector cosine score to the correct L2 score with `1/(5-4*s)` and retaining the original1% tolerance. Separate cosine distance/score tests remain; a new real-MiniLM cosine vector precision/input-immutability regression checks every returned component within1e-6. Chroma's own [embedding invariants](https://github.com/chroma-core/chroma/blob/main/chromadb/test/property/invariants.py) also use approximate numerical comparison. This describes observed float precision, not a guarantee that every returned vector is unit-normalized.
 
 Final runtime bytecode scope353jars /115824 effective base classes, none above52;15 reviewed optional third-party API findings remain. The preceding52-module complete/resumed reactor gate and later module/consumer gates remain distinct; no one-shot full60-module run is claimed.
+
+## OpenSearch3.11 Java8 extension
+
+Default scope expands60→61, adding langchain4j-opensearch to the compatibility BOM.
+It reuses the separately verified Java8 SDK3.11 payload, retaining HTTP5.6.5/Core5.4.4/Jackson2.21.4/Reactor3.7.19 and SLF4J1.7.
+The new optional scoreBoost builder setting preserves the legacy0.5 default and supports1.0 for OpenSearch2.19+; no implicit cluster-info request is added.
+Actual native8 gates passed9 units,119 local-engine IT cases with2 contains capability skips, and2 standalone Boot2 consumers, zero failures/errors.
+The real engine gate usesOpenSearch2.19.3 plus the actual local MiniLM model, and preserves all upstream assertions.
+The first engine attempt found the cosine normalization change and disk/index-creation limits in the small fixture; final passes configure normalization explicitly and isolate fixture resource settings.
+The preceding52-module complete/resumed unit gate remains a separate checkpoint; no one-shot full61 unit run or AWS account acceptance is claimed here.
+Runtime dependency scan:62 classpath files including an earlier standalone fixture,390jars/127676 effective base classes, none above52; static API scan retains15 reviewed third-party optional references.
+See [usage and engine settings](langchain4j-opensearch/README-JAVA8.md).

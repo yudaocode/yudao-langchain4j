@@ -8,11 +8,14 @@ import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2Quantize
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreWithFilteringIT;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.apache.hc.core5.http.HttpHost;
+import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.json.jackson.JacksonJsonpMapper;
+import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.opensearch.testcontainers.OpensearchContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.utility.DockerImageName;
 
 class OpenSearchEmbeddingStoreLocalIT extends EmbeddingStoreWithFilteringIT {
 
@@ -22,23 +25,34 @@ class OpenSearchEmbeddingStoreLocalIT extends EmbeddingStoreWithFilteringIT {
      * if you just execute the tests then a container will be spun up automatically for you.
      */
     @Container
-    static OpensearchContainer<?> opensearch =
-            new OpensearchContainer<>(DockerImageName.parse("opensearchproject/opensearch:2.10.0"));
+    static Java8OpenSearchContainer opensearch = new Java8OpenSearchContainer();
 
     private EmbeddingStore<TextSegment> embeddingStore;
+    private static OpenSearchClient client;
 
     private final EmbeddingModel embeddingModel = new AllMiniLmL6V2QuantizedEmbeddingModel();
 
     @BeforeAll
-    static void startOpenSearch() {
+    static void startOpenSearch() throws Exception {
         opensearch.start();
+        client = new OpenSearchClient(ApacheHttpClient5TransportBuilder
+                .builder(HttpHost.create(opensearch.getHttpHostAddress()))
+                .setMapper(new JacksonJsonpMapper()).build());
+    }
+
+    @AfterAll
+    static void closeClient() throws Exception {
+        if (client != null) {
+            client._transport().close();
+        }
     }
 
     @BeforeEach
     void createEmbeddingStore() {
         embeddingStore = OpenSearchEmbeddingStore.builder()
-                .serverUrl(opensearch.getHttpHostAddress())
+                .openSearchClient(client)
                 .indexName(randomUUID())
+                .scoreBoost(Float.parseFloat(System.getProperty("opensearch.test.score-boost", "1.0")))
                 .build();
     }
 

@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
-import org.opensearch.testcontainers.OpensearchContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.utility.DockerImageName;
 
 class OpenSearchEmbeddingStoreRemovalIT extends EmbeddingStoreWithRemovalIT {
 
@@ -32,8 +30,7 @@ class OpenSearchEmbeddingStoreRemovalIT extends EmbeddingStoreWithRemovalIT {
      * if you just execute the tests then a container will be spun up automatically for you.
      */
     @Container
-    static OpensearchContainer<?> opensearch =
-            new OpensearchContainer<>(DockerImageName.parse("opensearchproject/opensearch:2.10.0"));
+    static Java8OpenSearchContainer opensearch = new Java8OpenSearchContainer();
 
     private EmbeddingStore<TextSegment> embeddingStore;
     private OpenSearchClient client;
@@ -64,12 +61,16 @@ class OpenSearchEmbeddingStoreRemovalIT extends EmbeddingStoreWithRemovalIT {
     }
 
     @AfterEach
-    void removeDataStore() {
+    void removeDataStore() throws IOException {
         // Clean up the index after each test
         try {
             embeddingStore.removeAll();
         } catch (Exception e) {
             // Ignore if index doesn't exist
+        } finally {
+            if (client != null) {
+                client._transport().close();
+            }
         }
     }
 

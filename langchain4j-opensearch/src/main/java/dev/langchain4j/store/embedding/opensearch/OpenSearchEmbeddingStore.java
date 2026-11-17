@@ -32,7 +32,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.opensearch._types.BulkIndexByScrollFailure;
+import org.opensearch.client.opensearch._types.BulkByScrollFailure;
 import org.opensearch.client.opensearch._types.ErrorCause;
 import org.opensearch.client.opensearch._types.InlineScript;
 import org.opensearch.client.opensearch._types.OpenSearchException;
@@ -69,6 +69,7 @@ public class OpenSearchEmbeddingStore implements EmbeddingStore<TextSegment> {
 
     private final String indexName;
     private final OpenSearchClient client;
+    private float scoreBoost = 0.5f;
 
     /**
      * Creates an instance of OpenSearchEmbeddingStore to connect with
@@ -166,6 +167,7 @@ public class OpenSearchEmbeddingStore implements EmbeddingStore<TextSegment> {
         private AwsSdk2TransportOptions options;
         private String indexName = "default";
         private OpenSearchClient openSearchClient;
+        private float scoreBoost = 0.5f;
 
         public Builder serverUrl(String serverUrl) {
             this.serverUrl = serverUrl;
@@ -212,14 +214,32 @@ public class OpenSearchEmbeddingStore implements EmbeddingStore<TextSegment> {
             return this;
         }
 
+        /**
+         * Configures cosine score normalization: 0.5 for OpenSearch before 2.19 (the legacy default),
+         * or 1.0 for 2.19 and newer engines that already normalize cosine scores.
+         *
+         * @param scoreBoost positive finite multiplier applied to the script score
+         * @return this builder
+         */
+        public Builder scoreBoost(float scoreBoost) {
+            if (!Float.isFinite(scoreBoost) || scoreBoost <= 0) {
+                throw new IllegalArgumentException("scoreBoost must be finite and positive");
+            }
+            this.scoreBoost = scoreBoost;
+            return this;
+        }
+
         public OpenSearchEmbeddingStore build() {
+            OpenSearchEmbeddingStore store;
             if (openSearchClient != null) {
-                return new OpenSearchEmbeddingStore(openSearchClient, indexName);
+                store = new OpenSearchEmbeddingStore(openSearchClient, indexName);
+            } else if (!isNullOrBlank(serviceName) && !isNullOrBlank(region) && options != null) {
+                store = new OpenSearchEmbeddingStore(serverUrl, serviceName, region, options, indexName);
+            } else {
+                store = new OpenSearchEmbeddingStore(serverUrl, apiKey, userName, password, indexName);
             }
-            if (!isNullOrBlank(serviceName) && !isNullOrBlank(region) && options != null) {
-                return new OpenSearchEmbeddingStore(serverUrl, serviceName, region, options, indexName);
-            }
-            return new OpenSearchEmbeddingStore(serverUrl, apiKey, userName, password, indexName);
+            store.scoreBoost = scoreBoost;
+            return store;
         }
     }
 
@@ -285,17 +305,18 @@ public class OpenSearchEmbeddingStore implements EmbeddingStore<TextSegment> {
         return ScriptScoreQuery.of(q -> q.minScore(minScore)
                 .query(query)
                 .script(s -> s.inline(InlineScript.of(i -> i.source("knn_score")
-                        .lang("knn")
+                        .lang(language -> language.custom("knn"))
                         .params("field", JsonData.of("vector"))
                         .params("query_value", JsonData.of(vector))
                         .params("space_type", JsonData.of("cosinesimil")))))
-                .boost(0.5f));
+                .boost(scoreBoost));
 
         // ===> From the OpenSearch documentation:
         // "Cosine similarity returns a number between -1 and 1, and because OpenSearch
         // relevance scores can't be below 0, the k-NN plugin adds 1 to get the final score."
         // See https://opensearch.org/docs/latest/search-plugins/knn/knn-score-script
-        // Thus, the query applies a boost of `0.5` to keep score in the range [0, 1]
+        // Engines before 2.19 need 0.5; newer engines already normalize and need 1.0.
+        // Keep the legacy default and allow explicit configuration without a new info permission.
     }
 
     private void addInternal(String id, Embedding embedding, TextSegment embedded) {
@@ -383,7 +404,7 @@ public class OpenSearchEmbeddingStore implements EmbeddingStore<TextSegment> {
                 client.deleteByQuery(delete -> delete.index(indexName).query(query));
 
         if (!response.failures().isEmpty()) {
-            for (BulkIndexByScrollFailure failure : response.failures()) {
+            for (BulkByScrollFailure failure : response.failures()) {
                 ErrorCause errorCause = failure.cause();
                 throw new OpenSearchRequestFailedException(
                         "type: " + errorCause.type() + "," + "reason: " + errorCause.reason());

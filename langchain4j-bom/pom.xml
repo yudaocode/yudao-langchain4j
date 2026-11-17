@@ -20,6 +20,12 @@
         <dependencies>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-opensearch</artifactId>
+                <version>${langchain4j.beta.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-java8-compat</artifactId>
                 <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
