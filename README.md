@@ -1,5 +1,9 @@
 # 芋道 LangChain4j 兼容版
 
+> 版本命名：保留当前源码基线的官方版本号；共用现代制品不加 JDK 后缀，隔离维护的兼容路线添加 `jdk8` / `jdk17` / `jdk25`。SNAPSHOT 尚未发布 Maven Central。JDK 路线后缀不等于最低字节码版本，框架依赖仍按 Boot 版本选择。
+> 完整版本规则与预览命名见 [VERSIONING.md](VERSIONING.md)。
+
+
 本仓库基于官方 LangChain4j 新版源码，为仍使用 **JDK 8 / Spring Boot 2.x** 的项目提供兼容分支，尽量保留新版本功能。上游作者、许可证和 Java 包名保留；以下说明之后继续保留官方 README。
 
 | 分支 | 运行环境 | 使用方式 |
@@ -7,11 +11,11 @@
 | `main` | JDK 17+；Spring Boot 3.x / 4.x 使用对应官方 starter | 跟踪官方源码，优先使用官方 `dev.langchain4j` 制品 |
 | `main-jdk8` | JDK 8；Spring Boot 2.7.18 / Spring 5.3 | 使用 `cn.iocoder.langchain4j` 兼容制品 |
 
-GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langchain4j) · Gitee：[zhijiantianya/yudao-langchain4j](https://gitee.com/zhijiantianya/yudao-langchain4j)
+GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langchain4j) · Gitee：[yudaocode/yudao-langchain4j](https://gitee.com/yudaocode/yudao-langchain4j)
 
 ## JDK 8 / Boot 2 如何使用
 
-切换到 `main-jdk8`。兼容版统一使用 `cn.iocoder.langchain4j`，版本为 `2.0.0-SNAPSHOT`，保留对应的 artifactId 与 `dev.langchain4j` Java 包名。**尚未发布 Maven Central 或远端 SNAPSHOT 仓库**；当前需先按兼容分支的构建说明安装到本地 Maven 仓库。正式发布后将使用 `2.x` 版本线。
+切换到 `main-jdk8`。兼容版统一使用 `cn.iocoder.langchain4j`，版本为 `1.24.0-jdk8-SNAPSHOT`，保留对应的 artifactId 与 `dev.langchain4j` Java 包名。**尚未发布 Maven Central 或远端 SNAPSHOT 仓库**；当前需先按兼容分支的构建说明安装到本地 Maven 仓库。正式发布时在官方基线和 JDK 路线后追加日期，未发布上游基线增加 preview；不增加同日序号。stable 与 beta 模块保持各自官方编号，由 BOM 管理。
 
 使用官方 `spring-boot-starter-parent:2.7.18` 时，还需设置以下三个属性：Boot 父 POM 直接管理这些依赖，Maven 中导入 BOM 不能覆盖父 POM 的直接声明。仅导入 Boot BOM 的项目应将兼容 BOM 放在 Boot BOM 前，并核对最终依赖树。
 
@@ -27,7 +31,7 @@ GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langch
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-bom</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
