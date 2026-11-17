@@ -128,6 +128,30 @@ class ChromaEmbeddingStoreDistanceMetricIT {
                 .matches();
     }
 
+    @org.junit.jupiter.api.Test
+    void should_preserve_cosine_score_and_vector_precision_on_v2() throws IOException {
+        String name = randomUUID();
+        createCollection(V2, name, "cosine");
+        ChromaEmbeddingStore store = store(V2, name);
+        Embedding original =
+                new dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel()
+                        .embed("hello")
+                        .content();
+        float[] before = original.vector().clone();
+        store.add("direction", original);
+        List<EmbeddingMatch<TextSegment>> matches = store.search(EmbeddingSearchRequest.builder()
+                        .queryEmbedding(original)
+                        .maxResults(1)
+                        .build())
+                .matches();
+        assertThat(matches).hasSize(1);
+        assertThat(matches.get(0).embeddingId()).isEqualTo("direction");
+        assertThat(matches.get(0).score()).isCloseTo(1.0, org.assertj.core.data.Offset.offset(0.000001));
+        org.junit.jupiter.api.Assertions.assertArrayEquals(
+                before, matches.get(0).embedding().vector(), 0.000001f);
+        org.junit.jupiter.api.Assertions.assertArrayEquals(before, original.vector());
+    }
+
     private static ChromaEmbeddingStore store(ChromaApiVersion apiVersion, String collectionName) {
         return ChromaEmbeddingStore.builder()
                 .apiVersion(apiVersion)

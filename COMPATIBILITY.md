@@ -105,3 +105,21 @@ For a Boot2 parent application using metrics/observation, add `<micrometer.versi
 ```
 
 Add the appropriate listener to model builders; the test is an in-process Actuator/Micrometer compatibility gate, not an Azure cloud-service acceptance. External model and instrumentation integration tests remain separate.
+
+## JDBC vector stores and Chroma
+
+Default scope reaches60 modules with PGVector, MariaDB and Chroma. Add the corresponding artifact from the compatibility BOM. PGVector0.1.6, PostgreSQL42.7.14 and MariaDB3.5.11 remain at upstream versions. Boot2 parent directly manages older JDBC drivers, so use `postgresql.version=42.7.14` / `mariadb.version=3.5.11` when selecting those stores; check the final dependency tree. Chroma builder still defaults to upstream V1: explicitly choose `ChromaApiVersion.V2` for newer servers.
+
+Native8 unit gates:51+35+64=150 cases, no failures/errors/skips. Separate actual database-container gates: PGVector692/13 skips, MariaDB469/8 skips, Chroma242/4 skips;1403 cases, zero failures/errors,25 upstream capability skips. These tests execute real local MiniLM quantized inference with DJL/ONNX and actual vector insertion/search/filter/removal; no external paid model service participates. The default unit install uses `-DskipITs`, so these local database gates are recorded separately:
+
+```sh
+./mvnw -pl langchain4j-pgvector,langchain4j-mariadb,langchain4j-chroma \
+  -Dcompat.test.jvm="$JAVA8_HOME/bin/java" -DskipITs -Dmaven.javadoc.skip=true install
+./mvnw -pl langchain4j-pgvector,langchain4j-mariadb,langchain4j-chroma \
+  -Dcompat.test.jvm="$JAVA8_HOME/bin/java" '-Dit.test=*IT' \
+  failsafe:integration-test failsafe:verify
+```
+
+Chroma1.1 cosine queries showed one-ULP vector round-trip differences, and the unchanged exact-equality contract also failed on Java17. Production results and shared assertions were not changed. The V2 generic store contract now uses an L2 collection to retain exact-vector checks, converting its expected unit-vector cosine score to the correct L2 score with `1/(5-4*s)` and retaining the original1% tolerance. Separate cosine distance/score tests remain; a new real-MiniLM cosine vector precision/input-immutability regression checks every returned component within1e-6. Chroma's own [embedding invariants](https://github.com/chroma-core/chroma/blob/main/chromadb/test/property/invariants.py) also use approximate numerical comparison. This describes observed float precision, not a guarantee that every returned vector is unit-normalized.
+
+Final runtime bytecode scope353jars /115824 effective base classes, none above52;15 reviewed optional third-party API findings remain. The preceding52-module complete/resumed reactor gate and later module/consumer gates remain distinct; no one-shot full60-module run is claimed.
