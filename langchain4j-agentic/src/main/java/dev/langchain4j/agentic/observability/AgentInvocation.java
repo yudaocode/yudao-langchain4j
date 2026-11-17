@@ -41,7 +41,7 @@ public class AgentInvocation {
 
     AgentInvocation(AgentRequest agentRequest) {
         this.agentRequest = agentRequest;
-        this.startInstant = Instant.now();
+        this.startInstant = AgentInvocationClock.now();
     }
 
     /**
@@ -59,7 +59,7 @@ public class AgentInvocation {
     synchronized void finished(AgentResponse agentResponse) {
         cancelSuspension();
         this.agentResponse = agentResponse;
-        this.finishInstant = Instant.now();
+        this.finishInstant = AgentInvocationClock.now();
     }
 
     /**
@@ -69,7 +69,7 @@ public class AgentInvocation {
      */
     synchronized void markSuspended() {
         if (suspendedAt == null && finishInstant == null) {
-            suspendedAt = Instant.now();
+            suspendedAt = AgentInvocationClock.now();
         }
     }
 
@@ -80,7 +80,7 @@ public class AgentInvocation {
     synchronized void markResumed() {
         Instant start = suspendedAt;
         if (start != null) {
-            suspendedTime = suspendedTime.plus(Duration.between(start, Instant.now()));
+            suspendedTime = suspendedTime.plus(Duration.between(start, AgentInvocationClock.now()));
             suspendedAt = null;
         }
     }
@@ -102,7 +102,8 @@ public class AgentInvocation {
     synchronized void addPlannerModelResponse(PlannerModelResponse plannerModelResponse) {
         if (plannerModelCalled) {
             plannerTokenUsage = TokenUsage.sum(plannerTokenUsage, plannerModelResponse.tokenUsage());
-            plannerModelName = Objects.equals(plannerModelName, plannerModelResponse.modelName()) ? plannerModelName : null;
+            plannerModelName =
+                    Objects.equals(plannerModelName, plannerModelResponse.modelName()) ? plannerModelName : null;
         } else {
             plannerModelCalled = true;
             plannerTokenUsage = plannerModelResponse.tokenUsage();
@@ -139,7 +140,7 @@ public class AgentInvocation {
      */
     public synchronized Duration suspendedDuration() {
         Instant start = suspendedAt;
-        return start == null ? suspendedTime : suspendedTime.plus(Duration.between(start, Instant.now()));
+        return start == null ? suspendedTime : suspendedTime.plus(Duration.between(start, AgentInvocationClock.now()));
     }
 
     /**
@@ -166,7 +167,7 @@ public class AgentInvocation {
     }
 
     /**
-     * Returns how long the invocation took, measured between two instants: a daylight saving time change in the
+     * Returns how long the invocation took using the monotonic nanosecond clock: a daylight saving time change in the
      * meantime does not affect it, unlike the difference between {@link #startTime()} and {@link #finishTime()}.
      */
     public Duration duration() {
@@ -294,18 +295,20 @@ public class AgentInvocation {
     }
 
     private String toString(String prefix) {
-        StringBuilder sb = new StringBuilder(prefix + "AgentInvocation{" +
-                "agent=" + agent().name() +
-                (iterationIndex >= 0 ? ", iteration=" + iterationIndex : "") +
-                (skipped() ? ", skipped=" + skipReason : "") +
-                ", startTime=" + startTime() +
-                ", finishTime=" + finishTime() +
-                ", duration=" + (done() ? duration().toMillis() + " ms" : "in progress") +
-                (suspendedDuration().isZero() ? "" : ", suspended=" + suspendedDuration().toMillis() + " ms") +
-                ", tokens=" + (done() || totalTokenCount() > 0 ? totalTokenCount() : "in progress") +
-                ", inputs=" + shortToString(inputs()) +
-                ", output=" + (done() ? shortToString(output()) : "in progress") +
-                '}');
+        StringBuilder sb = new StringBuilder(prefix + "AgentInvocation{" + "agent="
+                + agent().name() + (iterationIndex >= 0 ? ", iteration=" + iterationIndex : "")
+                + (skipped() ? ", skipped=" + skipReason : "")
+                + ", startTime="
+                + startTime() + ", finishTime="
+                + finishTime() + ", duration="
+                + (done() ? duration().toMillis() + " ms" : "in progress")
+                + (suspendedDuration().isZero()
+                        ? ""
+                        : ", suspended=" + suspendedDuration().toMillis() + " ms")
+                + ", tokens="
+                + (done() || totalTokenCount() > 0 ? totalTokenCount() : "in progress") + ", inputs="
+                + shortToString(inputs()) + ", output="
+                + (done() ? shortToString(output()) : "in progress") + '}');
         if (!toolExecutions.isEmpty()) {
             String toolPrefix = prefix.isEmpty() ? "|-> " : "    " + prefix;
             for (ToolExecution toolExec : toolExecutions) {
@@ -337,7 +340,7 @@ public class AgentInvocation {
         boolean first = true;
         StringBuilder sb = new StringBuilder();
         sb.append('{');
-        for (Map.Entry<?,?> e : map.entrySet()) {
+        for (Map.Entry<?, ?> e : map.entrySet()) {
             if (first) {
                 first = false;
             } else {

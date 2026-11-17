@@ -1,9 +1,8 @@
 package dev.langchain4j.agentic.scope;
 
+import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ServiceLoader;
 
 /**
  * Utility class for serializing AgenticScope objects to JSON format.
@@ -14,7 +13,7 @@ public class AgenticScopeSerializer {
 
     static final AgenticScopeJsonCodec CODEC = loadCodec();
 
-    private AgenticScopeSerializer() { }
+    private AgenticScopeSerializer() {}
 
     private static AgenticScopeJsonCodec loadCodec() {
         for (AgenticScopeJsonCodec codec : ServiceLoader.load(AgenticScopeJsonCodec.class)) {
@@ -72,7 +71,9 @@ public class AgenticScopeSerializer {
      */
     public static void allowDeserializationPackagePrefix(String packagePrefix) {
         if (!CODEC.allowPackagePrefix(packagePrefix)) {
-            LOG.warn("allowDeserializationPackagePrefix has no effect: the active codec ({}) does not support type allowlisting", CODEC.getClass().getName());
+            LOG.warn(
+                    "allowDeserializationPackagePrefix has no effect: the active codec ({}) does not support type allowlisting",
+                    CODEC.getClass().getName());
         }
     }
 
@@ -93,7 +94,9 @@ public class AgenticScopeSerializer {
      */
     public static void allowDeserializationType(Class<?> type) {
         if (!CODEC.allowType(type)) {
-            LOG.warn("allowDeserializationType has no effect: the active codec ({}) does not support type allowlisting", CODEC.getClass().getName());
+            LOG.warn(
+                    "allowDeserializationType has no effect: the active codec ({}) does not support type allowlisting",
+                    CODEC.getClass().getName());
         }
     }
 
@@ -114,7 +117,9 @@ public class AgenticScopeSerializer {
      */
     public static void withClassLoader(ClassLoader classloader) {
         if (!CODEC.withClassLoader(classloader)) {
-            LOG.warn("withClassLoader has no effect: the active codec ({}) does not support setting the classloader", CODEC.getClass().getName());
+            LOG.warn(
+                    "withClassLoader has no effect: the active codec ({}) does not support setting the classloader",
+                    CODEC.getClass().getName());
         }
     }
 
@@ -124,7 +129,7 @@ public class AgenticScopeSerializer {
      * <p>
      * This is equivalent to calling:
      * <pre>{@code
-     * AgenticScopeSerializer.allowDeserializationPackagePrefix(type.getPackageName() + ".");
+     * AgenticScopeSerializer.allowDeserializationPackagePrefix(dev.langchain4j.internal.compat.Java8Platform.packageName(type) + ".");
      * AgenticScopeSerializer.withClassLoader(type.getClassLoader());
      * }</pre>
      * <p>
@@ -144,8 +149,7 @@ public class AgenticScopeSerializer {
      * @see #withClassLoader(ClassLoader)
      */
     public static void registerForDeserializationPackageOf(Class<?> type) {
-        allowDeserializationPackagePrefix(type.getPackageName() + ".");
+        allowDeserializationPackagePrefix(dev.langchain4j.internal.compat.Java8Platform.packageName(type) + ".");
         withClassLoader(type.getClassLoader());
     }
-
 }

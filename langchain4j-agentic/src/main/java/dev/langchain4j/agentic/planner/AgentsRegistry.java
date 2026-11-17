@@ -57,13 +57,12 @@ public interface AgentsRegistry {
     class LazyHolder {
         private static volatile AgentsRegistry INSTANCE = discover();
 
-        private LazyHolder() { }
+        private LazyHolder() {}
 
         private static AgentsRegistry discover() {
-            List<AgentsRegistry> registries = ServiceLoader.load(AgentsRegistry.class)
-                    .stream()
-                    .map(ServiceLoader.Provider::get)
-                    .toList();
+            List<AgentsRegistry> registries = java.util.stream.StreamSupport.stream(
+                            ServiceLoader.load(AgentsRegistry.class).spliterator(), false)
+                    .collect(java.util.stream.Collectors.toList());
             return switch (registries.size()) {
                 case 0 -> new EmptyAgentsRegistry();
                 case 1 -> registries.get(0);
@@ -78,7 +77,8 @@ public interface AgentsRegistry {
 
         CompositeAgentsRegistry(List<AgentsRegistry> registries) {
             for (AgentsRegistry registry : registries) {
-                for (Map.Entry<String, AgentInstance> entry : registry.allAgents().entrySet()) {
+                for (Map.Entry<String, AgentInstance> entry :
+                        registry.allAgents().entrySet()) {
                     if (mergedAgents.put(entry.getKey(), entry.getValue()) != null) {
                         throw new RuntimeException("Duplicate agent name across registries: " + entry.getKey());
                     }
@@ -99,7 +99,6 @@ public interface AgentsRegistry {
             }
             return agent;
         }
-
     }
 
     class EmptyAgentsRegistry implements AgentsRegistry {

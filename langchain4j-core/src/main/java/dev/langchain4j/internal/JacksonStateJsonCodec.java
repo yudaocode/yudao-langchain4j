@@ -29,7 +29,7 @@ class JacksonStateJsonCodec implements Json.JsonCodec {
             builder.typeFactory(TypeFactory.defaultInstance().withClassLoader(classLoader));
         }
         this.mapper = builder.build();
-        this.mapper.activateDefaultTyping(new AllowlistTypeValidator(allowlist));
+        this.mapper.setDefaultTyping(new Java8StateTypeResolver(new AllowlistTypeValidator(allowlist)));
     }
 
     @Override

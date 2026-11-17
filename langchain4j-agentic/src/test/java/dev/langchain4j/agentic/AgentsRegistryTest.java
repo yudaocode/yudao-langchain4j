@@ -20,8 +20,7 @@ import org.junit.jupiter.api.Test;
 
 class AgentsRegistryTest {
 
-    private static final String SPI_SERVICE_FILE =
-            "META-INF/services/dev.langchain4j.agentic.planner.AgentsRegistry";
+    private static final String SPI_SERVICE_FILE = "META-INF/services/dev.langchain4j.agentic.planner.AgentsRegistry";
 
     @Test
     void default_registry_returns_empty_map() {
@@ -41,7 +40,8 @@ class AgentsRegistryTest {
     void spi_loaded_registry_provides_agents() throws Exception {
         try (CompiledRegistry compiled = compileTestRegistry()) {
             AgentsRegistry registry = ServiceLoader.load(AgentsRegistry.class, compiled.classLoader())
-                    .findFirst().orElseThrow();
+                    .findFirst()
+                    .orElseThrow();
 
             Map<String, AgentInstance> agents = registry.allAgents();
             assertThat(agents).containsKey("testAgent");
@@ -129,14 +129,14 @@ class AgentsRegistryTest {
                         @Override public Type outputType() { return String.class; }
                         @Override public String outputKey() { return "output"; }
                         @Override public boolean async() { return false; }
-                        @Override public List<AgentArgument> arguments() { return List.of(); }
+                        @Override public List<AgentArgument> arguments() { return java.util.Collections.emptyList(); }
                         @Override public AgentInstance parent() { return null; }
-                        @Override public List<AgentInstance> subagents() { return List.of(); }
+                        @Override public List<AgentInstance> subagents() { return java.util.Collections.emptyList(); }
                         @Override public AgenticSystemTopology topology() { return AgenticSystemTopology.NON_AI_AGENT; }
                     };
 
                     @Override
-                    public Map<String, AgentInstance> allAgents() { return Map.of("%s", AGENT); }
+                    public Map<String, AgentInstance> allAgents() { return java.util.Collections.singletonMap("%s", AGENT); }
 
                     @Override
                     public AgentInstance getAgent(String name) {
@@ -160,16 +160,21 @@ class AgentsRegistryTest {
             String className = source.lines()
                     .filter(l -> l.contains("public class "))
                     .map(l -> l.replaceAll(".*public class (\\w+).*", "$1"))
-                    .findFirst().orElseThrow();
+                    .findFirst()
+                    .orElseThrow();
 
             Path sourceFile = tempDir.resolve("dev/langchain4j/agentic/test/" + className + ".java");
             Files.createDirectories(sourceFile.getParent());
             Files.writeString(sourceFile, source, StandardCharsets.UTF_8);
 
             int result = compiler.run(
-                    null, null, null,
-                    "-classpath", System.getProperty("java.class.path"),
-                    "-d", tempDir.toString(),
+                    null,
+                    null,
+                    null,
+                    "-classpath",
+                    System.getProperty("java.class.path"),
+                    "-d",
+                    tempDir.toString(),
                     sourceFile.toString());
             assertThat(result).as("Compilation of %s must succeed", className).isZero();
 
@@ -181,16 +186,16 @@ class AgentsRegistryTest {
         Files.createDirectories(servicesFile.getParent());
         Files.writeString(servicesFile, spiEntries.toString(), StandardCharsets.UTF_8);
 
-        URLClassLoader classLoader = new URLClassLoader(
-                new URL[]{tempDir.toUri().toURL()}, AgentsRegistryTest.class.getClassLoader()) {
-            @Override
-            public Enumeration<URL> getResources(String name) throws IOException {
-                if (name.equals(SPI_SERVICE_FILE)) {
-                    return findResources(name);
-                }
-                return super.getResources(name);
-            }
-        };
+        URLClassLoader classLoader =
+                new URLClassLoader(new URL[] {tempDir.toUri().toURL()}, AgentsRegistryTest.class.getClassLoader()) {
+                    @Override
+                    public Enumeration<URL> getResources(String name) throws IOException {
+                        if (name.equals(SPI_SERVICE_FILE)) {
+                            return findResources(name);
+                        }
+                        return super.getResources(name);
+                    }
+                };
         return new CompiledRegistry(classLoader, tempDir);
     }
 
@@ -205,9 +210,13 @@ class AgentsRegistryTest {
         Files.writeString(sourceFile, testRegistrySource(), StandardCharsets.UTF_8);
 
         int result = compiler.run(
-                null, null, null,
-                "-classpath", System.getProperty("java.class.path"),
-                "-d", tempDir.toString(),
+                null,
+                null,
+                null,
+                "-classpath",
+                System.getProperty("java.class.path"),
+                "-d",
+                tempDir.toString(),
                 sourceFile.toString());
         assertThat(result).as("Registry compilation must succeed").isZero();
 
@@ -215,16 +224,16 @@ class AgentsRegistryTest {
         Files.createDirectories(servicesFile.getParent());
         Files.writeString(servicesFile, "dev.langchain4j.agentic.test.TestAgentsRegistry", StandardCharsets.UTF_8);
 
-        URLClassLoader classLoader = new URLClassLoader(
-                new URL[]{tempDir.toUri().toURL()}, AgentsRegistryTest.class.getClassLoader()) {
-            @Override
-            public Enumeration<URL> getResources(String name) throws IOException {
-                if (name.equals(SPI_SERVICE_FILE)) {
-                    return findResources(name);
-                }
-                return super.getResources(name);
-            }
-        };
+        URLClassLoader classLoader =
+                new URLClassLoader(new URL[] {tempDir.toUri().toURL()}, AgentsRegistryTest.class.getClassLoader()) {
+                    @Override
+                    public Enumeration<URL> getResources(String name) throws IOException {
+                        if (name.equals(SPI_SERVICE_FILE)) {
+                            return findResources(name);
+                        }
+                        return super.getResources(name);
+                    }
+                };
         return new CompiledRegistry(classLoader, tempDir);
     }
 
@@ -252,13 +261,13 @@ class AgentsRegistryTest {
                         @Override public Type outputType() { return String.class; }
                         @Override public String outputKey() { return "testOutput"; }
                         @Override public boolean async() { return false; }
-                        @Override public List<AgentArgument> arguments() { return List.of(); }
+                        @Override public List<AgentArgument> arguments() { return java.util.Collections.emptyList(); }
                         @Override public AgentInstance parent() { return null; }
-                        @Override public List<AgentInstance> subagents() { return List.of(); }
+                        @Override public List<AgentInstance> subagents() { return java.util.Collections.emptyList(); }
                         @Override public AgenticSystemTopology topology() { return AgenticSystemTopology.NON_AI_AGENT; }
                     };
 
-                    private final Map<String, AgentInstance> agents = Map.of("testAgent", TEST_AGENT);
+                    private final Map<String, AgentInstance> agents = java.util.Collections.singletonMap("testAgent", TEST_AGENT);
 
                     @Override
                     public Map<String, AgentInstance> allAgents() {

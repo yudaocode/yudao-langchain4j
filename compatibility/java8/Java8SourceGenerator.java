@@ -56,7 +56,8 @@ import java.util.stream.Collectors;
 public final class Java8SourceGenerator {
 
     private static CompilationUnit activeUnit;
-    private static final java.util.Map<BlockStmt, ClassOrInterfaceDeclaration> localTypeHolders = new java.util.IdentityHashMap<>();
+    private static final java.util.Map<BlockStmt, ClassOrInterfaceDeclaration> localTypeHolders =
+            new java.util.IdentityHashMap<>();
     private static Path activeInput;
     private static final java.util.Map<String, java.util.Set<ElementType>> annotationTargets =
             new java.util.HashMap<>();
@@ -71,19 +72,14 @@ public final class Java8SourceGenerator {
             removeStale(output, generated);
             return;
         }
-        var types =
-                new com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver(
-                        new com.github.javaparser.symbolsolver.resolution.typesolvers
-                                .JavaParserTypeSolver(input),
-                        new com.github.javaparser.symbolsolver.resolution.typesolvers
-                                .ClassLoaderTypeSolver(
-                                Java8SourceGenerator.class.getClassLoader()));
+        var types = new com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver(
+                new com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver(input),
+                new com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver(
+                        Java8SourceGenerator.class.getClassLoader()));
         StaticJavaParser.getParserConfiguration()
                 .setSymbolResolver(new com.github.javaparser.symbolsolver.JavaSymbolSolver(types));
         try (var paths = Files.walk(input)) {
-            for (Path path :
-                    paths.filter(p -> p.toString().endsWith(".java"))
-                            .collect(Collectors.toList())) {
+            for (Path path : paths.filter(p -> p.toString().endsWith(".java")).collect(Collectors.toList())) {
                 if (input.relativize(path).toString().replace('\\', '/').contains("/aot/")
                         || path.getFileName().toString().endsWith("AotProcessor.java")
                         || path.getFileName().toString().endsWith("AotProcessorTests.java")
@@ -93,8 +89,11 @@ public final class Java8SourceGenerator {
                 var localEnums = new java.util.LinkedHashMap<String, String>();
                 String prepared = prepareLocalEnums(Files.readString(path), localEnums);
                 CompilationUnit unit;
-                try { unit = StaticJavaParser.parse(prepared); }
-                catch (RuntimeException failure) { throw new IllegalStateException("Cannot lower " + path, failure); }
+                try {
+                    unit = StaticJavaParser.parse(prepared);
+                } catch (RuntimeException failure) {
+                    throw new IllegalStateException("Cannot lower " + path, failure);
+                }
                 localTypeHolders.clear();
                 restoreLocalEnums(unit, localEnums);
                 activeUnit = unit;
@@ -105,11 +104,15 @@ public final class Java8SourceGenerator {
                         String prefix = "java.util." + collection + ".";
                         if (!original.startsWith(prefix)) continue;
                         String method = original.substring(prefix.length());
-                        if (!java.util.Set.of("of", "copyOf", "entry", "ofEntries").contains(method)) continue;
-                        String replacement = collection.toLowerCase() + Character.toUpperCase(method.charAt(0)) + method.substring(1);
+                        if (!java.util.Set.of("of", "copyOf", "entry", "ofEntries")
+                                .contains(method)) continue;
+                        String replacement = collection.toLowerCase()
+                                + Character.toUpperCase(method.charAt(0))
+                                + method.substring(1);
                         imported.setName("dev.langchain4j.internal.compat.Java8Collections." + replacement);
                         unit.findAll(MethodCallExpr.class).stream()
-                                .filter(call -> call.getScope().isEmpty() && call.getNameAsString().equals(method))
+                                .filter(call -> call.getScope().isEmpty()
+                                        && call.getNameAsString().equals(method))
                                 .forEach(call -> call.setName(replacement));
                     }
                 }
@@ -120,101 +123,61 @@ public final class Java8SourceGenerator {
                 }
 
                 unit.getImports().forEach(i -> i.setName(java8Namespace(i.getNameAsString())));
-                unit.getImports()
-                        .forEach(
-                                i -> {
-                                    if (i.getNameAsString()
-                                            .equals(
-                                                    "org.springframework.core.task.support.ContextPropagatingTaskDecorator"))
-                                        i.setName(
-                                                "org.springframework.ai.util.ContextPropagatingTaskDecorator");
-                                    if (i.getNameAsString()
-                                            .equals(
-                                                    "org.springframework.boot.autoconfigure.service.connection.ConnectionDetails"))
-                                        i.setName("org.springframework.ai.util.ConnectionDetails");
-                                });
-                unit.findAll(AnnotationExpr.class)
-                        .forEach(a -> a.setName(java8Namespace(a.getNameAsString())));
-                unit.findAll(StringLiteralExpr.class)
-                        .forEach(
-                                value -> {
-                                    String translated = java8Namespace(value.asString());
-                                    if (!translated.equals(value.asString()))
-                                        value.setString(translated);
-                                });
+                unit.getImports().forEach(i -> {
+                    if (i.getNameAsString()
+                            .equals("org.springframework.core.task.support.ContextPropagatingTaskDecorator"))
+                        i.setName("org.springframework.ai.util.ContextPropagatingTaskDecorator");
+                    if (i.getNameAsString()
+                            .equals("org.springframework.boot.autoconfigure.service.connection.ConnectionDetails"))
+                        i.setName("org.springframework.ai.util.ConnectionDetails");
+                });
+                unit.findAll(AnnotationExpr.class).forEach(a -> a.setName(java8Namespace(a.getNameAsString())));
+                unit.findAll(StringLiteralExpr.class).forEach(value -> {
+                    String translated = java8Namespace(value.asString());
+                    if (!translated.equals(value.asString())) value.setString(translated);
+                });
                 unit.findAll(com.github.javaparser.ast.type.ClassOrInterfaceType.class).stream()
-                        .filter(
-                                type ->
-                                        type.getScope().isPresent()
-                                                && !java8Namespace(type.toString())
-                                                        .equals(type.toString()))
-                        .forEach(
-                                type ->
-                                        type.replace(
-                                                StaticJavaParser.parseClassOrInterfaceType(
-                                                        java8Namespace(type.toString()))));
+                        .filter(type -> type.getScope().isPresent()
+                                && !java8Namespace(type.toString()).equals(type.toString()))
+                        .forEach(type -> type.replace(
+                                StaticJavaParser.parseClassOrInterfaceType(java8Namespace(type.toString()))));
                 unit.getImports().stream()
                         .filter(
-                                i ->
-                                        i.getNameAsString()
-                                                .equals(
-                                                        "org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration"))
-                        .forEach(
-                                i ->
-                                        i.setName(
-                                                "org.springframework.ai.compat.autoconfigure.RestClientAutoConfiguration"));
+                                i -> i.getNameAsString()
+                                        .equals(
+                                                "org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration"))
+                        .forEach(i ->
+                                i.setName("org.springframework.ai.compat.autoconfigure.RestClientAutoConfiguration"));
                 unit.getImports()
-                        .removeIf(
-                                i ->
-                                        i.getNameAsString().contains(".aot.")
-                                                || i.getNameAsString()
-                                                        .equals(
-                                                                "org.springframework.context.annotation.ImportRuntimeHints")
-                                                || i.getNameAsString()
-                                                        .equals("org.springframework.lang.Contract")
-                                                || i.getNameAsString()
-                                                        .endsWith(
-                                                                "BeanFactoryInitializationAotProcessor"));
+                        .removeIf(i -> i.getNameAsString().contains(".aot.")
+                                || i.getNameAsString()
+                                        .equals("org.springframework.context.annotation.ImportRuntimeHints")
+                                || i.getNameAsString().equals("org.springframework.lang.Contract")
+                                || i.getNameAsString().endsWith("BeanFactoryInitializationAotProcessor"));
                 unit.findAll(AnnotationExpr.class).stream()
-                        .filter(
-                                a ->
-                                        a.getNameAsString().equals("ImportRuntimeHints")
-                                                || a.getNameAsString().equals("Contract"))
+                        .filter(a -> a.getNameAsString().equals("ImportRuntimeHints")
+                                || a.getNameAsString().equals("Contract"))
                         .forEach(a -> a.remove());
                 unit.findAll(ClassOrInterfaceDeclaration.class).stream()
-                        .filter(
-                                t ->
-                                        t.getImplementedTypes().stream()
-                                                .anyMatch(
-                                                        i ->
-                                                                i.getNameAsString()
-                                                                        .equals(
-                                                                                "RuntimeHintsRegistrar")))
+                        .filter(t -> t.getImplementedTypes().stream()
+                                .anyMatch(i -> i.getNameAsString().equals("RuntimeHintsRegistrar")))
                         .forEach(t -> t.remove());
                 unit.findAll(com.github.javaparser.ast.body.MethodDeclaration.class)
-                        .forEach(
-                                method -> {
-                                    if (method.isPrivate()
-                                            && method.getParentNode()
-                                                    .filter(
-                                                            parent ->
-                                                                    parent
-                                                                                    instanceof
-                                                                                    ClassOrInterfaceDeclaration
-                                                                                            declaration
-                                                                            && declaration
-                                                                                    .isInterface())
-                                                    .isPresent()) {
-                                        if (!method.isStatic())
-                                            throw new IllegalStateException(
-                                                    "Private instance interface method requires a"
-                                                            + " source port: "
-                                                            + path
-                                                            + "#"
-                                                            + method.getNameAsString());
-                                        method.setPrivate(false).setPublic(true);
-                                    }
-                                });
+                        .forEach(method -> {
+                            if (method.isPrivate()
+                                    && method.getParentNode()
+                                            .filter(parent -> parent instanceof ClassOrInterfaceDeclaration declaration
+                                                    && declaration.isInterface())
+                                            .isPresent()) {
+                                if (!method.isStatic())
+                                    throw new IllegalStateException("Private instance interface method requires a"
+                                            + " source port: "
+                                            + path
+                                            + "#"
+                                            + method.getNameAsString());
+                                method.setPrivate(false).setPublic(true);
+                            }
+                        });
                 unit.findAll(ClassOrInterfaceDeclaration.class).stream()
                         .filter(type -> type.getNameAsString().endsWith("AotProcessor"))
                         .forEach(type -> type.remove());
@@ -223,63 +186,65 @@ public final class Java8SourceGenerator {
                         .forEach(method -> method.remove());
                 lowerResourceReads(unit);
                 // Innermost records must be converted before their enclosing declaration.
-                List<RecordDeclaration> records =
-                        new ArrayList<>(unit.findAll(RecordDeclaration.class));
+                List<RecordDeclaration> records = new ArrayList<>(unit.findAll(RecordDeclaration.class));
                 java.util.Collections.reverse(records);
                 records.forEach(Java8SourceGenerator::lowerRecord);
-                unit.findAll(ClassOrInterfaceDeclaration.class)
-                        .forEach(
-                                type -> {
-                                    if (type.hasModifier(Modifier.Keyword.SEALED)) {
-                                        java.util.List<String> permitted = type.getPermittedTypes().stream()
-                                                .map(t -> t.toString() + ".class").collect(Collectors.toList());
-                                        if (permitted.isEmpty()) {
-                                            unit.findAll(TypeDeclaration.class).forEach(candidate -> {
-                                                if (candidate == type) return;
-                                                boolean matches = candidate instanceof ClassOrInterfaceDeclaration c
-                                                        && java.util.stream.Stream.concat(c.getExtendedTypes().stream(), c.getImplementedTypes().stream())
-                                                        .anyMatch(t -> t.getNameAsString().equals(type.getNameAsString()));
-                                                if (matches) permitted.add(candidate.getNameAsString() + ".class");
-                                            });
-                                        }
-                                        if (permitted.isEmpty()) throw new IllegalStateException("Missing sealed subtype metadata: " + type.getNameAsString());
-                                        type.addAnnotation(StaticJavaParser.parseAnnotation("@dev.langchain4j.internal.compat.Java8Sealed({" + String.join(", ", permitted) + "})"));
-                                    }
-                                    type.getModifiers()
-                                            .removeIf(
-                                                    m ->
-                                                            m.getKeyword()
-                                                                            == Modifier.Keyword
-                                                                                    .SEALED
-                                                                    || m.getKeyword()
-                                                                            == Modifier.Keyword
-                                                                                    .NON_SEALED);
-                                    type.getPermittedTypes().clear();
-                                });
+                unit.findAll(ClassOrInterfaceDeclaration.class).forEach(type -> {
+                    if (type.hasModifier(Modifier.Keyword.SEALED)) {
+                        java.util.List<String> permitted = type.getPermittedTypes().stream()
+                                .map(t -> t.toString() + ".class")
+                                .collect(Collectors.toList());
+                        if (permitted.isEmpty()) {
+                            unit.findAll(TypeDeclaration.class).forEach(candidate -> {
+                                if (candidate == type) return;
+                                boolean matches = candidate instanceof ClassOrInterfaceDeclaration c
+                                        && java.util.stream.Stream.concat(
+                                                        c.getExtendedTypes().stream(), c.getImplementedTypes().stream())
+                                                .anyMatch(
+                                                        t -> t.getNameAsString().equals(type.getNameAsString()));
+                                if (matches) permitted.add(candidate.getNameAsString() + ".class");
+                            });
+                        }
+                        if (permitted.isEmpty())
+                            throw new IllegalStateException(
+                                    "Missing sealed subtype metadata: " + type.getNameAsString());
+                        type.addAnnotation(
+                                StaticJavaParser.parseAnnotation("@dev.langchain4j.internal.compat.Java8Sealed({"
+                                        + String.join(", ", permitted) + "})"));
+                    }
+                    type.getModifiers()
+                            .removeIf(m -> m.getKeyword() == Modifier.Keyword.SEALED
+                                    || m.getKeyword() == Modifier.Keyword.NON_SEALED);
+                    type.getPermittedTypes().clear();
+                });
                 unit.findAll(NormalAnnotationExpr.class).stream()
-                        .filter(
-                                a ->
-                                        a.getNameAsString().equals("Deprecated")
-                                                || a.getNameAsString()
-                                                        .equals("java.lang.Deprecated"))
-                        .forEach(a -> a.replace(new MarkerAnnotationExpr(a.getName().clone())));
+                        .filter(a -> a.getNameAsString().equals("Deprecated")
+                                || a.getNameAsString().equals("java.lang.Deprecated"))
+                        .forEach(a ->
+                                a.replace(new MarkerAnnotationExpr(a.getName().clone())));
                 unit.findAll(com.github.javaparser.ast.expr.ObjectCreationExpr.class).stream()
-                        .filter(creation -> creation.getType().getNameAsString().equals("PrintStream") && creation.getArguments().size() == 3)
+                        .filter(creation -> creation.getType().getNameAsString().equals("PrintStream")
+                                && creation.getArguments().size() == 3)
                         .forEach(creation -> {
                             try {
-                                if (!creation.getArgument(2).calculateResolvedType().describe().equals("java.nio.charset.Charset")) return;
-                                var factory = new MethodCallExpr(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"), "printStream");
+                                if (!creation.getArgument(2)
+                                        .calculateResolvedType()
+                                        .describe()
+                                        .equals("java.nio.charset.Charset")) return;
+                                var factory = new MethodCallExpr(
+                                        StaticJavaParser.parseExpression(
+                                                "dev.langchain4j.internal.compat.Java8Platform"),
+                                        "printStream");
                                 creation.getArguments().forEach(argument -> factory.addArgument(argument.clone()));
                                 creation.replace(factory);
-                            } catch (RuntimeException unresolved) { /* --release8 diagnoses unresolved overloads. */ }
+                            } catch (RuntimeException unresolved) {
+                                /* --release8 diagnoses unresolved overloads. */
+                            }
                         });
                 lowerPlatformFactories(unit);
                 Path target = output.resolve(input.relativize(path));
                 Files.createDirectories(target.getParent());
-                String content =
-                        unit.toString()
-                                .replace(
-                                        "java.net.http.", "org.springframework.ai.compat.jdkhttp.");
+                String content = unit.toString().replace("java.net.http.", "org.springframework.ai.compat.jdkhttp.");
                 generated.add(target);
                 if (!Files.exists(target) || !Files.readString(target).equals(content)) {
                     Files.writeString(target, content);
@@ -291,39 +256,35 @@ public final class Java8SourceGenerator {
 
     private static String java8Namespace(String name) {
         if (name.equals("org.reactivestreams.FlowAdapters") || name.startsWith("org.reactivestreams.FlowAdapters."))
-            return "dev.langchain4j.internal.compat.FlowAdapters" + name.substring("org.reactivestreams.FlowAdapters".length());
+            return "dev.langchain4j.internal.compat.FlowAdapters"
+                    + name.substring("org.reactivestreams.FlowAdapters".length());
         if (name.equals("java.lang.reflect.RecordComponent")) return "dev.langchain4j.internal.compat.RecordComponent";
         if (name.equals("java.net.http.WebSocket") || name.startsWith("java.net.http.WebSocket."))
-            return "dev.langchain4j.mcp.client.transport.websocket.compat.WebSocket" + name.substring("java.net.http.WebSocket".length());
+            return "dev.langchain4j.mcp.client.transport.websocket.compat.WebSocket"
+                    + name.substring("java.net.http.WebSocket".length());
         if (name.equals("java.util.HexFormat")) return "dev.langchain4j.internal.compat.HexFormat";
         if (name.startsWith("java.net.http."))
-            return "org.springframework.ai.compat.jdkhttp."
-                    + name.substring("java.net.http.".length());
-        if (name.equals("java.util.concurrent.Flow")
-                || name.startsWith("java.util.concurrent.Flow."))
-            return "org.springframework.ai.compat.jdkhttp.Flow"
-                    + name.substring("java.util.concurrent.Flow".length());
-        for (String prefix :
-                java.util.List.of(
-                        "jakarta.servlet.",
-                        "jakarta.validation.",
-                        "jakarta.persistence.",
-                        "jakarta.transaction.",
-                        "jakarta.annotation.",
-                        "jakarta.websocket.",
-                        "jakarta.xml.bind.")) {
+            return "org.springframework.ai.compat.jdkhttp." + name.substring("java.net.http.".length());
+        if (name.equals("java.util.concurrent.Flow") || name.startsWith("java.util.concurrent.Flow."))
+            return "org.springframework.ai.compat.jdkhttp.Flow" + name.substring("java.util.concurrent.Flow".length());
+        for (String prefix : java.util.List.of(
+                "jakarta.servlet.",
+                "jakarta.validation.",
+                "jakarta.persistence.",
+                "jakarta.transaction.",
+                "jakarta.annotation.",
+                "jakarta.websocket.",
+                "jakarta.xml.bind.")) {
             if (name.startsWith(prefix)) return "javax." + name.substring("jakarta.".length());
         }
         return name;
     }
 
-    private static void removeStale(Path output, java.util.Set<Path> generated)
-            throws java.io.IOException {
+    private static void removeStale(Path output, java.util.Set<Path> generated) throws java.io.IOException {
         if (!Files.exists(output)) return;
         try (var paths = Files.walk(output)) {
-            for (Path path :
-                    paths.filter(p -> p.toString().endsWith(".java") && !generated.contains(p))
-                            .collect(Collectors.toList())) {
+            for (Path path : paths.filter(p -> p.toString().endsWith(".java") && !generated.contains(p))
+                    .collect(Collectors.toList())) {
                 Files.delete(path);
             }
         }
@@ -333,47 +294,39 @@ public final class Java8SourceGenerator {
         ClassOrInterfaceDeclaration type = new ClassOrInterfaceDeclaration();
         type.setName(record.getNameAsString());
         type.setModifiers(
-                record.getModifiers().stream()
-                        .map(Modifier::clone)
-                        .collect(Collectors.toCollection(NodeList::new)));
+                record.getModifiers().stream().map(Modifier::clone).collect(Collectors.toCollection(NodeList::new)));
         type.setFinal(true);
         type.addExtendedType("dev.langchain4j.internal.compat.Java8RecordBase");
         if (record.getParentNode().filter(p -> p instanceof TypeDeclaration).isPresent()) {
             type.setStatic(true);
         }
-        type.setTypeParameters(
-                record.getTypeParameters().stream()
-                        .map(n -> n.clone())
-                        .collect(Collectors.toCollection(NodeList::new)));
-        type.setImplementedTypes(
-                record.getImplementedTypes().stream()
-                        .map(n -> n.clone())
-                        .collect(Collectors.toCollection(NodeList::new)));
+        type.setTypeParameters(record.getTypeParameters().stream()
+                .map(n -> n.clone())
+                .collect(Collectors.toCollection(NodeList::new)));
+        type.setImplementedTypes(record.getImplementedTypes().stream()
+                .map(n -> n.clone())
+                .collect(Collectors.toCollection(NodeList::new)));
         type.setAnnotations(
-                record.getAnnotations().stream()
-                        .map(n -> n.clone())
-                        .collect(Collectors.toCollection(NodeList::new)));
+                record.getAnnotations().stream().map(n -> n.clone()).collect(Collectors.toCollection(NodeList::new)));
         record.getComment().ifPresent(c -> type.setComment(c.clone()));
         if (type.getAnnotationByName("JsonAutoDetect").isEmpty()) {
-            type.addAnnotation(
-                    StaticJavaParser.parseAnnotation(
-                            "@com.fasterxml.jackson.annotation.JsonAutoDetect(fieldVisibility ="
-                                + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY,"
-                                + " getterVisibility ="
-                                + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE,"
-                                + " isGetterVisibility ="
-                                + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE,"
-                                + " setterVisibility ="
-                                + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE)"));
+            type.addAnnotation(StaticJavaParser.parseAnnotation(
+                    "@com.fasterxml.jackson.annotation.JsonAutoDetect(fieldVisibility ="
+                            + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY,"
+                            + " getterVisibility ="
+                            + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE,"
+                            + " isGetterVisibility ="
+                            + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE,"
+                            + " setterVisibility ="
+                            + " com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE)"));
         }
         List<Parameter> components =
                 record.getParameters().stream().map(Parameter::clone).collect(Collectors.toList());
-        CompactConstructorDeclaration compact =
-                record.getMembers().stream()
-                        .filter(BodyDeclaration::isCompactConstructorDeclaration)
-                        .map(BodyDeclaration::asCompactConstructorDeclaration)
-                        .findFirst()
-                        .orElse(null);
+        CompactConstructorDeclaration compact = record.getMembers().stream()
+                .filter(BodyDeclaration::isCompactConstructorDeclaration)
+                .map(BodyDeclaration::asCompactConstructorDeclaration)
+                .findFirst()
+                .orElse(null);
         for (BodyDeclaration<?> member : record.getMembers()) {
             if (!(member instanceof CompactConstructorDeclaration)) {
                 type.addMember(member.clone());
@@ -381,41 +334,48 @@ public final class Java8SourceGenerator {
         }
         for (Parameter component : components) {
             String name = component.getNameAsString();
-            var fieldType =
-                    component.isVarArgs()
-                            ? new com.github.javaparser.ast.type.ArrayType(
-                                    component.getType().clone())
-                            : component.getType().clone();
-            FieldDeclaration field =
-                    type.addField(
-                            fieldType, name, Modifier.Keyword.PRIVATE, Modifier.Keyword.FINAL);
+            var fieldType = component.isVarArgs()
+                    ? new com.github.javaparser.ast.type.ArrayType(
+                            component.getType().clone())
+                    : component.getType().clone();
+            FieldDeclaration field = type.addField(fieldType, name, Modifier.Keyword.PRIVATE, Modifier.Keyword.FINAL);
             field.setAnnotations(componentAnnotations(component, ElementType.FIELD));
-            if (type.getMethodsByName(name).stream().noneMatch(m -> m.getParameters().isEmpty())) {
+            if (type.getMethodsByName(name).stream()
+                    .noneMatch(m -> m.getParameters().isEmpty())) {
                 type.addMethod(name, Modifier.Keyword.PUBLIC)
                         .setType(fieldType.clone())
                         .setAnnotations(componentAnnotations(component, ElementType.METHOD))
                         .setBody(StaticJavaParser.parseBlock("{ return this." + name + "; }"));
             }
-        }
-        ConstructorDeclaration canonical =
-                type.getConstructors().stream()
-                        .filter(c -> canonical(c, components))
+            // Jackson's native record support reads overridden component accessors.
+            if (record.getAnnotationByName("JsonAutoDetect").isEmpty()) {
+                var accessor = type.getMethodsByName(name).stream()
+                        .filter(method -> method.getParameters().isEmpty())
                         .findFirst()
-                        .orElse(null);
+                        .orElseThrow();
+                if (accessor.getAnnotationByName("JsonProperty").isEmpty()
+                        && accessor.getAnnotationByName("JsonIgnore").isEmpty()
+                        && component.getAnnotationByName("JsonIgnore").isEmpty()) {
+                    var configured = component.getAnnotationByName("JsonProperty");
+                    accessor.addAnnotation(
+                            configured.isPresent() ? configured.get().clone() : property(name));
+                }
+            }
+        }
+        ConstructorDeclaration canonical = type.getConstructors().stream()
+                .filter(c -> canonical(c, components))
+                .findFirst()
+                .orElse(null);
         if (canonical == null) {
             canonical = type.addConstructor();
             var access =
-                    compact != null
-                                    && compact.getAccessSpecifier()
-                                            != com.github.javaparser.ast.AccessSpecifier.NONE
+                    compact != null && compact.getAccessSpecifier() != com.github.javaparser.ast.AccessSpecifier.NONE
                             ? compact.getModifiers()
                             : record.getModifiers();
             access.stream()
-                    .filter(
-                            m ->
-                                    m.getKeyword() == Modifier.Keyword.PUBLIC
-                                            || m.getKeyword() == Modifier.Keyword.PROTECTED
-                                            || m.getKeyword() == Modifier.Keyword.PRIVATE)
+                    .filter(m -> m.getKeyword() == Modifier.Keyword.PUBLIC
+                            || m.getKeyword() == Modifier.Keyword.PROTECTED
+                            || m.getKeyword() == Modifier.Keyword.PRIVATE)
                     .forEach(m -> canonicalAccess(type, m.getKeyword()));
             if (record.getParentNode()
                     .filter(p -> p instanceof ClassOrInterfaceDeclaration c && c.isInterface())
@@ -427,55 +387,39 @@ public final class Java8SourceGenerator {
                 parameter.setAnnotations(componentAnnotations(component, ElementType.PARAMETER));
                 canonical.addParameter(parameter);
             }
-            BlockStmt body = compact == null ? new BlockStmt() : compact.getBody().clone();
+            BlockStmt body =
+                    compact == null ? new BlockStmt() : compact.getBody().clone();
             for (Parameter component : components) {
-                body.addStatement(
-                        "this."
-                                + component.getNameAsString()
-                                + " = "
-                                + component.getNameAsString()
-                                + ";");
+                body.addStatement("this." + component.getNameAsString() + " = " + component.getNameAsString() + ";");
             }
             canonical.setBody(body);
             if (compact != null) {
-                canonical.setAnnotations(
-                        compact.getAnnotations().stream()
-                                .map(n -> n.clone())
-                                .collect(Collectors.toCollection(NodeList::new)));
+                canonical.setAnnotations(compact.getAnnotations().stream()
+                        .map(n -> n.clone())
+                        .collect(Collectors.toCollection(NodeList::new)));
                 compact.getComment()
-                        .ifPresent(
-                                c ->
-                                        type.getConstructors()
-                                                .get(type.getConstructors().size() - 1)
-                                                .setComment(c.clone()));
+                        .ifPresent(c -> type.getConstructors()
+                                .get(type.getConstructors().size() - 1)
+                                .setComment(c.clone()));
             }
         }
         // A plain class cannot declare record-component @param tags. Keep generic
         // type parameters on the class and move component docs to the canonical constructor.
         if (record.getJavadoc().isPresent()) {
             var classDoc = record.getJavadoc().get();
-            var constructorDoc =
-                    canonical
-                            .getJavadoc()
-                            .orElseGet(
-                                    () ->
-                                            new com.github.javaparser.javadoc.Javadoc(
-                                                    new com.github.javaparser.javadoc.description
-                                                            .JavadocDescription()));
-            var names =
-                    components.stream().map(Parameter::getNameAsString).collect(Collectors.toSet());
+            var constructorDoc = canonical
+                    .getJavadoc()
+                    .orElseGet(() -> new com.github.javaparser.javadoc.Javadoc(
+                            new com.github.javaparser.javadoc.description.JavadocDescription()));
+            var names = components.stream().map(Parameter::getNameAsString).collect(Collectors.toSet());
             var tags = new ArrayList<>(classDoc.getBlockTags());
             for (var tag : tags) {
                 if (tag.getType() == com.github.javaparser.javadoc.JavadocBlockTag.Type.PARAM
                         && tag.getName().filter(names::contains).isPresent()) {
                     classDoc.getBlockTags().remove(tag);
-                    boolean documented =
-                            constructorDoc.getBlockTags().stream()
-                                    .anyMatch(
-                                            existing ->
-                                                    existing.getType() == tag.getType()
-                                                            && existing.getName()
-                                                                    .equals(tag.getName()));
+                    boolean documented = constructorDoc.getBlockTags().stream()
+                            .anyMatch(existing -> existing.getType() == tag.getType()
+                                    && existing.getName().equals(tag.getName()));
                     if (!documented) constructorDoc.addBlockTag(tag);
                 }
             }
@@ -486,31 +430,26 @@ public final class Java8SourceGenerator {
             }
         }
         type.addAnnotation(StaticJavaParser.parseAnnotation("@dev.langchain4j.internal.compat.Java8Record({"
-                + components.stream().map(p -> new StringLiteralExpr(p.getNameAsString()).toString()).collect(Collectors.joining(", ")) + "})"));
-        boolean hasCreator =
-                type.findAll(AnnotationExpr.class).stream()
-                        .anyMatch(a -> a.getNameAsString().endsWith("JsonCreator"));
+                + components.stream()
+                        .map(p -> new StringLiteralExpr(p.getNameAsString()).toString())
+                        .collect(Collectors.joining(", "))
+                + "})"));
+        boolean hasCreator = type.findAll(AnnotationExpr.class).stream()
+                .anyMatch(a -> a.getNameAsString().endsWith("JsonCreator"));
         if (!hasCreator) {
             canonical.addAnnotation("com.fasterxml.jackson.annotation.JsonCreator");
         }
         for (Parameter parameter : canonical.getParameters()) {
-            var jsonProperty =
-                    parameter.getAnnotations().stream()
-                            .filter(
-                                    annotation ->
-                                            annotation
-                                                    .getName()
-                                                    .getIdentifier()
-                                                    .equals("JsonProperty"))
-                            .findFirst();
+            var jsonProperty = parameter.getAnnotations().stream()
+                    .filter(annotation -> annotation.getName().getIdentifier().equals("JsonProperty"))
+                    .findFirst();
             String parameterName = parameter.getNameAsString();
             if (jsonProperty.isPresent()) {
                 AnnotationExpr annotation = jsonProperty.get();
                 if (annotation instanceof NormalAnnotationExpr normal) {
-                    var value =
-                            normal.getPairs().stream()
-                                    .filter(pair -> pair.getNameAsString().equals("value"))
-                                    .findFirst();
+                    var value = normal.getPairs().stream()
+                            .filter(pair -> pair.getNameAsString().equals("value"))
+                            .findFirst();
                     if (value.isEmpty()) {
                         normal.addPair("value", new StringLiteralExpr(parameterName));
                     } else if (value.get().getValue() instanceof StringLiteralExpr literal
@@ -518,28 +457,24 @@ public final class Java8SourceGenerator {
                         value.get().setValue(new StringLiteralExpr(parameterName));
                     }
                 } else if (annotation instanceof MarkerAnnotationExpr) {
-                    annotation.replace(
-                            new SingleMemberAnnotationExpr(
-                                    annotation.getName().clone(),
-                                    new StringLiteralExpr(parameterName)));
+                    annotation.replace(new SingleMemberAnnotationExpr(
+                            annotation.getName().clone(), new StringLiteralExpr(parameterName)));
                 } else if (annotation instanceof SingleMemberAnnotationExpr single
                         && single.getMemberValue() instanceof StringLiteralExpr literal
                         && literal.asString().isEmpty()) {
                     single.setMemberValue(new StringLiteralExpr(parameterName));
                 }
             } else {
-                boolean ignored =
-                        components.stream()
-                                .filter(c -> c.getNameAsString().equals(parameterName))
-                                .flatMap(c -> c.getAnnotations().stream())
-                                .anyMatch(Java8SourceGenerator::ignoredJsonProperty);
+                boolean ignored = components.stream()
+                        .filter(c -> c.getNameAsString().equals(parameterName))
+                        .flatMap(c -> c.getAnnotations().stream())
+                        .anyMatch(Java8SourceGenerator::ignoredJsonProperty);
                 if (ignored) {
                     parameter.addAnnotation(
-                            StaticJavaParser.parseAnnotation(
-                                    "@com.fasterxml.jackson.annotation.JsonProperty(value = "
-                                            + new StringLiteralExpr(parameterName)
-                                            + ", access ="
-                                            + " com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY)"));
+                            StaticJavaParser.parseAnnotation("@com.fasterxml.jackson.annotation.JsonProperty(value = "
+                                    + new StringLiteralExpr(parameterName)
+                                    + ", access ="
+                                    + " com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY)"));
                 } else {
                     parameter.addAnnotation(property(parameterName));
                 }
@@ -548,40 +483,29 @@ public final class Java8SourceGenerator {
         for (Parameter component : components) {
             type.getMethodsByName(component.getNameAsString()).stream()
                     .filter(m -> m.getParameters().isEmpty())
-                    .forEach(
-                            m ->
-                                    m.getAnnotations()
-                                            .removeIf(a -> a.getNameAsString().equals("Override")));
+                    .forEach(m ->
+                            m.getAnnotations().removeIf(a -> a.getNameAsString().equals("Override")));
         }
         String name = type.getNameAsString();
         if (type.getMethodsByName("equals").stream()
-                .noneMatch(
-                        m ->
-                                m.getParameters().size() == 1
-                                        && m.getParameter(0)
-                                                .getType()
-                                                .asString()
-                                                .equals("Object"))) {
+                .noneMatch(m -> m.getParameters().size() == 1
+                        && m.getParameter(0).getType().asString().equals("Object"))) {
             String comparisons =
-                    components.stream()
-                            .map(Java8SourceGenerator::equality)
-                            .collect(Collectors.joining(" && "));
-            type.addMember(
-                    StaticJavaParser.parseBodyDeclaration(
-                            "@Override public boolean equals(Object other) { if (this == other)"
-                                    + " return true; if (other == null || getClass() !="
-                                    + " other.getClass()) return false; "
-                                    + name
-                                    + " that = ("
-                                    + name
-                                    + ") other; return "
-                                    + (comparisons.isEmpty() ? "true" : comparisons)
-                                    + "; }"));
+                    components.stream().map(Java8SourceGenerator::equality).collect(Collectors.joining(" && "));
+            type.addMember(StaticJavaParser.parseBodyDeclaration(
+                    "@Override public boolean equals(Object other) { if (this == other)"
+                            + " return true; if (other == null || getClass() !="
+                            + " other.getClass()) return false; "
+                            + name
+                            + " that = ("
+                            + name
+                            + ") other; return "
+                            + (comparisons.isEmpty() ? "true" : comparisons)
+                            + "; }"));
         }
         if (type.getMethodsByName("hashCode").stream()
                 .noneMatch(m -> m.getParameters().isEmpty())) {
-            StringBuilder body =
-                    new StringBuilder("@Override public int hashCode() { int result = 0;");
+            StringBuilder body = new StringBuilder("@Override public int hashCode() { int result = 0;");
             for (Parameter component : components) {
                 body.append("result = 31 * result + ").append(hash(component)).append(';');
             }
@@ -589,10 +513,9 @@ public final class Java8SourceGenerator {
         }
         if (type.getMethodsByName("toString").stream()
                 .noneMatch(m -> m.getParameters().isEmpty())) {
-            StringBuilder body =
-                    new StringBuilder("@Override public String toString() { return \"")
-                            .append(name)
-                            .append("[");
+            StringBuilder body = new StringBuilder("@Override public String toString() { return \"")
+                    .append(name)
+                    .append("[");
             for (int i = 0; i < components.size(); i++) {
                 Parameter component = components.get(i);
                 if (i > 0) body.append(", ");
@@ -623,14 +546,12 @@ public final class Java8SourceGenerator {
         return true;
     }
 
-    private static NodeList<AnnotationExpr> componentAnnotations(
-            Parameter component, ElementType site) {
+    private static NodeList<AnnotationExpr> componentAnnotations(Parameter component, ElementType site) {
         return component.getAnnotations().stream()
-                .filter(
-                        a -> {
-                            java.util.Set<ElementType> targets = targets(a);
-                            return targets.contains(site) || targets.contains(ElementType.TYPE_USE);
-                        })
+                .filter(a -> {
+                    java.util.Set<ElementType> targets = targets(a);
+                    return targets.contains(site) || targets.contains(ElementType.TYPE_USE);
+                })
                 .map(AnnotationExpr::clone)
                 .collect(Collectors.toCollection(NodeList::new));
     }
@@ -645,43 +566,36 @@ public final class Java8SourceGenerator {
             }
         }
         if (!qualifiedName.contains(".")) {
-            qualifiedName =
-                    activeUnit
-                                    .getPackageDeclaration()
-                                    .map(p -> p.getNameAsString() + ".")
-                                    .orElse("")
-                            + simpleName;
+            qualifiedName = activeUnit
+                            .getPackageDeclaration()
+                            .map(p -> p.getNameAsString() + ".")
+                            .orElse("")
+                    + simpleName;
             if (simpleName.equals("Deprecated")) qualifiedName = "java.lang.Deprecated";
         }
         java.util.Set<ElementType> cached = annotationTargets.get(qualifiedName);
         if (cached != null) return cached;
         java.util.Set<ElementType> result = java.util.EnumSet.noneOf(ElementType.class);
         try {
-            Class<?> type =
-                    Class.forName(
-                            qualifiedName, false, Java8SourceGenerator.class.getClassLoader());
+            Class<?> type = Class.forName(qualifiedName, false, Java8SourceGenerator.class.getClassLoader());
             Target target = type.getAnnotation(Target.class);
             if (target != null) java.util.Collections.addAll(result, target.value());
             else java.util.Collections.addAll(result, ElementType.values());
         } catch (ClassNotFoundException | LinkageError unavailable) {
             // An annotation in this module may not have been compiled yet.
             Path source = activeInput.resolve(qualifiedName.replace('.', '/') + ".java");
-            List<AnnotationDeclaration> declarations =
-                    activeUnit.findAll(AnnotationDeclaration.class);
+            List<AnnotationDeclaration> declarations = activeUnit.findAll(AnnotationDeclaration.class);
             if (Files.isRegularFile(source)) {
                 try {
-                    declarations =
-                            StaticJavaParser.parse(source).findAll(AnnotationDeclaration.class);
+                    declarations = StaticJavaParser.parse(source).findAll(AnnotationDeclaration.class);
                 } catch (java.io.IOException error) {
-                    throw new IllegalStateException(
-                            "Cannot inspect annotation " + qualifiedName, error);
+                    throw new IllegalStateException("Cannot inspect annotation " + qualifiedName, error);
                 }
             }
-            AnnotationDeclaration declaration =
-                    declarations.stream()
-                            .filter(d -> d.getNameAsString().equals(simpleName))
-                            .findFirst()
-                            .orElse(null);
+            AnnotationDeclaration declaration = declarations.stream()
+                    .filter(d -> d.getNameAsString().equals(simpleName))
+                    .findFirst()
+                    .orElse(null);
             if (declaration != null && declaration.getAnnotationByName("Target").isPresent()) {
                 String target = declaration.getAnnotationByName("Target").get().toString();
                 for (ElementType site : ElementType.values()) {
@@ -698,25 +612,21 @@ public final class Java8SourceGenerator {
         return result;
     }
 
-    private static void canonicalAccess(
-            ClassOrInterfaceDeclaration type, Modifier.Keyword keyword) {
+    private static void canonicalAccess(ClassOrInterfaceDeclaration type, Modifier.Keyword keyword) {
         type.getConstructors().get(type.getConstructors().size() - 1).addModifier(keyword);
     }
 
-    private static boolean canonical(
-            ConstructorDeclaration constructor, List<Parameter> components) {
+    private static boolean canonical(ConstructorDeclaration constructor, List<Parameter> components) {
         if (constructor.getParameters().size() != components.size()) return false;
         for (int i = 0; i < components.size(); i++) {
-            if (!constructor.getParameter(i).getType().equals(components.get(i).getType()))
-                return false;
+            if (!constructor.getParameter(i).getType().equals(components.get(i).getType())) return false;
         }
         return true;
     }
 
     private static AnnotationExpr property(String name) {
         return new SingleMemberAnnotationExpr(
-                new com.github.javaparser.ast.expr.Name(
-                        "com.fasterxml.jackson.annotation.JsonProperty"),
+                new com.github.javaparser.ast.expr.Name("com.fasterxml.jackson.annotation.JsonProperty"),
                 new StringLiteralExpr(name));
     }
 
@@ -724,11 +634,10 @@ public final class Java8SourceGenerator {
         String a = "this." + component.getNameAsString(), b = "that." + component.getNameAsString();
         if (!component.getType().isPrimitiveType() || component.isVarArgs())
             return "java.util.Objects.equals(" + a + ", " + b + ")";
-        PrimitiveType.Primitive primitive = component.getType().asPrimitiveType().getType();
-        if (primitive == PrimitiveType.Primitive.DOUBLE)
-            return "Double.compare(" + a + ", " + b + ") == 0";
-        if (primitive == PrimitiveType.Primitive.FLOAT)
-            return "Float.compare(" + a + ", " + b + ") == 0";
+        PrimitiveType.Primitive primitive =
+                component.getType().asPrimitiveType().getType();
+        if (primitive == PrimitiveType.Primitive.DOUBLE) return "Double.compare(" + a + ", " + b + ") == 0";
+        if (primitive == PrimitiveType.Primitive.FLOAT) return "Float.compare(" + a + ", " + b + ") == 0";
         return a + " == " + b;
     }
 
@@ -745,12 +654,7 @@ public final class Java8SourceGenerator {
         java.util.Collections.reverse(calls);
         for (MethodCallExpr call : calls) {
             String name = call.getNameAsString();
-            if (!java.util.Set.of(
-                                    "getContentAsByteArray",
-                                    "getContentAsString",
-                                    "stream",
-                                    "toArray",
-                                    "repeat")
+            if (!java.util.Set.of("getContentAsByteArray", "getContentAsString", "stream", "toArray", "repeat")
                             .contains(name)
                     || call.getScope().isEmpty()) continue;
             Expression receiver = call.getScope().get();
@@ -763,50 +667,38 @@ public final class Java8SourceGenerator {
                 if ((name.equals("getContentAsByteArray") || name.equals("getContentAsString"))
                         && (owner.equals("org.springframework.core.io.Resource")
                                 || reference.getAllAncestors().stream()
-                                        .anyMatch(
-                                                parent ->
-                                                        parent.getQualifiedName()
-                                                                .equals(
-                                                                        "org.springframework.core.io.Resource")))) {
+                                        .anyMatch(parent -> parent.getQualifiedName()
+                                                .equals("org.springframework.core.io.Resource")))) {
                     call.getArguments().addFirst(receiver.clone());
-                    call.setScope(
-                            StaticJavaParser.parseExpression(
-                                    "dev.langchain4j.internal.compat.Java8Platform"));
+                    call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 } else if (name.equals("stream")
                         && call.getArguments().isEmpty()
                         && owner.equals("java.util.Optional")) {
                     call.setName("optionalStream");
                     call.addArgument(receiver.clone());
-                    call.setScope(
-                            StaticJavaParser.parseExpression(
-                                    "dev.langchain4j.internal.compat.Java8Platform"));
+                    call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 } else if (name.equals("repeat")
                         && call.getArguments().size() == 1
                         && owner.equals("java.lang.String")) {
                     call.getArguments().addFirst(receiver.clone());
-                    call.setScope(
-                            StaticJavaParser.parseExpression(
-                                    "dev.langchain4j.internal.compat.Java8Platform"));
+                    call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 } else if (name.equals("toArray")
                         && call.getArguments().size() == 1
                         && call.getArgument(0).isMethodReferenceExpr()
                         && (owner.equals("java.util.Collection")
                                 || reference.getAllAncestors().stream()
-                                        .anyMatch(
-                                                parent ->
-                                                        parent.getQualifiedName()
-                                                                .equals("java.util.Collection")))) {
+                                        .anyMatch(parent ->
+                                                parent.getQualifiedName().equals("java.util.Collection")))) {
                     MethodReferenceExpr factory = call.getArgument(0).asMethodReferenceExpr();
                     String array = factory.getScope().toString();
                     if (factory.getIdentifier().equals("new") && array.endsWith("[]")) {
                         int dimension = array.indexOf("[]");
                         call.setArgument(
                                 0,
-                                StaticJavaParser.parseExpression(
-                                        "new "
-                                                + array.substring(0, dimension)
-                                                + "[0]"
-                                                + array.substring(dimension + 2)));
+                                StaticJavaParser.parseExpression("new "
+                                        + array.substring(0, dimension)
+                                        + "[0]"
+                                        + array.substring(dimension + 2)));
                     }
                 }
             } catch (RuntimeException unresolved) {
@@ -823,37 +715,27 @@ public final class Java8SourceGenerator {
             if ((owner.equals("List") || owner.equals("Set") || owner.equals("Map"))
                     && reference.getIdentifier().equals("of")) {
                 reference.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Collections"));
+                        StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Collections"));
                 reference.setIdentifier(owner.toLowerCase() + "Of");
             }
             if ((owner.equals("Optional") || owner.equals("java.util.Optional"))
                     && reference.getIdentifier().equals("stream")) {
-                reference.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                reference.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 reference.setIdentifier("optionalStream");
             }
             if ((owner.equals("String") || owner.equals("java.lang.String"))
-                    && java.util.Set.of(
-                                    "strip", "stripLeading", "stripTrailing", "isBlank", "repeat")
+                    && java.util.Set.of("strip", "stripLeading", "stripTrailing", "isBlank", "repeat")
                             .contains(reference.getIdentifier())) {
-                reference.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                reference.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
             }
         }
         List<MethodCallExpr> calls = new ArrayList<>(unit.findAll(MethodCallExpr.class));
         java.util.Collections.reverse(calls);
         for (MethodCallExpr call : calls) {
-            String scope =
-                    call.getScope()
-                            .map(
-                                    expression ->
-                                            expression.isNameExpr()
-                                                    ? expression.asNameExpr().getNameAsString()
-                                                    : expression.toString())
-                            .orElse("");
+            String scope = call.getScope()
+                    .map(expression ->
+                            expression.isNameExpr() ? expression.asNameExpr().getNameAsString() : expression.toString())
+                    .orElse("");
             String name = call.getNameAsString();
             String owner = "";
             try {
@@ -864,7 +746,9 @@ public final class Java8SourceGenerator {
                                 "encode",
                                 "decode",
                                 "toString",
-                                "orTimeout", "results", "toList")
+                                "orTimeout",
+                                "results",
+                                "toList")
                         .contains(name)) owner = call.resolve().declaringType().getQualifiedName();
             } catch (RuntimeException unavailable) {
                 /* --release 8 remains the final API check. */
@@ -877,7 +761,8 @@ public final class Java8SourceGenerator {
             }
             if (name.equals("exceptionallyCompose") && call.getArguments().size() == 1
                     || name.equals("isSealed") && call.getArguments().isEmpty()
-                    || name.equals("getPermittedSubclasses") && call.getArguments().isEmpty()
+                    || name.equals("getPermittedSubclasses")
+                            && call.getArguments().isEmpty()
                     || name.equals("arrayType") && call.getArguments().isEmpty()
                     || name.equals("isRecord") && call.getArguments().isEmpty()
                     || name.equals("getRecordComponents") && call.getArguments().isEmpty()
@@ -897,12 +782,9 @@ public final class Java8SourceGenerator {
                 call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 continue;
             }
-            if (owner.equals("java.util.concurrent.CompletableFuture")
-                    && name.equals("orTimeout")) {
+            if (owner.equals("java.util.concurrent.CompletableFuture") && name.equals("orTimeout")) {
                 call.getArguments().addFirst(call.getScope().get().clone());
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 continue;
             }
             if ((owner.equals("java.lang.CharSequence")
@@ -911,25 +793,21 @@ public final class Java8SourceGenerator {
                     && name.equals("isEmpty")
                     && call.getArguments().isEmpty()) {
                 call.replace(
-                        StaticJavaParser.parseExpression(
-                                "(" + call.getScope().get() + ".length() == 0)"));
+                        StaticJavaParser.parseExpression("(" + call.getScope().get() + ".length() == 0)"));
                 continue;
             }
             if (owner.equals("java.util.Optional")
                     && name.equals("isEmpty")
                     && call.getArguments().isEmpty()) {
                 call.replace(
-                        StaticJavaParser.parseExpression(
-                                "!(" + call.getScope().get() + ").isPresent()"));
+                        StaticJavaParser.parseExpression("!(" + call.getScope().get() + ").isPresent()"));
                 continue;
             }
             if (owner.equals("java.util.Optional")
                     && name.equals("or")
                     && call.getArguments().size() == 1) {
                 call.getArguments().addFirst(call.getScope().get().clone());
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 call.setName("optionalOr");
                 continue;
             }
@@ -937,22 +815,16 @@ public final class Java8SourceGenerator {
                     && name.equals("lines")
                     && call.getArguments().isEmpty()) {
                 call.addArgument(call.getScope().get().clone());
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 call.setName("stringLines");
                 continue;
             }
             if ((owner.equals("java.net.URLEncoder") || owner.equals("java.net.URLDecoder"))
                     && call.getArguments().size() == 2) {
                 try {
-                    if (call.getArgument(1)
-                            .calculateResolvedType()
-                            .describe()
-                            .equals("java.nio.charset.Charset")) {
+                    if (call.getArgument(1).calculateResolvedType().describe().equals("java.nio.charset.Charset")) {
                         call.setScope(
-                                StaticJavaParser.parseExpression(
-                                        "dev.langchain4j.internal.compat.Java8Platform"));
+                                StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                         call.setName(owner.endsWith("URLEncoder") ? "urlEncode" : "urlDecode");
                         continue;
                     }
@@ -963,48 +835,34 @@ public final class Java8SourceGenerator {
                     && name.equals("toString")
                     && call.getArguments().size() == 1) {
                 try {
-                    if (call.getArgument(0)
-                            .calculateResolvedType()
-                            .describe()
-                            .equals("java.nio.charset.Charset")) {
+                    if (call.getArgument(0).calculateResolvedType().describe().equals("java.nio.charset.Charset")) {
                         call.getArguments().addFirst(call.getScope().get().clone());
                         call.setScope(
-                                StaticJavaParser.parseExpression(
-                                        "dev.langchain4j.internal.compat.Java8Platform"));
+                                StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                         call.setName("outputString");
                         continue;
                     }
                 } catch (RuntimeException unavailable) {
                 }
             }
-            if ((scope.equals("ProxySelector") || scope.equals("java.net.ProxySelector"))
-                    && name.equals("of")) {
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+            if ((scope.equals("ProxySelector") || scope.equals("java.net.ProxySelector")) && name.equals("of")) {
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
                 call.setName("proxySelectorOf");
                 continue;
             }
             if ((scope.equals("Collectors") || scope.equals("java.util.stream.Collectors"))
                     && name.startsWith("toUnmodifiable")) {
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Collections"));
-            } else if ((scope.equals("CompletableFuture")
-                                    || scope.equals("java.util.concurrent.CompletableFuture"))
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Collections"));
+            } else if ((scope.equals("CompletableFuture") || scope.equals("java.util.concurrent.CompletableFuture"))
                             && name.equals("failedFuture")
                     || (scope.equals("Predicate") || scope.equals("java.util.function.Predicate"))
                             && name.equals("not")) {
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
             } else if (name.equals("readAllBytes")
                     && call.getArguments().isEmpty()
                     && call.getScope().isPresent()) {
                 call.getArguments().add(call.getScope().get().clone());
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
             } else if ((scope.equals("List")
                             || scope.equals("java.util.List")
                             || scope.equals("Set")
@@ -1016,25 +874,15 @@ public final class Java8SourceGenerator {
                             || name.equals("ofEntries")
                             || name.equals("entry"))) {
                 String kind = scope.substring(scope.lastIndexOf('.') + 1);
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Collections"));
-                call.setName(
-                        kind.toLowerCase()
-                                + Character.toUpperCase(name.charAt(0))
-                                + name.substring(1));
-            } else if ((scope.equals("Path") || scope.equals("java.nio.file.Path"))
-                    && name.equals("of")) {
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Collections"));
+                call.setName(kind.toLowerCase() + Character.toUpperCase(name.charAt(0)) + name.substring(1));
+            } else if ((scope.equals("Path") || scope.equals("java.nio.file.Path")) && name.equals("of")) {
                 call.setScope(StaticJavaParser.parseExpression("java.nio.file.Paths"));
                 call.setName("get");
             } else if ((scope.equals("Files") || scope.equals("java.nio.file.Files"))
                     && (name.equals("writeString") || name.equals("readString"))) {
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
-            } else if (name.equals("formatted")
-                    && call.getScope().isPresent()
-                    && !scope.endsWith("Java8Platform")) {
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
+            } else if (name.equals("formatted") && call.getScope().isPresent() && !scope.endsWith("Java8Platform")) {
                 call.getArguments().addFirst(call.getScope().get().clone());
                 call.setScope(StaticJavaParser.parseExpression("java.lang.String"));
                 call.setName("format");
@@ -1053,18 +901,12 @@ public final class Java8SourceGenerator {
                     && call.getScope().isPresent()
                     && !scope.endsWith("Java8Platform")) {
                 call.getArguments().addFirst(call.getScope().get().clone());
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
             } else if (scope.equals("Objects")
-                    && (name.equals("requireNonNullElse")
-                            || name.equals("requireNonNullElseGet"))) {
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Platform"));
+                    && (name.equals("requireNonNullElse") || name.equals("requireNonNullElseGet"))) {
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Platform"));
             } else if (name.equals("orElseThrow") && call.getArguments().isEmpty()) {
-                call.addArgument(
-                        StaticJavaParser.parseExpression("java.util.NoSuchElementException::new"));
+                call.addArgument(StaticJavaParser.parseExpression("java.util.NoSuchElementException::new"));
             } else if (name.equals("toList")
                     && call.getArguments().isEmpty()
                     && !scope.isEmpty()
@@ -1072,23 +914,22 @@ public final class Java8SourceGenerator {
                     && (owner.isEmpty() || owner.equals("java.util.stream.Stream"))) {
                 // Stream.toList permits nulls and returns an unmodifiable list.
                 Expression stream = call.getScope().get().clone();
-                call.setScope(
-                        StaticJavaParser.parseExpression(
-                                "dev.langchain4j.internal.compat.Java8Collections"));
+                call.setScope(StaticJavaParser.parseExpression("dev.langchain4j.internal.compat.Java8Collections"));
                 call.setName("streamToList");
                 call.addArgument(stream);
             }
         }
     }
+
     private static final java.util.regex.Pattern JAVA_ATOM = java.util.regex.Pattern.compile(
             "\"\"\"[\\s\\S]*?\"\"\"|\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|//[^\\r\\n]*|/\\*[\\s\\S]*?\\*/|[{}]");
 
     private static String prepareLocalEnums(String source, java.util.Map<String, String> enums) {
-        java.util.regex.Matcher declarations = java.util.regex.Pattern.compile(
-                "(?m)^([ \\t]{8,})enum\\s+(\\w+)\\s*\\{").matcher(source);
+        java.util.regex.Matcher declarations = java.util.regex.Pattern.compile("(?m)^([ \\t]{8,})enum\\s+(\\w+)\\s*\\{")
+                .matcher(source);
         java.util.List<int[]> literals = new java.util.ArrayList<>();
         var atoms = JAVA_ATOM.matcher(source);
-        while (atoms.find()) if (atoms.group().length() > 1) literals.add(new int[]{atoms.start(), atoms.end()});
+        while (atoms.find()) if (atoms.group().length() > 1) literals.add(new int[] {atoms.start(), atoms.end()});
         StringBuilder prepared = new StringBuilder();
         int copied = 0;
         while (declarations.find()) {
@@ -1101,12 +942,18 @@ public final class Java8SourceGenerator {
             int end = -1;
             while (tokens.find()) {
                 if (tokens.group().equals("{")) depth++;
-                else if (tokens.group().equals("}") && --depth == 0) { end = tokens.end(); break; }
+                else if (tokens.group().equals("}") && --depth == 0) {
+                    end = tokens.end();
+                    break;
+                }
             }
             if (end < 0) throw new IllegalStateException("Unterminated local enum");
             String placeholder = "Java8EnumPlaceholder" + enums.size();
             enums.put(placeholder, source.substring(start, end));
-            prepared.append(source, copied, start).append("class ").append(placeholder).append(" {}");
+            prepared.append(source, copied, start)
+                    .append("class ")
+                    .append(placeholder)
+                    .append(" {}");
             copied = end;
         }
         return prepared.append(source, copied, source.length()).toString();
@@ -1117,22 +964,27 @@ public final class Java8SourceGenerator {
             String original = enums.get(declaration.getNameAsString());
             if (original == null) continue;
             var enumType = StaticJavaParser.parseBodyDeclaration(original).asEnumDeclaration();
-            enumType.setAnnotations(declaration.getAnnotations().stream().map(AnnotationExpr::clone).collect(Collectors.toCollection(NodeList::new)));
+            enumType.setAnnotations(declaration.getAnnotations().stream()
+                    .map(AnnotationExpr::clone)
+                    .collect(Collectors.toCollection(NodeList::new)));
             declaration.getComment().ifPresent(comment -> enumType.setComment(comment.clone()));
-            if (declaration.getParentNode().orElse(null) instanceof com.github.javaparser.ast.stmt.LocalClassDeclarationStmt local) {
+            if (declaration.getParentNode().orElse(null)
+                    instanceof com.github.javaparser.ast.stmt.LocalClassDeclarationStmt local) {
                 liftLocalType(local, enumType, enumType.getNameAsString());
             } else declaration.replace(enumType);
         }
     }
 
-    private static void liftLocalType(com.github.javaparser.ast.stmt.Statement local,
-            TypeDeclaration<?> declaration, String originalName) {
+    private static void liftLocalType(
+            com.github.javaparser.ast.stmt.Statement local, TypeDeclaration<?> declaration, String originalName) {
         var host = local.findAncestor(ClassOrInterfaceDeclaration.class).orElseThrow();
         var block = local.findAncestor(BlockStmt.class).orElseThrow();
         ClassOrInterfaceDeclaration holder = localTypeHolders.get(block);
         if (holder == null) {
             holder = new ClassOrInterfaceDeclaration();
-            holder.setName("Java8LocalTypes" + host.getMembers().size()).setStatic(true).setFinal(true);
+            holder.setName("Java8LocalTypes" + host.getMembers().size())
+                    .setStatic(true)
+                    .setFinal(true);
             if (!host.isInterface()) holder.setPrivate(true);
             holder.setJavadocComment("Holds local immutable types on Java 8.\n@author 芋道源码");
             host.addMember(holder);
@@ -1145,7 +997,8 @@ public final class Java8SourceGenerator {
             }
         }
         for (var name : block.findAll(com.github.javaparser.ast.expr.NameExpr.class)) {
-            if (name.getNameAsString().equals(originalName)) name.replace(StaticJavaParser.parseExpression(owner + "." + originalName));
+            if (name.getNameAsString().equals(originalName))
+                name.replace(StaticJavaParser.parseExpression(owner + "." + originalName));
         }
         if (declaration instanceof ClassOrInterfaceDeclaration immutable) immutable.setStatic(true);
         holder.addMember(declaration);

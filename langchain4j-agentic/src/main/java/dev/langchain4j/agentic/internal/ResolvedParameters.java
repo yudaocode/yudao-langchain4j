@@ -173,7 +173,9 @@ public final class ResolvedParameters {
     private String annotationName() {
         for (Annotation annotation : method().getAnnotations()) {
             Class<? extends Annotation> type = annotation.annotationType();
-            if (type.getPackageName().equals(SupplierParameterResolver.class.getPackageName())) {
+            if (dev.langchain4j.internal.compat.Java8Platform.packageName(type)
+                    .equals(dev.langchain4j.internal.compat.Java8Platform.packageName(
+                            SupplierParameterResolver.class))) {
                 return "@" + type.getSimpleName() + " ";
             }
         }

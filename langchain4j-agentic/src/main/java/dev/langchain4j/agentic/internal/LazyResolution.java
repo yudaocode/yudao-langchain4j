@@ -159,7 +159,7 @@ public final class LazyResolution<T> {
      * How a timeout is shown in the messages of the failures reporting it, like {@code 30 s} or {@code 200 ms}.
      */
     public static String describe(Duration timeout) {
-        return timeout.toMillis() % 1000 == 0 ? timeout.toSeconds() + " s" : timeout.toMillis() + " ms";
+        return timeout.toMillis() % 1000 == 0 ? timeout.getSeconds() + " s" : timeout.toMillis() + " ms";
     }
 
     private class Attempt {
@@ -192,7 +192,9 @@ public final class LazyResolution<T> {
             }
             try {
                 // completes the outcome on the JDK thread scheduling delays, also when nobody waits on it any more
-                outcome.orTimeout(TimeUnit.NANOSECONDS.convert(timeout), TimeUnit.NANOSECONDS);
+                outcome.orTimeout(
+                        dev.langchain4j.internal.compat.Java8Platform.convertDuration(TimeUnit.NANOSECONDS, timeout),
+                        TimeUnit.NANOSECONDS);
                 outcome.whenComplete((resolved, failure) -> {
                     if (failure instanceof TimeoutException) {
                         expire();

@@ -3,12 +3,12 @@ package dev.langchain4j.agentic.supervisor;
 import static dev.langchain4j.internal.Utils.isNullOrBlank;
 import static java.util.stream.Collectors.toMap;
 
+import dev.langchain4j.agentic.agent.AgentUnavailableException;
 import dev.langchain4j.agentic.internal.Context;
 import dev.langchain4j.agentic.internal.CurrentPlanningContext;
 import dev.langchain4j.agentic.internal.SuspendedResponse;
 import dev.langchain4j.agentic.planner.Action;
 import dev.langchain4j.agentic.planner.AgentArgument;
-import dev.langchain4j.agentic.agent.AgentUnavailableException;
 import dev.langchain4j.agentic.planner.AgentInstance;
 import dev.langchain4j.agentic.planner.ChatMemoryAccessProvider;
 import dev.langchain4j.agentic.planner.InitPlanningContext;
@@ -353,6 +353,9 @@ public class SupervisorPlanner implements Planner, ChatMemoryAccessProvider {
         }
         collectFields(type.getSuperclass(), fields);
         for (Field field : type.getDeclaredFields()) {
+            if (field.isSynthetic()) {
+                continue;
+            }
             fields.removeIf(inherited -> inherited.getName().equals(field.getName()));
             fields.add(field);
         }

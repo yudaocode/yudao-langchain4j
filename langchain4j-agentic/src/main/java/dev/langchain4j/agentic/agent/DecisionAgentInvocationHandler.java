@@ -69,6 +69,15 @@ public class DecisionAgentInvocationHandler implements InvocationHandler, Intern
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // Java 8 proxies may report a colliding static supplier from the first interface.
+        // Resolve metadata callbacks to the instance contract implemented by this handler.
+        if (java.lang.reflect.Modifier.isStatic(method.getModifiers())) {
+            try {
+                method = InternalAgent.class.getMethod(method.getName(), method.getParameterTypes());
+            } catch (NoSuchMethodException notMetadata) {
+                // Preserve the normal unsupported-method handling for other static methods.
+            }
+        }
         Class<?> declaringClass = method.getDeclaringClass();
         if (declaringClass == AgentInstance.class || declaringClass == InternalAgent.class) {
             try {

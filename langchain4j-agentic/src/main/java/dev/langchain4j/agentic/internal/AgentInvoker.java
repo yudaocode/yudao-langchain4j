@@ -1,5 +1,10 @@
 package dev.langchain4j.agentic.internal;
 
+import static dev.langchain4j.agentic.internal.AgentUtil.AGENTIC_SCOPE_ARG_NAME;
+import static dev.langchain4j.agentic.observability.ListenerNotifierUtil.afterAgentInvocation;
+import static dev.langchain4j.agentic.observability.ListenerNotifierUtil.beforeAgentInvocation;
+
+import dev.langchain4j.agentic.UntypedAgent;
 import dev.langchain4j.agentic.agent.AgentInvocationException;
 import dev.langchain4j.agentic.agent.MissingArgumentException;
 import dev.langchain4j.agentic.observability.AgentListener;
@@ -7,21 +12,12 @@ import dev.langchain4j.agentic.observability.AgentResponse;
 import dev.langchain4j.agentic.planner.AgentArgument;
 import dev.langchain4j.agentic.planner.AgentInstance;
 import dev.langchain4j.agentic.scope.AgenticScope;
-import dev.langchain4j.agentic.scope.AgenticSystemSuspendedException;
-import dev.langchain4j.agentic.UntypedAgent;
 import dev.langchain4j.agentic.scope.DefaultAgenticScope;
-import dev.langchain4j.invocation.LangChain4jManaged;
 import dev.langchain4j.service.ParameterNameResolver;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
-import static dev.langchain4j.agentic.internal.AgentUtil.AGENTIC_SCOPE_ARG_NAME;
-import static dev.langchain4j.agentic.observability.ListenerNotifierUtil.afterAgentInvocation;
-import static dev.langchain4j.agentic.observability.ListenerNotifierUtil.agentError;
-import static dev.langchain4j.agentic.observability.ListenerNotifierUtil.beforeAgentInvocation;
 
 public interface AgentInvoker extends AgentInstance, InternalAgent {
 
@@ -34,44 +30,40 @@ public interface AgentInvoker extends AgentInstance, InternalAgent {
      * registers the messages it exchanged in the context of the scope. Everything happens on the calling thread,
      * which for an asynchronous agent is the thread of its executor.
      */
-    default Object invoke(DefaultAgenticScope agenticScope, Object agent, AgentInvocationArguments args) throws AgentInvocationException {
+    default Object invoke(DefaultAgenticScope agenticScope, Object agent, AgentInvocationArguments args)
+            throws AgentInvocationException {
         AgentListener listener = listener();
         beforeAgentInvocation(listener, agenticScope, this, args.namedArgs());
         AgentModelResponse modelResponse = new AgentModelResponse();
-        Object result = internalInvoke(agenticScope, listener, agent, args, modelResponse);
-        afterAgentInvocation(listener, new AgentResponse(agenticScope, this, args.namedArgs(), result,
-                modelResponse.chatRequest(), modelResponse.chatResponse(), modelResponse.decisionResponse()));
+        Object result = AgentInvocationSupport.invoke(this, agenticScope, listener, agent, args, modelResponse);
+        afterAgentInvocation(
+                listener,
+                new AgentResponse(
+                        agenticScope,
+                        this,
+                        args.namedArgs(),
+                        result,
+                        modelResponse.chatRequest(),
+                        modelResponse.chatResponse(),
+                        modelResponse.decisionResponse()));
         agenticScope.registerContext(this, agent, modelResponse.lastUserMessage(), result);
         return result;
-    }
-
-    private Object internalInvoke(DefaultAgenticScope agenticScope, AgentListener listener, Object agent, AgentInvocationArguments args,
-                                  AgentModelResponse modelResponse) {
-        Map<Class<? extends LangChain4jManaged>, LangChain4jManaged> callerParameters = LangChain4jManaged.current();
-        LangChain4jManaged.setCurrent(
-                Map.of(AgenticScope.class, agenticScope, AgentModelResponse.class, modelResponse));
-        try {
-            return method().invoke(agent, args.positionalArgs());
-        } catch (Exception e) {
-            Throwable cause = e instanceof java.lang.reflect.InvocationTargetException ? e.getCause() : e;
-            if (cause instanceof AgenticSystemSuspendedException suspended) {
-                throw suspended;
-            }
-            AgentInvocationException invocationException = new AgentInvocationException("Failed to invoke agent method: " + method(), e);
-            agentError(listener, agenticScope, this, args.namedArgs(), invocationException);
-            throw invocationException;
-        } finally {
-            LangChain4jManaged.restore(callerParameters);
-        }
     }
 
     static AgentInvoker fromSpec(AgentSpecsProvider spec, Method agenticMethod, String name) {
         List<AgentArgument> arguments = spec.arguments() != null
                 ? spec.arguments()
                 : List.of(new AgentArgument(AgenticScope.class, AGENTIC_SCOPE_ARG_NAME));
-        InternalAgent agentInstance = new NonAiAgentInstance(agenticMethod.getDeclaringClass(),
-                name, spec.description(), agenticMethod.getGenericReturnType(), spec.outputKey(), spec.async(), arguments,
-                spec.listener(), spec.activationCondition());
+        InternalAgent agentInstance = new NonAiAgentInstance(
+                agenticMethod.getDeclaringClass(),
+                name,
+                spec.description(),
+                agenticMethod.getGenericReturnType(),
+                spec.outputKey(),
+                spec.async(),
+                arguments,
+                spec.listener(),
+                spec.activationCondition());
         return new SpecAgentInvoker(agenticMethod, agentInstance);
     }
 
@@ -85,7 +77,8 @@ public interface AgentInvoker extends AgentInstance, InternalAgent {
 
     static String parameterName(Parameter parameter) {
         return optionalParameterName(parameter)
-                .orElseThrow(() -> new IllegalArgumentException("Parameter name not specified and no @V or @K annotation present: " + parameter));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Parameter name not specified and no @V or @K annotation present: " + parameter));
     }
 
     static Optional<String> optionalParameterName(Parameter parameter) {
