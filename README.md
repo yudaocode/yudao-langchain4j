@@ -68,7 +68,7 @@ public interface Assistant {
 
 通过 Spring 注入 `Assistant` 后调用 `chat`。独立 Java 项目可以引入兼容版 `langchain4j` 和 `langchain4j-open-ai`，使用原有 builder API。不要在同一个运行时混用官方与兼容版同名核心模块；它们的 Java 包名相同。Java 8 的 `Flow` 等新 JDK API 使用窄桥接类型，不能将它视为与官方 JDK 17 制品完全二进制兼容。
 
-当前默认兼容构建为 **52 个 Maven 模块**，新增 TypeSafe、Agentic、Agentic Patterns、Guardrails、SQL Filter Parser。按需添加以下依赖，版本由上述 BOM 管理；Agentic 及 Patterns 保留官方 beta 编号，不能手动统一成 stable 版本：
+当前默认兼容构建为 **54 个 Maven 模块**，新增 TypeSafe、Agentic、Agentic Patterns、Guardrails、SQL Filter Parser。按需添加以下依赖，版本由上述 BOM 管理；Agentic 及 Patterns 保留官方 beta 编号，不能手动统一成 stable 版本：
 
 ```xml
 <dependency>
@@ -81,7 +81,9 @@ public interface Assistant {
 </dependency>
 ```
 
-Java 包名及 `AgenticServices` builder 入口沿用官方，Java8 应用使用普通接口/类声明 Agent。其他可选模块为 `langchain4j-typesafe`、`langchain4j-guardrails`、`langchain4j-embedding-store-filter-parser-sql`，不需要全部引入。当前默认报告去重后 8390 项，失败/错误为零；其中 JDK8 7209 项、JDK17 上游现代模拟服务 1181 项，条件跳过共 102 条。外部模型集成测试需单独配置和验证。
+Java 包名及 `AgenticServices` builder 入口沿用官方，Java8 应用使用普通接口/类声明 Agent。其他可选模块为 `langchain4j-typesafe`、`langchain4j-guardrails`、`langchain4j-embedding-store-filter-parser-sql`，不需要全部引入。前一批 52 模块报告去重后 8390 项，失败/错误为零；其中 JDK8 7209 项、JDK17 上游现代模拟服务 1181 项，条件跳过共 102 条。外部模型集成测试需单独配置和验证。
+
+新增 `langchain4j-open-ai-official` 和 `langchain4j-agentic-mcp`，均由上述 BOM 管理、按需引入。前者保留上游 OpenAI Java SDK `4.101.0`，入口为 `dev.langchain4j.model.openaiofficial.OpenAiOfficialChatModel` / `OpenAiOfficialResponsesChatModel`；后者将现有 `McpClient` 接入 `dev.langchain4j.agentic.mcp.McpAgent` builder。两模块真实 JDK8 单测共 208 项全部通过，包含实际 SDK 到本地 HTTP 服务的请求；真实模型及远程 MCP 服务需独立验证。
 
 支持范围、构建步骤与验证边界见 **`main-jdk8` 分支的 [COMPATIBILITY.md](https://github.com/yudaocode/yudao-langchain4j/blob/main-jdk8/COMPATIBILITY.md)**。BOM 仅列入已纳入兼容构建的模块；其余上游模块源码保留，不代表已经支持 Java 8。
 

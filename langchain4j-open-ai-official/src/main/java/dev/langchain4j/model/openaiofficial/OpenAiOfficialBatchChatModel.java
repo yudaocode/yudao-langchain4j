@@ -237,7 +237,7 @@ public final class OpenAiOfficialBatchChatModel extends OpenAiOfficialBaseChatMo
         if (inputFileExpiresAfter != null) {
             fileCreateParams.expiresAfter(FileCreateParams.ExpiresAfter.builder()
                     .anchor(JsonValue.from(EXPIRES_AFTER_ANCHOR))
-                    .seconds(inputFileExpiresAfter.toSeconds())
+                    .seconds(inputFileExpiresAfter.getSeconds())
                     .build());
         }
         FileObject inputFile = client.files().create(fileCreateParams.build());
@@ -255,7 +255,7 @@ public final class OpenAiOfficialBatchChatModel extends OpenAiOfficialBaseChatMo
         if (outputExpiresAfter != null) {
             batchCreateParams.outputExpiresAfter(BatchCreateParams.OutputExpiresAfter.builder()
                     .anchor(JsonValue.from(EXPIRES_AFTER_ANCHOR))
-                    .seconds(outputExpiresAfter.toSeconds())
+                    .seconds(outputExpiresAfter.getSeconds())
                     .build());
         }
 
