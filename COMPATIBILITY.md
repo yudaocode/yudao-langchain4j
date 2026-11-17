@@ -144,3 +144,14 @@ These are current reports from the completed full command, not a sum of older co
 That command used skipITs; prior real-store integration gates, native Boot2 consumers and the new119-case OpenSearch engine gate remain separate evidence.
 After clean, runtime classpaths were regenerated:62 files including the existing standalone fixture,390jars/127676 effective base classes, none above52; native API report retains15 reviewed optional third-party references.
 This records the completed61-module scope before any later optional model expansion.
+
+## Nine additional local models /70-module checkpoint
+
+The default reactor expands61→70 with the remaining nine local MiniLM/E5/BGE model artifacts, all managed by the compatibility BOM.
+Only module coordinates/activation change; original Java APIs, tokenizer resources, model hashes and inference backends remain unchanged.
+All nine upstream SHA256 model hashes were independently rechecked, then58 original integration cases passed on native Java1.8.0_472, zero failures/errors/skips.
+The actual models execute locally; this is not a fake embedding-response fixture.
+A subsequent complete70-module clean install unit gate passed8872 cases, zero failures/errors and102 conditional skips;7690 cases used Java8 and1182 used Java17 modern provider fixtures.
+That full unit command skips IT, so the58 model cases and earlier store integrations remain separate gates.
+After clean, runtime scope71 files/399jars/127694 effective base classes has no major>52; native member audit remains15 reviewed optional third-party findings.
+See [model coordinates and code](embeddings/README-JAVA8.md).

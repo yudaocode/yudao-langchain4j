@@ -89,13 +89,17 @@ Java 包名及 `AgenticServices` builder 入口沿用官方，Java8 应用使用
 
 Boot2 parent 应用使用这些可观测性扩展时，额外设置 `<micrometer.version>1.16.6</micrometer.version>`，避免父 POM 覆盖成旧版；本仓独立 [Boot2 Actuator 消费者](compatibility-tests/boot2-observability) 已在真实 JDK8 上启动，并断言加载的版本及两个 Listener 可用。创建 `MicrometerMetricsChatModelListener(meterRegistry)` 或 `ObservationChatModelListener(observationRegistry, meterRegistry)` 后，加入模型 builder 的 listeners。Azure 模型使用 `AzureOpenAiChatModel` builder，需配置自己的 endpoint/API key；付费 Azure 服务尚未验收。
 
-向量库扩展继续加入 **PGVector、MariaDB、Chroma**，当前默认兼容构建 **61 个 Maven 模块**。按需引入 `langchain4j-pgvector`、`langchain4j-mariadb`、`langchain4j-chroma`（同 groupId，版本由 BOM 管理）。保留上游 PGVector `0.1.6` / PostgreSQL JDBC `42.7.14` / MariaDB JDBC `3.5.11`；Boot2 parent 应用使用对应数据库时，设置 `<postgresql.version>42.7.14</postgresql.version>`、`<mariadb.version>3.5.11</mariadb.version>`，避免父管理覆盖。数据库地址、认证和建表权限由应用配置。
+向量库扩展继续加入 **PGVector、MariaDB、Chroma**，当前默认兼容构建 **70 个 Maven 模块**。按需引入 `langchain4j-pgvector`、`langchain4j-mariadb`、`langchain4j-chroma`（同 groupId，版本由 BOM 管理）。保留上游 PGVector `0.1.6` / PostgreSQL JDBC `42.7.14` / MariaDB JDBC `3.5.11`；Boot2 parent 应用使用对应数据库时，设置 `<postgresql.version>42.7.14</postgresql.version>`、`<mariadb.version>3.5.11</mariadb.version>`，避免父管理覆盖。数据库地址、认证和建表权限由应用配置。
 
 Chroma 新服务请显式使用 `.apiVersion(ChromaApiVersion.V2)`；builder 沿用上游默认 V1，不能默认连到只支持 V2 的服务。这三库单测150项全部通过，真实JDK8容器集成1403项、零失败/错误、25项上游条件跳过，包含真实本地MiniLM推理和向量数据库操作。跳过项与浮点精度验证边界见 COMPATIBILITY。
 
 OpenSearch 扩展已加入 JDK8 默认构建，复用 SDK **3.11.0** 的独立兼容客户端。按需引入 `langchain4j-opensearch`（BOM 管理）；引擎 **2.19+** 使用 `.scoreBoost(1.0f)`，较老引擎保留默认 `0.5f`。原生8通过9项unit、119项真实引擎IT（2项contains能力跳过）及2项Boot2消费测试，详见[接入与引擎配置](langchain4j-opensearch/README-JAVA8.md)。
 
-2026-11-17 当前 **61 模块完整 `clean install` 单测检查点**：8,872 项，失败/错误为 0，条件跳过 102 项。其中原生 JDK8 执行 7,690 项，上游现代模拟服务在 JDK17 执行 1,182 项；该命令跳过 IT，实际向量库等集成门禁单列，不能当作所有外部服务都验收通过。
+2026-11-17 前一检查点 **61 模块完整 `clean install` 单测检查点**：8,872 项，失败/错误为 0，条件跳过 102 项。其中原生 JDK8 执行 7,690 项，上游现代模拟服务在 JDK17 执行 1,182 项；该命令跳过 IT，实际向量库等集成门禁单列，不能当作所有外部服务都验收通过。
+
+本地 Embedding 模型新增 MiniLM 非量化、E5 small v2（普通/量化）、BGE small en / en v1.5 / zh v1.5（普通/量化），现共 10 个模型制品，默认构建扩为 **70 模块**。新增 9 个模型的 **58 项真实本地推理测试在原生 JDK8 全部通过**，权重逐一按上游 SHA256 校验；ONNX Runtime `1.23.2`、DJL `0.40.0` 保持。接入与制品列表见[本地模型使用说明](embeddings/README-JAVA8.md)。
+
+当前70模块完整clean install单测8872项零失败/错误、102条件跳过：7690项native8、1182项现代fixture17。模型58项IT与真实向量库等门禁单列，未合并成一次全量运行。
 
 支持范围、构建步骤与验证边界见 **`main-jdk8` 分支的 [COMPATIBILITY.md](https://github.com/yudaocode/yudao-langchain4j/blob/main-jdk8/COMPATIBILITY.md)**。BOM 仅列入已纳入兼容构建的模块；其余上游模块源码保留，不代表已经支持 Java 8。
 
