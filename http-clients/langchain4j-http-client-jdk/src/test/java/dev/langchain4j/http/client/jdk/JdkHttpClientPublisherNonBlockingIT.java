@@ -14,7 +14,7 @@ class JdkHttpClientPublisherNonBlockingIT extends AbstractHttpClientPublisherNon
 
     @Override
     protected String policedThreadNamePrefix() {
-        // The JDK HttpClient parses and dispatches the response body on its worker threads ("HttpClient-*").
-        return "HttpClient-";
+        // The Java8 HTTP bridge dispatches bodies on its Apache I/O reactor threads.
+        return "mcp-http-";
     }
 }

@@ -22,6 +22,8 @@ class McpToolsStdioLegacyIT extends McpToolsTestBase {
                 .build();
         mcpClient = new DefaultMcpClient.Builder()
                 .transport(transport)
+                // JBang may rebuild the external Quarkus server before it can answer.
+                .initializationTimeout(Duration.ofSeconds(180))
                 .toolExecutionTimeout(Duration.ofSeconds(4))
                 .protocolVersion("2025-11-25")
                 .build();

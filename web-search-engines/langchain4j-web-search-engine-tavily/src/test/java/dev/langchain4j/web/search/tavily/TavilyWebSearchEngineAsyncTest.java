@@ -2,7 +2,7 @@ package dev.langchain4j.web.search.tavily;
 
 import dev.langchain4j.web.search.WebSearchRequest;
 import dev.langchain4j.web.search.WebSearchResults;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,12 +17,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Deterministic (no API key) coverage of {@link TavilyWebSearchEngine#searchAsync}'s cancellation contract:
  * cancelling the returned future must abort the in-flight HTTP call. A raw server socket accepts the connection but
- * never responds; when the OkHttp call is cancelled it closes the socket, which the server observes as EOF. Without
+ * never responds; when the HTTP call is cancelled it closes the socket, which the server observes as EOF. Without
  * cancellation reaching the HTTP call the socket would stay open and the assertion would time out.
  */
 class TavilyWebSearchEngineAsyncTest {
 
-    @Test
+    @RepeatedTest(10)
     void searchAsync_cancellation_aborts_the_in_flight_http_call() throws Exception {
         try (ServerSocket server = new ServerSocket(0)) {
             CountDownLatch accepted = new CountDownLatch(1);
@@ -34,7 +34,7 @@ class TavilyWebSearchEngineAsyncTest {
                     InputStream in = socket.getInputStream();
                     byte[] buffer = new byte[1024];
                     while (in.read(buffer) != -1) {
-                        // drain until the cancelled OkHttp call closes the socket
+                        // drain until the cancelled HTTP call closes the socket
                     }
                     clientDisconnected.complete(true);
                 } catch (IOException e) {

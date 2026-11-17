@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>langchain4j-aggregator</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LangChain4j :: Aggregator</name>
     <modules>
@@ -38,10 +38,23 @@
         <module>embeddings/langchain4j-embeddings-all-minilm-l6-v2-q</module>
         <module>spring-boot2</module>
         <module>compatibility-tests/java8-provider-runtime</module>
+        <module>document-parsers/langchain4j-document-parser-apache-pdfbox</module>
+        <module>document-parsers/langchain4j-document-parser-apache-poi</module>
+        <module>document-parsers/langchain4j-document-parser-markdown</module>
+        <module>document-parsers/langchain4j-document-parser-yaml</module>
+        <module>document-transformers/langchain4j-document-transformer-jsoup</module>
+        <module>code-execution-engines/langchain4j-code-execution-engine-judge0</module>
+        <module>document-loaders/langchain4j-document-loader-github</module>
+        <module>langchain4j-jina</module>
+        <module>langchain4j-nomic</module>
+        <module>langchain4j-ovh-ai</module>
+        <module>web-search-engines/langchain4j-web-search-engine-google-custom</module>
+        <module>web-search-engines/langchain4j-web-search-engine-searchapi</module>
+        <module>web-search-engines/langchain4j-web-search-engine-tavily</module>
     </modules>
     <properties>
-        <langchain4j.stable.version>1.24.0-SNAPSHOT</langchain4j.stable.version>
-        <langchain4j.beta.version>2.0.0-SNAPSHOT</langchain4j.beta.version>
+        <langchain4j.stable.version>1.24.0-jdk8-SNAPSHOT</langchain4j.stable.version>
+        <langchain4j.beta.version>1.24.0-beta34-jdk8-SNAPSHOT</langchain4j.beta.version>
         <gib.disable>true</gib.disable>
     </properties>
     <build>
@@ -135,7 +148,7 @@
             <modules>
                 <module>langchain4j-jlama</module>
                 <module>langchain4j-jitllm</module>
-            </modules>
+    </modules>
         </profile>
         <profile>
             <id>jdk25</id>
@@ -144,7 +157,7 @@
             </activation>
             <modules>
                 <module>langchain4j-gpu-llama3</module>
-            </modules>
+    </modules>
         </profile>
         <profile>
             <id>openrewrite</id>

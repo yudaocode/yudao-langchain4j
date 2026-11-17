@@ -4,11 +4,11 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
     <artifactId>langchain4j</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.24.0-jdk8-SNAPSHOT</version>
     <name>LangChain4j</name>
     <description>Build LLM-powered applications in Java: chatbots, agents, RAG, and much more</description>
     <properties>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -44,19 +44,19 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-mutiny-zero-compat</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
@@ -269,7 +269,7 @@
                 <dependency>
                     <groupId>cn.iocoder.langchain4j</groupId>
                     <artifactId>langchain4j-core-jackson3</artifactId>
-                    <version>2.0.0-SNAPSHOT</version>
+                    <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

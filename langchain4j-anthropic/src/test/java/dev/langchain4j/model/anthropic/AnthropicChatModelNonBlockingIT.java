@@ -7,9 +7,14 @@ import dev.langchain4j.reactive.streaming.AbstractChatModelNonBlockingIT;
 /**
  * Anthropic binding of the shared non-blocking chat-model TCK ({@link AbstractChatModelNonBlockingIT}). Anthropic
  * streams over the JDK {@code HttpClient} transport's reactive {@code stream()}, so responses are parsed and
- * dispatched on its workers ({@code HttpClient-*}).
+ * dispatched on its workers ({@code mcp-http-*}).
  */
 class AnthropicChatModelNonBlockingIT extends AbstractChatModelNonBlockingIT {
+
+    @Override
+    protected String policedThreadNamePrefix() {
+        return "mcp-http-";
+    }
 
     @Override
     protected ChatModel syncModel(String baseUrl, boolean logging) {

@@ -8,9 +8,14 @@ import dev.langchain4j.reactive.streaming.AbstractChatModelNonBlockingIT;
  * OpenAI Responses-API binding of the shared non-blocking chat-model TCK
  * ({@link AbstractChatModelNonBlockingIT}). The Responses API has its own client and its own event vocabulary, so
  * its pipeline is policed separately from the Chat Completions one covered by {@link OpenAiChatModelNonBlockingIT};
- * both stream over the JDK {@code HttpClient} transport ({@code HttpClient-*} workers).
+ * both stream over the JDK {@code HttpClient} transport ({@code mcp-http-*} workers).
  */
 class OpenAiResponsesChatModelNonBlockingIT extends AbstractChatModelNonBlockingIT {
+
+    @Override
+    protected String policedThreadNamePrefix() {
+        return "mcp-http-";
+    }
 
     @Override
     protected ChatModel syncModel(String baseUrl, boolean logging) {

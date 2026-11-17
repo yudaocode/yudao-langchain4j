@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>langchain4j-parent</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LangChain4j :: Parent POM</name>
     <description>${project.name}</description>
@@ -34,7 +34,7 @@
         <url>https://github.com/yudaocode/yudao-langchain4j/tree/main-jdk8</url>
     </scm>
     <properties>
-        <langchain4j.beta.version>2.0.0-SNAPSHOT</langchain4j.beta.version>
+        <langchain4j.beta.version>1.24.0-beta34-jdk8-SNAPSHOT</langchain4j.beta.version>
         <java.version>8</java.version>
         <maven.compiler.release>8</maven.compiler.release>
         <kotlin.code.style>official</kotlin.code.style>
@@ -133,7 +133,7 @@
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -231,7 +231,7 @@
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-mutiny-zero-compat</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -297,7 +297,7 @@
             <dependency>
                 <groupId>cn.iocoder.spring-ai</groupId>
                 <artifactId>spring-ai-jspecify-compat</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.1.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
@@ -362,7 +362,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-internal-test-retry</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>

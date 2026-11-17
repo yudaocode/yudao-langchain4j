@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -129,6 +130,15 @@ public abstract class HttpClientCancellationIT {
                     // discard request bytes; blocks waiting for more / for close once the request is consumed
                 }
                 if (clientDisconnected != null) {
+                    clientDisconnected.countDown();
+                }
+            } catch (SocketException reset) {
+                // An immediate transport abort may reset the peer instead of sending
+                // EOF. Count only a peer disconnect while both local sockets remain
+                // open; closing our own fixtures during teardown is not evidence.
+                Socket socket = acceptedSocket.get();
+                if (clientDisconnected != null && !serverSocket.isClosed()
+                        && socket != null && !socket.isClosed()) {
                     clientDisconnected.countDown();
                 }
             } catch (IOException ignored) {

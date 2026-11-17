@@ -5,7 +5,7 @@
 - LangChain4j upstream main: `886c258b91090d41c941e69ab58edf6aa020a9c9` (1.24.0 / beta34 development sources).
 - Selected official Spring starter sources: `langchain4j/langchain4j-spring` at `e00111bdccae9f091f0cc3a2fc4b56be0c273f99`; see `spring-boot2/UPSTREAM.md`.
 - Original sources, packages, authors and licenses remain. Newly written compatibility classes use `@author 芋道源码`.
-- Version `2.0.0-SNAPSHOT`, group `cn.iocoder.langchain4j`; no Maven Central or remote SNAPSHOT publication yet.
+- Version `1.24.0-jdk8-SNAPSHOT`, group `cn.iocoder.langchain4j`; no Maven Central or remote SNAPSHOT publication yet.
 
 ## Supported build scope
 
@@ -15,7 +15,7 @@ Build tools run on **JDK 17**, emitted classes target **Java 8**, and tests can 
 
 ## Build and consume
 
-Two small artifacts from `yudao-spring-ai`'s `main-jdk8` branch must first be installed into the same local Maven repository: `cn.iocoder.spring-ai:spring-ai-jspecify-compat:2.0.0-SNAPSHOT` and `cn.iocoder.spring-ai:spring-ai-jdk-http-compat:2.0.0-SNAPSHOT`. The HTTP bridge source must include commit `7d6683ae81a37a1bee081131e1e3817e97477ee5` or later. Neither Spring AI core nor a Spring Boot 3/4 starter is required by standalone LangChain4j.
+Two small artifacts from `yudao-spring-ai`'s `main-jdk8` branch must first be installed into the same local Maven repository: `cn.iocoder.spring-ai:spring-ai-jspecify-compat:2.1.0-jdk8-SNAPSHOT` and `cn.iocoder.spring-ai:spring-ai-jdk-http-compat:2.1.0-jdk8-SNAPSHOT`. The HTTP bridge source must include commit `7d6683ae81a37a1bee081131e1e3817e97477ee5` or later. Neither Spring AI core nor a Spring Boot 3/4 starter is required by standalone LangChain4j.
 
 ```sh
 # JAVA_HOME points to JDK 17. JAVA8_HOME points to an actual JDK 8 installation.
@@ -53,3 +53,26 @@ The 34-module default `verify` checkpoint passed: 7427 test executions, zero fai
 After the opening-timeout fix, the complete MCP native8 suite passed again: 470 tests, no failures/errors/skips. The independently inherited Boot 2 consumer passed with documented version properties, assertions on actual loaded versions, tools/RAG/default methods and SSE. Protocol responses are local fixtures; MiniLM embedding inference is real and local.
 
 Final production-runtime scan, including the standalone consumer: 178 jars / 46221 effective base classes, no class above Java 8 major 52. Static member-reference audit retained 14 reviewed findings solely in third-party optional JDK9 Flow adapters and SLF4J legacy binder fallback probes; no self-owned direct newer-JDK call was found. This is not proof that every optional third-party path works on Java 8. A successful package/install with tests skipped is not a unit-test pass. The README's official suffix is preserved byte-for-byte from the pinned upstream commit.
+
+## Additional Java8 modules
+
+The default reactor has expanded from34 to47 modules: PDFBox/POI/Markdown/YAML parsers, Jsoup transformer, Judge0, GitHub loader, Jina/Nomic/OVH and Google Custom/SearchApi/Tavily search engines. The13 new modules passed151 native8 test executions with no failure/error/skip. Markdown pins CommonMark0.21.0. JitLLM's JDK21/22 FFM backend remains outside the Java8 scope. The preceding34-module counts are a historical checkpoint; new-coordinate dependency/consumer checks are separate.
+
+## Current default scope and reproducible local MCP integration
+
+The 47-module new-coordinate unit install passed 7587 executions, zero failures/errors and 111 skips. Of these, 6405 executions use native Java 8; 1182 use Java 17 for upstream modern mock-server fixtures (OpenAI/Anthropic/Gemini). The unit gate uses `-DskipITs`; it does not certify all external integrations. Tavily cancellation repeats ten times to cover cancellation before connection attachment. Runtime bytecode scan: 239 jars / 61892 effective base classes, none above major52. The static API audit is a separate report: optional third-party modern-JDK adapters and logging binders still need path-specific judgment.
+
+JBang-based MCP tests run the client on Java8 and the upstream Quarkus server in a separate JDK17+ process. Install JBang, then select the server JDK explicitly:
+
+```sh
+export COMPAT_MCP_SERVER_JAVA_HOME="$JAVA17_HOME"
+export COMPAT_JBANG_COMMAND="$(command -v jbang)"
+./mvnw -pl langchain4j-mcp -Dcompat.test.jvm="$JAVA8_HOME/bin/java" \
+  -Djbang.command="$PWD/compatibility/java8/jbang-server.sh" \
+  -Dit.test=McpToolsStdioLegacyIT -Dmaven.javadoc.skip=true \
+  failsafe:integration-test failsafe:verify
+```
+
+Compile test sources first when running this standalone Failsafe command. JBang resolves/builds an external server; the selected legacy stdio setup allows 180 seconds for cold startup, while tool-operation deadlines remain unchanged. This server fixture is not a Java8 runtime dependency. Javadoc generation against upstream modern-syntax source is still excluded from the Java8 verification command.
+
+The subsequent local MCP transport gate passed165 executions (zero failures/errors,5 skips): modern/legacy stdio, Apache HTTP, modern/legacy WebSocket; the client JVM was Java8 and external Quarkus servers Java17.

@@ -4,32 +4,32 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
     <artifactId>langchain4j-open-ai</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.24.0-jdk8-SNAPSHOT</version>
     <name>LangChain4j :: Integration :: OpenAI</name>
     <dependencies>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-reactive-streaming</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client-jdk</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -52,13 +52,13 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-mutiny-zero-compat</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-reactive-streaming</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
@@ -112,7 +112,7 @@
                     <!-- Keep the parent's argLine and append the flag BlockHound needs to
                          instrument JDK classes on JDK 13+. Benign for tests that don't use
                          BlockHound. -->
-                    <argLine>@{argLine}</argLine>
+                    <argLine>@{argLine} -XX:+AllowRedefinitionToAddDeleteMethods</argLine>
                     <jvm>${compat.fixture.test.jvm}</jvm>
                 </configuration>
             </plugin>
@@ -123,7 +123,7 @@
                     <!-- OpenAiStreamingChatModelNonBlockingIT runs BlockHound, which needs this
                          flag to instrument JDK classes on JDK 13+. Keep the parent's argLine and
                          the mockito agent. Benign for ITs that don't use BlockHound. -->
-                    <argLine>@{argLine}</argLine>
+                    <argLine>@{argLine} -XX:+AllowRedefinitionToAddDeleteMethods</argLine>
                     <jvm>${compat.fixture.test.jvm}</jvm>
                 </configuration>
             </plugin>
@@ -142,7 +142,7 @@
                 <dependency>
                     <groupId>cn.iocoder.langchain4j</groupId>
                     <artifactId>langchain4j-core-jackson3</artifactId>
-                    <version>2.0.0-SNAPSHOT</version>
+                    <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

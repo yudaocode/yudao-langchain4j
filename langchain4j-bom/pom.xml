@@ -4,159 +4,159 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
     <artifactId>langchain4j-bom</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.24.0-jdk8-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LangChain4j :: BOM</name>
     <description>Java 8 compatibility BOM: only modules included in the supported default reactor.</description>
     <properties>
-        <langchain4j.stable.version>2.0.0-SNAPSHOT</langchain4j.stable.version>
-        <langchain4j.beta.version>2.0.0-SNAPSHOT</langchain4j.beta.version>
+        <langchain4j.stable.version>1.24.0-jdk8-SNAPSHOT</langchain4j.stable.version>
+        <langchain4j.beta.version>1.24.0-beta34-jdk8-SNAPSHOT</langchain4j.beta.version>
     </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-java8-compat</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-core</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client-jdk</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client-apache</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client-okhttp</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-open-ai</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-test</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-skills</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-mcp</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-reactive-streaming</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-anthropic</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-google-ai-gemini</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-ollama</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-mistral-ai</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-cohere</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-local-ai</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-hugging-face</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-workers-ai</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-voyage-ai</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-document-parser-apache-tika</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-experimental-skills-shell</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-mutiny-zero-compat</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
+                <version>1.24.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
@@ -219,6 +219,19 @@
                 <artifactId>logback-core</artifactId>
                 <version>1.2.13</version>
             </dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-apache-pdfbox</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-apache-poi</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-markdown</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-yaml</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-transformer-jsoup</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-code-execution-engine-judge0</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-github</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-jina</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-nomic</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-ovh-ai</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-google-custom</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-searchapi</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-tavily</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
         </dependencies>
     </dependencyManagement>
     <build>

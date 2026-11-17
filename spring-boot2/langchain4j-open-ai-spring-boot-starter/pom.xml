@@ -4,7 +4,7 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-spring-boot2-parent</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>1.24.0-jdk8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
@@ -19,12 +19,12 @@
                     <artifactId>langchain4j-http-client-jdk</artifactId>
                 </exclusion>
             </exclusions>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-http-client-apache</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-spring-boot-starter</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
