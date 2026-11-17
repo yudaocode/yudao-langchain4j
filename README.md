@@ -89,7 +89,7 @@ Java 包名及 `AgenticServices` builder 入口沿用官方，Java8 应用使用
 
 Boot2 parent 应用使用这些可观测性扩展时，额外设置 `<micrometer.version>1.16.6</micrometer.version>`，避免父 POM 覆盖成旧版；本仓独立 [Boot2 Actuator 消费者](compatibility-tests/boot2-observability) 已在真实 JDK8 上启动，并断言加载的版本及两个 Listener 可用。创建 `MicrometerMetricsChatModelListener(meterRegistry)` 或 `ObservationChatModelListener(observationRegistry, meterRegistry)` 后，加入模型 builder 的 listeners。Azure 模型使用 `AzureOpenAiChatModel` builder，需配置自己的 endpoint/API key；付费 Azure 服务尚未验收。
 
-向量库扩展继续加入 **PGVector、MariaDB、Chroma**，当前默认兼容构建 **70 个 Maven 模块**。按需引入 `langchain4j-pgvector`、`langchain4j-mariadb`、`langchain4j-chroma`（同 groupId，版本由 BOM 管理）。保留上游 PGVector `0.1.6` / PostgreSQL JDBC `42.7.14` / MariaDB JDBC `3.5.11`；Boot2 parent 应用使用对应数据库时，设置 `<postgresql.version>42.7.14</postgresql.version>`、`<mariadb.version>3.5.11</mariadb.version>`，避免父管理覆盖。数据库地址、认证和建表权限由应用配置。
+向量库扩展继续加入 **PGVector、MariaDB、Chroma**，该批次已纳入默认兼容构建。按需引入 `langchain4j-pgvector`、`langchain4j-mariadb`、`langchain4j-chroma`（同 groupId，版本由 BOM 管理）。保留上游 PGVector `0.1.6` / PostgreSQL JDBC `42.7.14` / MariaDB JDBC `3.5.11`；Boot2 parent 应用使用对应数据库时，设置 `<postgresql.version>42.7.14</postgresql.version>`、`<mariadb.version>3.5.11</mariadb.version>`，避免父管理覆盖。数据库地址、认证和建表权限由应用配置。
 
 Chroma 新服务请显式使用 `.apiVersion(ChromaApiVersion.V2)`；builder 沿用上游默认 V1，不能默认连到只支持 V2 的服务。这三库单测150项全部通过，真实JDK8容器集成1403项、零失败/错误、25项上游条件跳过，包含真实本地MiniLM推理和向量数据库操作。跳过项与浮点精度验证边界见 COMPATIBILITY。
 
@@ -99,9 +99,14 @@ OpenSearch 扩展已加入 JDK8 默认构建，复用 SDK **3.11.0** 的独立�
 
 本地 Embedding 模型新增 MiniLM 非量化、E5 small v2（普通/量化）、BGE small en / en v1.5 / zh v1.5（普通/量化），现共 10 个模型制品，默认构建扩为 **70 模块**。新增 9 个模型的 **58 项真实本地推理测试在原生 JDK8 全部通过**，权重逐一按上游 SHA256 校验；ONNX Runtime `1.23.2`、DJL `0.40.0` 保持。接入与制品列表见[本地模型使用说明](embeddings/README-JAVA8.md)。
 
-当前70模块完整clean install单测8872项零失败/错误、102条件跳过：7690项native8、1182项现代fixture17。模型58项IT与真实向量库等门禁单列，未合并成一次全量运行。
+此前70模块完整clean install单测8872项零失败/错误、102条件跳过：7690项native8、1182项现代fixture17。模型58项IT与真实向量库等门禁单列，未合并成一次全量运行。
 
 支持范围、构建步骤与验证边界见 **`main-jdk8` 分支的 [COMPATIBILITY.md](https://github.com/yudaocode/yudao-langchain4j/blob/main-jdk8/COMPATIBILITY.md)**。BOM 仅列入已纳入兼容构建的模块；其余上游模块源码保留，不代表已经支持 Java 8。
+
+
+新增 **S3、Azure Blob、GCS、腾讯 COS、Playwright、Selenium** 六个文档加载器，当前默认兼容范围为 **76 个 Maven 模块**。按需引入 `cn.iocoder.langchain4j:langchain4j-document-loader-…`，beta 版本由 BOM 管理；完整 POM、SDK 版本和调用示例见[文档加载器用法](document-loaders/README-JAVA8.md)。Selenium 使用官方最后支持 Java8 的 `4.13.0`，其余五类 SDK 保留上游基线；Boot2 父 POM 的版本覆盖示例见[独立消费者](compatibility-tests/boot2-document-loaders)。
+
+76模块完整单测8887项零失败/错误、102条件跳过（7705 native8，1182现代fixture17）；组件24项、独立Boot2消费12项原生8全部通过且零跳过。Playwright另保留原8项浏览器断言并通过原生8实跑。扫描587jar/175864基础类无高于Java8字节码；第三方受guard API引用仍保留审计，不代表全部云账号或外部服务验收。详见兼容说明。
 
 ---
 

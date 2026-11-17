@@ -5,19 +5,23 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Playwright;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentParser;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.document.transformer.jsoup.HtmlToTextDocumentTransformer;
-import io.orangebuffalo.testcontainers.playwright.PlaywrightContainer;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
+@EnabledIfSystemProperty(named = "compat.browser.tests", matches = "true")
 class PlaywrightDocumentLoaderIT {
 
     static PlaywrightDocumentLoader loader;
-    static PlaywrightContainer playwrightContainer;
+    static Playwright playwright;
     static Browser browser;
 
     HtmlToTextDocumentTransformer extractor = new HtmlToTextDocumentTransformer();
@@ -25,9 +29,12 @@ class PlaywrightDocumentLoaderIT {
 
     @BeforeAll
     static void beforeAll() {
-        playwrightContainer = new PlaywrightContainer();
-        playwrightContainer.start();
-        browser = playwrightContainer.getPlaywrightApi().chromium();
+        playwright = Playwright.create();
+        browser = playwright
+                .chromium()
+                .launch(new BrowserType.LaunchOptions()
+                        .setHeadless(true)
+                        .setExecutablePath(Paths.get(System.getProperty("compat.chrome.binary"))));
         loader = PlaywrightDocumentLoader.builder().browser(browser).build();
     }
 
@@ -39,8 +46,8 @@ class PlaywrightDocumentLoaderIT {
         if (browser != null) {
             browser.close();
         }
-        if (playwrightContainer != null) {
-            playwrightContainer.stop();
+        if (playwright != null) {
+            playwright.close();
         }
     }
 
