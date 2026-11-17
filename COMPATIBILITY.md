@@ -135,3 +135,12 @@ The first engine attempt found the cosine normalization change and disk/index-cr
 The preceding52-module complete/resumed unit gate remains a separate checkpoint; no one-shot full61 unit run or AWS account acceptance is claimed here.
 Runtime dependency scan:62 classpath files including an earlier standalone fixture,390jars/127676 effective base classes, none above52; static API scan retains15 reviewed third-party optional references.
 See [usage and engine settings](langchain4j-opensearch/README-JAVA8.md).
+
+## Complete61-module unit checkpoint
+
+A fresh serial clean install completed all61 default modules, with8872 unique XML unit cases, zero failures/errors and102 conditional skips.
+Actual VM split:7690 cases on Java1.8.0_472 (72 skips),1182 cases on Java17.0.21 modern provider fixtures (30 skips).
+These are current reports from the completed full command, not a sum of older component gates.
+That command used skipITs; prior real-store integration gates, native Boot2 consumers and the new119-case OpenSearch engine gate remain separate evidence.
+After clean, runtime classpaths were regenerated:62 files including the existing standalone fixture,390jars/127676 effective base classes, none above52; native API report retains15 reviewed optional third-party references.
+This records the completed61-module scope before any later optional model expansion.

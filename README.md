@@ -95,6 +95,8 @@ Chroma 新服务请显式使用 `.apiVersion(ChromaApiVersion.V2)`；builder 沿
 
 OpenSearch 扩展已加入 JDK8 默认构建，复用 SDK **3.11.0** 的独立兼容客户端。按需引入 `langchain4j-opensearch`（BOM 管理）；引擎 **2.19+** 使用 `.scoreBoost(1.0f)`，较老引擎保留默认 `0.5f`。原生8通过9项unit、119项真实引擎IT（2项contains能力跳过）及2项Boot2消费测试，详见[接入与引擎配置](langchain4j-opensearch/README-JAVA8.md)。
 
+2026-11-17 当前 **61 模块完整 `clean install` 单测检查点**：8,872 项，失败/错误为 0，条件跳过 102 项。其中原生 JDK8 执行 7,690 项，上游现代模拟服务在 JDK17 执行 1,182 项；该命令跳过 IT，实际向量库等集成门禁单列，不能当作所有外部服务都验收通过。
+
 支持范围、构建步骤与验证边界见 **`main-jdk8` 分支的 [COMPATIBILITY.md](https://github.com/yudaocode/yudao-langchain4j/blob/main-jdk8/COMPATIBILITY.md)**。BOM 仅列入已纳入兼容构建的模块；其余上游模块源码保留，不代表已经支持 Java 8。
 
 ---
