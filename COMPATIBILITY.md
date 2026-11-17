@@ -92,3 +92,16 @@ Production bytecode scan:246jars /62906 effective base classes, none above major
 The default reactor and BOM now select54 modules. Add `cn.iocoder.langchain4j:langchain4j-open-ai-official` or `cn.iocoder.langchain4j:langchain4j-agentic-mcp` only when needed; both retain their upstream beta34 version through the BOM. OpenAI Java SDK4.101.0 is retained. Two Java9 Duration.toSeconds calls in the batch model use the equivalent Java8 getSeconds API. HTTP5/Core5 remain aligned with the compatibility parent (5.6.5/5.4.4). The SDK tests include actual client requests to local WireMock endpoints, not only mocked SDK method calls.
 
 After the52-module gate, these two added modules passed140 and68 native8 cases respectively, zero failures/errors/skips; no shared core source changed in this batch. These are component gates in addition to the preceding reactor checkpoint, not a claim of a second one-shot full54-module run. Paid OpenAI/Azure endpoints and external MCP Agent integration tests remain outside the unit gate. Runtime scan expands to307jars /109760 effective base classes, none above major52. Static member audit remains15 reviewed third-party findings with no self-owned newer-JDK API call.
+
+## Azure and observability
+
+Default scope expands from54 to57 modules: Azure OpenAI, Micrometer Metrics and Observation. Native8 module install gates passed67+45+2=114 cases, zero failures/errors/skips, without changing shared core source. Azure SDK1.0.0-beta.16, Micrometer1.16.6/1.16.5 are retained; the Azure test logging binding matches the Java8 branch's SLF4J1.7. Production closure346jars /114553 effective base classes stays at major52 or below, and15 reviewed static API findings remain confined to third-party optional paths.
+
+For a Boot2 parent application using metrics/observation, add `<micrometer.version>1.16.6</micrometer.version>` alongside the earlier HTTP/Logback overrides. The parent imports Micrometer's BOM through this property, aligning core/commons/observation. A separate actual Boot2.7.18 Actuator application starts on Java8, asserts the loaded Micrometer version, constructs both listeners and records a metric. Reproduce it after installing this source branch:
+
+```sh
+./mvnw -f compatibility-tests/boot2-observability/pom.xml \
+  -Dcompat.test.jvm="$JAVA8_HOME/bin/java" verify
+```
+
+Add the appropriate listener to model builders; the test is an in-process Actuator/Micrometer compatibility gate, not an Azure cloud-service acceptance. External model and instrumentation integration tests remain separate.
