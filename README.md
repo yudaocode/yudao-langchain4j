@@ -191,7 +191,11 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 ## Vertex AI 与 Tablestore（JDK 8）
 
-导入兼容 BOM 后，按需选择 `langchain4j-vertex-ai`、`langchain4j-vertex-ai-gemini`、`langchain4j-vertex-ai-anthropic` 或 `langchain4j-tablestore`。Vertex AI 通过相应 builder 传入工程、区域、模型名与 Google 凭据。Tablestore 可使用 `new TablestoreEmbeddingStore(syncClient, vectorDimension)` 并按需调用 `init()` 建表与索引。Spring Boot 2.7.18 已验证的依赖配置见 [兼容说明](COMPATIBILITY.md#vertex-ai-and-tablestore-on-java-8)。Java 8 默认构建共 96 个模块。
+导入兼容 BOM 后，按需选择 `langchain4j-vertex-ai`、`langchain4j-vertex-ai-gemini`、`langchain4j-vertex-ai-anthropic` 或 `langchain4j-tablestore`。Vertex AI 通过相应 builder 传入工程、区域、模型名与 Google 凭据。Tablestore 可使用 `new TablestoreEmbeddingStore(syncClient, vectorDimension)` 并按需调用 `init()` 建表与索引。Spring Boot 2.7.18 已验证的依赖配置见 [兼容说明](COMPATIBILITY.md#vertex-ai-and-tablestore-on-java-8)。Vertex AI 与 Tablestore 批次覆盖 96 个默认模块。
+
+## Azure Cosmos NoSQL、Couchbase、MongoDB Atlas 与 Pinecone（JDK 8）
+
+导入兼容 BOM 后，按需引入 `langchain4j-azure-cosmos-nosql`、`langchain4j-couchbase`、`langchain4j-mongodb-atlas` 或 `langchain4j-pinecone`。通过各自的 `EmbeddingStore.builder()` 提供库、集合或索引和客户端凭据。Spring Boot 2.7.18 的验证依赖见 [兼容说明](COMPATIBILITY.md#additional-vector-sdk-adapters-on-java-8)。Java 8 默认构建共 100 个模块。
 
 ---
 
