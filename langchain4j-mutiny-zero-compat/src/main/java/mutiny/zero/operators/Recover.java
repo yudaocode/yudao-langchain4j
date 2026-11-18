@@ -8,13 +8,13 @@ import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A {@link java.util.concurrent.Flow.Publisher} that recovers from failure using a {@link Function}.
+ * A {@link org.springframework.ai.compat.jdkhttp.Flow.Publisher} that recovers from failure using a {@link Function}.
  * <p>
  * The provided function accepts an error that would normally trigger an
- * {@link java.util.concurrent.Flow.Subscriber#onError(Throwable)} signal.
+ * {@link org.springframework.ai.compat.jdkhttp.Flow.Subscriber#onError(Throwable)} signal.
  * <p>
  * The function returns a recovery value of type {@code T}, then the stream terminates with an
- * {@link java.util.concurrent.Flow.Subscriber#onComplete()} signal.
+ * {@link org.springframework.ai.compat.jdkhttp.Flow.Subscriber#onComplete()} signal.
  * If the function returns {@code null} then the stream terminates directly with a completion event.
  * <p>
  * The stream ends with an error if the function throws an exception.

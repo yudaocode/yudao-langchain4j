@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 import mutiny.zero.internal.Helper;
 
 /**
- * A {@link java.util.concurrent.Flow.Publisher} that is the concatenation of several ones.
+ * A {@link org.springframework.ai.compat.jdkhttp.Flow.Publisher} that is the concatenation of several ones.
  * <p>
  * The first publisher in the list is the first to be subscribed.
  * Once it completes the next one is subscribed and so on, up to the completion of the last one.

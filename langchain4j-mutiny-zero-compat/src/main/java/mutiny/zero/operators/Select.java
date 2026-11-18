@@ -6,7 +6,7 @@ import java.util.concurrent.Flow;
 import java.util.function.Predicate;
 
 /**
- * A {@link java.util.concurrent.Flow.Publisher} that selects elements matching a {@link Predicate}.
+ * A {@link org.springframework.ai.compat.jdkhttp.Flow.Publisher} that selects elements matching a {@link Predicate}.
  *
  * @param <T> the elements type
  */

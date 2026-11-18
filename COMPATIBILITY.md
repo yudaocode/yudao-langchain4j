@@ -353,3 +353,8 @@ The Java 8 artifact uses Hibernate ORM 5.6.15.Final and the Boot 2 javax.persist
 ## Infinispan on Java 8
 
 The Java 8 artifact runs Hot Rod 13.0.22.Final with ProtoStream 4.4.4.Final. It preserves the public schema builder API using the separately packaged ProtoStream 6.0.12.Final schema sources. The client parser uses a proto2 schema and the server receives a proto3 schema. Native Java 8 runs 68 unit tests and the Infinispan 16.3.1 integration suite (131 passed, two filter cases skipped by the inherited capability gates). Two independent Boot 2 installed-artifact tests cover authenticated vector search, metadata filtering, deletion, and Unicode chat memory on a single server. The mapped-port fixture uses BASIC Hot Rod client intelligence. Cluster discovery across multiple nodes remains outside this test setup.
+
+
+## Mutiny Zero artifacts
+
+The Java 8 Mutiny Zero compatibility artifact builds its Javadoc with the Java 8 Flow compatibility ABI, while the source-level switch selects exactly the upstream backpressure implementations. Six native Java 8 test cases exercise the policies. An independent Spring Boot 2.7.18 installation exercises completion and cancellation through the reactive streaming artifact.

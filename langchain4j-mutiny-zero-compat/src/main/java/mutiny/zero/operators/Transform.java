@@ -6,7 +6,7 @@ import java.util.concurrent.Flow;
 import java.util.function.Function;
 
 /**
- * A {@link java.util.concurrent.Flow.Publisher} that transforms elements using a {@link Function}.
+ * A {@link org.springframework.ai.compat.jdkhttp.Flow.Publisher} that transforms elements using a {@link Function}.
  *
  * @param <I> the input elements type
  * @param <O> the output elements type

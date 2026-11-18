@@ -260,6 +260,10 @@ module=internal/langchain4j-docu-chatbot-updater
 
 导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-infinispan`，使用 `InfinispanEmbeddingStore` 和 `InfinispanChatMemoryStore` 接入服务。Boot 2 项目可设置 `infinispan.version=13.0.22.Final`，对齐 JDK 8 客户端版本。已连接使用 SCRAM-SHA-512 的 Infinispan 16.3.1。单节点经 Docker 端口映射或 NAT 接入且服务端通告地址不可达时，可在传入的客户端配置上设置 `clientIntelligence(ClientIntelligence.BASIC)`。Java 8 默认构建共 115 个模块。
 
+## 响应式流（JDK 8）
+
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-reactive-streaming`。该模块使用兼容版 Mutiny Zero 1.3.1 和 Spring AI 的 Java 8 Flow API，已验证六种背压策略及 Boot 2 安装包的上游取消行为。构建会生成二进制、源码和 Javadoc 制品。
+
 ---
 
 # LangChain4j: idiomatic, open-source Java library for building LLM-powered applications on the JVM
