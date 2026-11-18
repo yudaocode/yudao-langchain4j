@@ -363,3 +363,8 @@ The Java 8 Mutiny Zero compatibility artifact builds its Javadoc with the Java 8
 ## Core artifact build
 
 Javadoc reads the generated sources with JDK 17 syntax support. Main Java compilation still targets Java 8. The core suite executes 1856 cases on Java 8, with 6 conditional skips. A separate Boot 2.7.18 program loads the installed core artifacts and round-trips Unicode chat messages through the JSON serializer.
+
+
+## Hibernate 5 pgvector entities on Java 8
+
+The `langchain4j-hibernate-pgvector` artifact maps dense float vectors through a Hibernate 5 UserType and registers five distance modes for typed JPA Criteria searches. It uses the caller's persistence context for managed results, database-side filtering and result limits. Java 8 tests verify PostgreSQL 17.12 with pgvector 0.8.7 and the Boot 2.7.18 JPA stack. The upstream general Hibernate embedding store and the Milvus provider remain separate work.

@@ -258,7 +258,7 @@ module=internal/langchain4j-docu-chatbot-updater
 
 ## Infinispan（JDK 8）
 
-导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-infinispan`，使用 `InfinispanEmbeddingStore` 和 `InfinispanChatMemoryStore` 接入服务。Boot 2 项目可设置 `infinispan.version=13.0.22.Final`，对齐 JDK 8 客户端版本。已连接使用 SCRAM-SHA-512 的 Infinispan 16.3.1。单节点经 Docker 端口映射或 NAT 接入且服务端通告地址不可达时，可在传入的客户端配置上设置 `clientIntelligence(ClientIntelligence.BASIC)`。Java 8 默认构建共 115 个模块。
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-infinispan`，使用 `InfinispanEmbeddingStore` 和 `InfinispanChatMemoryStore` 接入服务。Boot 2 项目可设置 `infinispan.version=13.0.22.Final`，对齐 JDK 8 客户端版本。已连接使用 SCRAM-SHA-512 的 Infinispan 16.3.1。单节点经 Docker 端口映射或 NAT 接入且服务端通告地址不可达时，可在传入的客户端配置上设置 `clientIntelligence(ClientIntelligence.BASIC)`。Infinispan 批次覆盖 115 个默认模块。
 
 ## 响应式流（JDK 8）
 
@@ -267,6 +267,20 @@ module=internal/langchain4j-docu-chatbot-updater
 ## 构建制品（JDK 8 路线）
 
 使用 JDK 17 构建和生成 Javadoc。发布的库编译为 Java 8 字节码，单测和安装包消费验证可用实际 JDK 8 运行。使用 Jackson 2 的 Java 8 制品已纳入默认 BOM。Jackson 3 和依赖较新 JVM 的原生推理扩展保留上游环境要求。
+
+## Hibernate 5 的 PostgreSQL 向量查询（JDK 8）
+
+导入兼容 BOM 后加入 `cn.iocoder.langchain4j:langchain4j-hibernate-pgvector`。数据库需启用 pgvector。在 Hibernate 配置中令 `hibernate.metadata_builder_contributor` 指向 `dev.langchain4j.store.embedding.hibernate.pgvector.PgVectorFunctions`，Spring Boot 2 对应属性为 `spring.jpa.properties.hibernate.metadata_builder_contributor`。如果应用已注册其他 contributor，可在现有 contributor 中调用 `new PgVectorFunctions().contribute(metadataBuilder)`。
+
+把实体的 `float[]` 字段映射到 PostgreSQL 向量列，例如三维字段：
+
+```java
+@org.hibernate.annotations.Type(type = "dev.langchain4j.store.embedding.hibernate.pgvector.PgVectorType")
+@javax.persistence.Column(columnDefinition = "vector(3)")
+private float[] embedding;
+```
+
+在应用的 JPA 上下文调用 `new HibernatePgVectorSearch<>(Document.class, "embedding").search(entityManager, vector, Metric.COSINE, 0.8, 10, restriction)`。其中 `vector` 是 LangChain4j 的 `Embedding`，`restriction` 可传 JPA Criteria 条件或 `null`。实体写入与更新继续使用 JPA。支持余弦、L2、平方 L2、L1 和内积。Boot 2 项目可以设置 `postgresql.version=42.7.14` 对齐已经通过验证的 JDBC 驱动。原 Hibernate 通用向量存储及 Milvus 方言仍在适配。
 
 ---
 
