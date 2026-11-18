@@ -15,16 +15,13 @@ import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.rag.content.Content;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.query.Query;
-import jakarta.persistence.EntityManagerFactory;
-import java.io.IOException;
+import javax.persistence.EntityManagerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.SessionFactory;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.tool.language.internal.MetamodelJsonSerializerImpl;
-import org.hibernate.tool.language.internal.ResultsJsonSerializerImpl;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,9 +105,7 @@ public class HibernateContentRetriever implements ContentRetriever {
     }
 
     protected static String defaultDatabaseStructure(SessionFactory sessionFactory) {
-        // By default, use Hibernate's metamodel to generate a description of the entity model structure.
-        // We use our default MetamodelJsonSerializerImpl, which produces a JSON representation of the metamodel
-        return MetamodelJsonSerializerImpl.INSTANCE.toString(sessionFactory.getMetamodel());
+        return Hibernate5Json.describeMetamodel(sessionFactory.getMetamodel());
     }
 
     @Override
@@ -184,21 +179,11 @@ public class HibernateContentRetriever implements ContentRetriever {
     }
 
     protected String execute(String hqlQuery) {
-        return sessionFactory.fromStatelessSession(session -> {
-            // We create a selection query, ensuring the generated HQL is a SELECT statement.
-            // If not, an exception will be thrown by Hibernate.
-            var query = session.createSelectionQuery(hqlQuery, Object.class);
-            var results = query.getResultList();
-            try {
-                // We use our own custom serializer to convert the results (which might include lazy/circular
-                // associations)
-                // into a JSON string that can be sent back to the LLM.
-                return new ResultsJsonSerializerImpl((SessionFactoryImplementor) sessionFactory)
-                        .toString(results, query);
-            } catch (IOException e) {
-                throw new RuntimeException("Error during query results serialization", e);
-            }
-        });
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+            // Hibernate 5 rejects mutation statements when a query is executed through getResultList().
+            List<?> results = session.createQuery(hqlQuery).getResultList();
+            return Hibernate5Json.serializeResults(sessionFactory, results);
+        }
     }
 
     private static Content format(String result, String hqlQuery) {

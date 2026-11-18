@@ -343,3 +343,8 @@ The store uses the documented Document and Query HTTP APIs with its Java 8 Retro
 ## IBM watsonx.ai on Java 8
 
 The adapter uses the backported Watsonx SDK, core and Jackson 2 binding pinned to IBM 0.50.0. It preserves the ServiceLoader entry and uses the Spring AI Java 8 HTTP bridge for response metadata, streaming text and request replay. Local tests cover the model catalog, gateway DTOs, and synchronous and asynchronous chat. Acceptance against IBM Cloud or a hosted deployment requires an appropriate account.
+
+
+## Experimental Hibernate retriever on Java 8
+
+The Java 8 artifact uses Hibernate ORM 5.6.15.Final and the Boot 2 javax.persistence API. It derives the prompt's schema from the Java Persistence metamodel and renders HQL query results without loading lazy associations. An installed Boot 2 application verifies its real EntityManagerFactory against PostgreSQL 17 with a deterministic chat model, while the H2 unit suite checks read projections, entity results and rejected mutation queries.

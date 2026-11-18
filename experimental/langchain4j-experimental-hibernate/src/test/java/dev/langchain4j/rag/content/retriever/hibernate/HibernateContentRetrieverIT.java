@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.SchemaToolingSettings;
-import org.hibernate.tool.schema.Action;
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -61,10 +61,12 @@ class HibernateContentRetrieverIT {
                 .addAnnotatedClass(CustomerEntity.class)
                 .addAnnotatedClass(ProductEntity.class)
                 .addAnnotatedClass(OrderEntity.class)
-                .setJdbcUrl(postgres.getJdbcUrl())
-                .setCredentials(postgres.getUsername(), postgres.getPassword())
-                .setSchemaExportAction(Action.CREATE_DROP)
-                .setProperty(SchemaToolingSettings.JAKARTA_HBM2DDL_LOAD_SCRIPT_SOURCE, "/import-content-retriever.sql")
+                .setProperty(AvailableSettings.URL, postgres.getJdbcUrl())
+                .setProperty(AvailableSettings.USER, postgres.getUsername())
+                .setProperty(AvailableSettings.PASS, postgres.getPassword())
+                .setProperty(AvailableSettings.DIALECT, "org.hibernate.dialect.PostgreSQL10Dialect")
+                .setProperty(AvailableSettings.HBM2DDL_AUTO, "create-drop")
+                .setProperty(AvailableSettings.HBM2DDL_IMPORT_FILES, "/import-content-retriever.sql")
                 .buildSessionFactory();
     }
 
@@ -200,17 +202,15 @@ class HibernateContentRetrieverIT {
     }
 
     private long getTableHash(String tableName) {
-        return sessionFactory.fromStatelessSession(session -> {
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
             StringBuilder dataBuilder = new StringBuilder();
-            session.createNativeQuery("SELECT * FROM " + tableName, Object[].class)
-                    .getResultList()
-                    .forEach(row -> {
-                        for (Object col : row) {
-                            dataBuilder.append(col);
-                        }
-                    });
-            return (long) dataBuilder.toString().hashCode();
-        });
+            for (Object row : session.createNativeQuery("SELECT * FROM " + tableName).getResultList()) {
+                for (Object col : (Object[]) row) {
+                    dataBuilder.append(col);
+                }
+            }
+            return dataBuilder.toString().hashCode();
+        }
     }
 
     static Stream<Function<SessionFactory, ContentRetriever>> contentRetrieverProviders() {
