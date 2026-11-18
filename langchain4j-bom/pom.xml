@@ -20,6 +20,21 @@
         <dependencies>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-oracle</artifactId>
+                <version>${langchain4j.beta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-azure-cosmos-mongo-vcore</artifactId>
+                <version>${langchain4j.beta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-azure-documentdb</artifactId>
+                <version>${langchain4j.beta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-bedrock</artifactId>
                 <version>${langchain4j.stable.version}</version>
             </dependency>

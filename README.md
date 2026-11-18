@@ -177,7 +177,13 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 导入兼容 BOM 后，按需引入 `cn.iocoder.langchain4j` 的 `langchain4j-bedrock`、`langchain4j-google-genai` 或 `langchain4j-azure-ai-search`。使用原有的 `BedrockChatModel.builder()`、`GoogleGenAiChatModel.builder()` 或 `AzureAiSearchEmbeddingStore.builder()`，配置相应的区域、模型、索引和凭据。
 
-保留 AWS SDK `2.57.12`、Google Gen AI SDK `1.80.0` 和 Azure AI Search SDK `12.0.3`。Spring Boot 2.7.18 使用这些模块时，请参考 [已验证的依赖版本](COMPATIBILITY.md#cloud-adapters-on-java-8)；Azure AI Search 需要对齐 Reactor 和 Netty。Java 8 默认构建共 88 个模块。
+保留 AWS SDK `2.57.12`、Google Gen AI SDK `1.80.0` 和 Azure AI Search SDK `12.0.3`。Spring Boot 2.7.18 使用这些模块时，请参考 [已验证的依赖版本](COMPATIBILITY.md#cloud-adapters-on-java-8)；Azure AI Search 需要对齐 Reactor 和 Netty。本批云适配覆盖 88 个默认模块。
+
+## Oracle、Azure Cosmos Mongo vCore 与 Azure DocumentDB（JDK 8）
+
+导入兼容 BOM 后按需引入 `cn.iocoder.langchain4j` 的 `langchain4j-oracle`、`langchain4j-azure-cosmos-mongo-vcore` 或 `langchain4j-azure-documentdb`。Oracle 通过 `OracleEmbeddingStore.builder().dataSource(source)` 配置数据源和表。Azure 适配通过对应 builder 配置 Mongo 客户端、数据库、集合和向量索引类型。
+
+保留 Oracle JDBC `23.26.4.0.0` 和 MongoDB Java Driver `5.6.0`。Spring Boot 2.7.18 应用使用 `oracle-database.version=23.26.4.0.0` 和 `mongodb.version=5.6.0` 对齐实际使用的驱动。Java 8 默认构建共 91 个模块。
 
 ---
 

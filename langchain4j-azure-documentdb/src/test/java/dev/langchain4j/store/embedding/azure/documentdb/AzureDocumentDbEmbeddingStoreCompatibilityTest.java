@@ -34,6 +34,8 @@ class AzureDocumentDbEmbeddingStoreCompatibilityTest {
     @Test
     void should_keep_implementation_details_out_of_the_public_api() {
         assertThat(AzureDocumentDbEmbeddingStore.class.getDeclaredConstructors())
+                // Java 8 emits a synthetic bridge for the nested builder's private constructor call.
+                .filteredOn(constructor -> !constructor.isSynthetic())
                 .allSatisfy(constructor -> assertThat(Modifier.isPrivate(constructor.getModifiers()))
                         .isTrue());
         assertThat(AzureDocumentDbEmbeddingStore.class.getMethods())

@@ -267,3 +267,10 @@ Bedrock keeps AWS SDK 2.57.12 and uses the existing Java 8 Mutiny Zero compatibi
 The installed-artifact validation project imports the LangChain4j BOM under Boot 2.7.18 and uses `jackson-bom.version=2.21.4`, `reactor-bom.version=2024.0.18`, `netty.version=4.1.140.Final`, `okhttp.version=4.12.0`, `gson.version=2.15.0`, `httpclient5.version=5.6.5`, and `httpcore5.version=5.4.4`. Use matching Reactor and Netty versions for Azure AI Search to avoid the DNS resolver linkage error with the older Boot-managed Netty.
 
 Native Java 8 runs 762 of 770 unit tests with zero failures and eight conditional Bedrock TCK skips. Three independent tests pass with jars installed through Maven, real SDK serialization and local HTTP/TLS provider responses. The selected Bedrock non-blocking integration needs AWS credentials and skips its three cases. Live AWS, Google and Azure service acceptance is pending.
+
+
+## Oracle and Mongo-wire Azure adapters on Java 8
+
+Oracle retains JDBC 23.26.4.0.0. Boot 2.7.18 dependency management needs this version to expose the JDBC vector types. Exact and approximate search tests run on Oracle Free 23.7 with Java 8. The installed artifact also writes, filters, reads, and deletes Chinese text and its vector.
+
+Azure Cosmos Mongo vCore and Azure DocumentDB keep MongoDB Java Driver 5.6.0. Their Java 8 dependency graphs exclude the optional Java 17 record codec. The installed artifacts write Chinese text and metadata using real MongoDB Community 7.0. MongoDB Community only verifies the shared driver and BSON storage. Azure index creation and vector search need the corresponding Azure service. The store-level remove-by-ID operation remains unsupported on these two upstream adapters.

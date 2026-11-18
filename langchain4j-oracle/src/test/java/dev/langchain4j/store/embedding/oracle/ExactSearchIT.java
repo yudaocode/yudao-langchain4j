@@ -15,7 +15,7 @@ class ExactSearchIT {
     /** Verifies all distance metrics with approximate search */
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    private void search(boolean isExactSearch) throws SQLException {
+    void search(boolean isExactSearch) throws SQLException {
 
         OracleEmbeddingStore oracleEmbeddingStore =
                 newEmbeddingStoreBuilder().exactSearch(isExactSearch).build();
