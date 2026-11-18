@@ -163,7 +163,11 @@ Easy RAG 批次覆盖 78 个 Java 8 默认模块。
 
 导入 `cn.iocoder.langchain4j:langchain4j-bom:1.24.0-jdk8-SNAPSHOT` 后引入 `cn.iocoder.langchain4j:langchain4j-agentic-a2a`，通过 `AgenticServices.a2aBuilder(url, MyAgent.class)` 连接 A2A 服务。A2A Java SDK 1.5.1.Final 由 [AgentScope Java 8 兼容分支](https://github.com/yudaocode/yudao-agentscope-java/tree/main-jdk8) 提供，请先安装其 `agentscope-a2a-sdk-java8:2.1.0-jdk8-SNAPSHOT`。同一应用只使用一套 A2A SDK 制品。
 
-Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode/yudao-agentscope-java/blob/main-jdk8/JAVA8-COMPATIBILITY.md#a2anacos-与聚合包) 对齐 Gson、Jackson、HTTP Client 与 Reactor。Java 8 默认构建现有 82 个模块。
+Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode/yudao-agentscope-java/blob/main-jdk8/JAVA8-COMPATIBILITY.md#a2anacos-与聚合包) 对齐 Gson、Jackson、HTTP Client 与 Reactor。A2A 批次覆盖 82 个默认模块。
+
+## 实验性 SQL 检索（JDK 8）
+
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-experimental-sql`，使用 `SqlDatabaseContentRetriever.builder().dataSource(source).chatModel(model).build()`；数据库驱动根据实际数据库添加，数据源账号授予所需表的只读权限。保留上游 JSqlParser `4.9`。本批后默认构建共 83 个模块。
 
 ---
 

@@ -248,3 +248,8 @@ The 81-module reactor passes Maven `validate`. An independently built Kotlin app
 The Agentic A2A module consumes AgentScope's Java 8 build of A2A Java SDK 1.5.1.Final, which includes both the client and JSON-RPC transport. Install `cn.iocoder.agentscope:agentscope-a2a-sdk-java8:2.1.0-jdk8-SNAPSHOT` from its `main-jdk8` branch with the AgentCard cancellation fix before building. The module and its BOM install locally with source and Javadoc artifacts for the JAR. JDK 17 reads the original Java source syntax for compilation and Javadoc. The runtime bytecode is lowered to Java 8.
 
 All 90 Agentic A2A unit tests pass on a native Java 8 VM, including cancellation for a peer that never returns its card. A separate HTTP integration fixture uses the installed compatibility BOMs and 19 tests pass under Boot 2.7.18 and native Java 8, including a Chinese response from the installed AgentScope A2A starter. The upstream model-provider ITs require standalone services and model credentials.
+
+
+## Experimental SQL retriever on Java 8
+
+The module retains JSqlParser 4.9 and passes all 12 upstream unit tests on Java 8. An independent consumer resolves the installed module from the compatibility BOM with Boot 2.7.18 dependency management, uses a deterministic ChatModel response, and reads a Unicode row from PostgreSQL 17 via JDBC 42.7.14 on Java 8. The upstream integration run has 9 tests gated on live model credentials.
