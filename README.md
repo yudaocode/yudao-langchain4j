@@ -171,7 +171,13 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 ## Milvus V1 与 V2（JDK 8）
 
-导入兼容 BOM 后按既有 API 选择 `cn.iocoder.langchain4j:langchain4j-milvus` 或 `cn.iocoder.langchain4j:langchain4j-milvus-v2`，通过 `MilvusEmbeddingStore.builder()` 或 `MilvusV2EmbeddingStore.builder()` 配置服务地址、集合与向量维度。两者均保留 Milvus Java SDK `2.6.27`，实测服务端 `2.6.27`。V2 的 BM25、稀疏向量和混合检索按原有 API 使用。Java 8 默认构建共 85 个模块。
+导入兼容 BOM 后按既有 API 选择 `cn.iocoder.langchain4j:langchain4j-milvus` 或 `cn.iocoder.langchain4j:langchain4j-milvus-v2`，通过 `MilvusEmbeddingStore.builder()` 或 `MilvusV2EmbeddingStore.builder()` 配置服务地址、集合与向量维度。两者均保留 Milvus Java SDK `2.6.27`，实测服务端 `2.6.27`。V2 的 BM25、稀疏向量和混合检索按原有 API 使用。Milvus 批次覆盖 85 个默认模块。
+
+## Bedrock、Google GenAI 与 Azure AI Search（JDK 8）
+
+导入兼容 BOM 后，按需引入 `cn.iocoder.langchain4j` 的 `langchain4j-bedrock`、`langchain4j-google-genai` 或 `langchain4j-azure-ai-search`。使用原有的 `BedrockChatModel.builder()`、`GoogleGenAiChatModel.builder()` 或 `AzureAiSearchEmbeddingStore.builder()`，配置相应的区域、模型、索引和凭据。
+
+保留 AWS SDK `2.57.12`、Google Gen AI SDK `1.80.0` 和 Azure AI Search SDK `12.0.3`。Spring Boot 2.7.18 使用这些模块时，请参考 [已验证的依赖版本](COMPATIBILITY.md#cloud-adapters-on-java-8)；Azure AI Search 需要对齐 Reactor 和 Netty。Java 8 默认构建共 88 个模块。
 
 ---
 

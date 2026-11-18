@@ -25,7 +25,8 @@ class GoogleGenAiImageModelTest {
     private static final byte[] IMAGE_BYTES = {1, 2, 3, 4};
 
     private final Models models = mock(Models.class);
-    private final ArgumentCaptor<List<Content>> contentsCaptor = ArgumentCaptor.captor();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final ArgumentCaptor<List<Content>> contentsCaptor = ArgumentCaptor.forClass((Class) List.class);
 
     @Test
     void should_send_prompt_with_user_role() throws Exception {

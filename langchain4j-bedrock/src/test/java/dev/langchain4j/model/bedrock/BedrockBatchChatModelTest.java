@@ -68,6 +68,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.utils.SdkAutoCloseable;
+import software.amazon.awssdk.utils.IoUtils;
 
 class BedrockBatchChatModelTest {
 
@@ -119,7 +120,7 @@ class BedrockBatchChatModelTest {
         ArgumentCaptor<RequestBody> body = ArgumentCaptor.forClass(RequestBody.class);
         verify(s3).putObject(any(Consumer.class), body.capture());
         String jsonl =
-                new String(body.getValue().contentStreamProvider().newStream().readAllBytes(), UTF_8);
+                new String(IoUtils.toByteArray(body.getValue().contentStreamProvider().newStream()), UTF_8);
         return jsonl.lines().map(BedrockBatchConverseMapper::fromJsonLine).toList();
     }
 

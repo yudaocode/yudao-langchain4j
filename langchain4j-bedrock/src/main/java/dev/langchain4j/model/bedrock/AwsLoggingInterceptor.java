@@ -100,7 +100,7 @@ class AwsLoggingInterceptor implements ExecutionInterceptor {
         byte[] content = null;
         if (logResponses) {
             try {
-                InputStream responseContentStream = context.responseBody().orElse(InputStream.nullInputStream());
+                InputStream responseContentStream = context.responseBody().orElse(new ByteArrayInputStream(new byte[0]));
                 content = IoUtils.toByteArray(responseContentStream);
                 logger.debug("Response Body: {}", new String(content, StandardCharsets.UTF_8));
             } catch (IOException e) {

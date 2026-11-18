@@ -258,3 +258,12 @@ The module retains JSqlParser 4.9 and passes all 12 upstream unit tests on Java 
 ## Milvus and Milvus V2 on Java 8
 
 Both modules keep Java SDK 2.6.27 and verify against the stock 2.6.27 server image with embedded etcd and local storage. All 154 unit tests pass on Java 8. Of 329 integration tests, 295 pass and 34 are conditionally skipped (32 cloud credentials and two inherited conditions). Real server tests cover filters, special characters, deletion, dense/sparse/hybrid search and BM25. A separate Boot 2.7.18 parent project resolves both installed artifacts from the Java 8 BOM and passes write, metadata search, and deletion against the real server.
+
+
+## Cloud adapters on Java 8
+
+Bedrock keeps AWS SDK 2.57.12 and uses the existing Java 8 Mutiny Zero compatibility artifact for reactive streams. Its public builders remain callable from other packages on Java 8, including when a test runner reflects on nested types. Google GenAI keeps SDK 1.80.0. Azure AI Search keeps SDK 12.0.3.
+
+The installed-artifact validation project imports the LangChain4j BOM under Boot 2.7.18 and uses `jackson-bom.version=2.21.4`, `reactor-bom.version=2024.0.18`, `netty.version=4.1.140.Final`, `okhttp.version=4.12.0`, `gson.version=2.15.0`, `httpclient5.version=5.6.5`, and `httpcore5.version=5.4.4`. Use matching Reactor and Netty versions for Azure AI Search to avoid the DNS resolver linkage error with the older Boot-managed Netty.
+
+Native Java 8 runs 762 of 770 unit tests with zero failures and eight conditional Bedrock TCK skips. Three independent tests pass with jars installed through Maven, real SDK serialization and local HTTP/TLS provider responses. The selected Bedrock non-blocking integration needs AWS credentials and skips its three cases. Live AWS, Google and Azure service acceptance is pending.

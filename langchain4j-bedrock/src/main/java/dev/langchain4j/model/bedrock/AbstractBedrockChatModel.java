@@ -110,7 +110,7 @@ import software.amazon.awssdk.services.bedrockruntime.model.ToolResultContentBlo
 import software.amazon.awssdk.services.bedrockruntime.model.ToolUseBlock;
 
 @Internal
-abstract class AbstractBedrockChatModel {
+public abstract class AbstractBedrockChatModel {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractBedrockChatModel.class);
 
@@ -151,7 +151,7 @@ abstract class AbstractBedrockChatModel {
     protected final Set<Capability> supportedCapabilities;
     protected final Supplier<Map<String, String>> customHeadersSupplier;
 
-    protected AbstractBedrockChatModel(AbstractBuilder<?> builder) {
+    AbstractBedrockChatModel(AbstractBuilder<?> builder) {
         this.region = getOrDefault(builder.region, Region.US_EAST_1);
         this.timeout = getOrDefault(builder.timeout, Duration.ofMinutes(1));
         this.returnThinking = getOrDefault(builder.returnThinking, false);

@@ -57,8 +57,10 @@ class GoogleGenAiTextToSpeechModelTest {
             .build();
 
     private final Models models = mock(Models.class);
-    private final ArgumentCaptor<List<Content>> contentsCaptor = ArgumentCaptor.captor();
-    private final ArgumentCaptor<GenerateContentConfig> configCaptor = ArgumentCaptor.captor();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final ArgumentCaptor<List<Content>> contentsCaptor = ArgumentCaptor.forClass((Class) List.class);
+    private final ArgumentCaptor<GenerateContentConfig> configCaptor =
+            ArgumentCaptor.forClass(GenerateContentConfig.class);
 
     @Test
     void should_request_audio_with_configured_voice() throws Exception {
