@@ -5,6 +5,7 @@ import static com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseS
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public record Record(String id, Double relevance, Fields fields) {
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(NON_NULL)
     @JsonNaming(SnakeCaseStrategy.class)
-    public record Fields(String documentid, String textSegment, Vector vector) {
+    public record Fields(String documentid, @JsonProperty("text_segment") String textSegment, Vector vector) {
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record Vector(List<Float> values) {}
     }

@@ -63,6 +63,7 @@
     <module>internal/langchain4j-docu-chatbot-updater</module>
     <module>compatibility/astra-db-client</module>
     <module>langchain4j-cassandra</module>
+    <module>langchain4j-vespa</module>
     <module>document-parsers/langchain4j-document-parser-docling</module>
     <module>langchain4j-coherence</module>
     <module>langchain4j-elasticsearch</module>

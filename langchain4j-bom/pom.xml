@@ -20,6 +20,11 @@
         <dependencies>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-vespa</artifactId>
+                <version>${langchain4j.beta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-astra-db-client-compat</artifactId>
                 <version>${langchain4j.beta.version}</version>
             </dependency>

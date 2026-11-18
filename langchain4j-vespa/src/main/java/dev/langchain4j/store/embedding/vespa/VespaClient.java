@@ -12,16 +12,16 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -35,32 +35,18 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
- * This Workaround is needed because of <a href="https://github.com/vespa-engine/vespa/issues/28026">this request</a>.
- * It will be redundant as soon as vespa-client is implemented. This class is copied from <code>vespa-feed-client</code>.
- * BouncyCastle integration for creating a {@link SSLContext} instance from PEM encoded material
+ * Vespa REST client with PEM certificate support adapted from <code>vespa-feed-client</code>.
  */
 class VespaClient {
 
     static final BouncyCastleProvider bcProvider = new BouncyCastleProvider();
 
     public static VespaApi createInstance(
-            String baseUrl, Path certificate, Path privateKey, boolean logRequests, boolean logResponses) {
+            String baseUrl, Path certificate, Path privateKey, Duration timeout,
+            boolean logRequests, boolean logResponses) {
         try {
-            OkHttpClient.Builder builder = new OkHttpClient.Builder().addInterceptor(chain -> {
-                // trick to format the query URL exactly how Vespa expects it (search/?query),
-                // see https://docs.vespa.ai/en/reference/query-language-reference.html
-                Request request = chain.request();
-                if (request.url().url().getPath().startsWith("/search/")) {
-                    HttpUrl url = request.url()
-                            .newBuilder()
-                            .removePathSegment(1)
-                            .addPathSegment("")
-                            .encodedQuery(request.url().encodedPathSegments().get(1))
-                            .build();
-                    request = request.newBuilder().url(url).build();
-                }
-                return chain.proceed(request);
-            });
+            OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                    .callTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS);
 
             addSsl(certificate, privateKey, builder);
 
@@ -91,16 +77,14 @@ class VespaClient {
             KeyStore keystore = KeyStore.getInstance("PKCS12");
             keystore.load(null);
             keystore.setKeyEntry("cert", privateKey(privateKey), new char[0], certificates(certificate));
-            // Protocol version must be equal to TlsContext.SSL_CONTEXT_VERSION or higher
-            SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
-            sslContext.init(createKeyManagers(keystore), null, /*Default secure random algorithm*/ null);
-
             TrustManagerFactory trustManagerFactory =
                     TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(keystore);
+            trustManagerFactory.init((KeyStore) null);
+            X509TrustManager trustManager = (X509TrustManager) trustManagerFactory.getTrustManagers()[0];
 
-            builder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager)
-                    trustManagerFactory.getTrustManagers()[0]);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(createKeyManagers(keystore), new X509TrustManager[] {trustManager}, null);
+            builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
         }
     }
 

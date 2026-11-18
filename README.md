@@ -242,7 +242,11 @@ module=internal/langchain4j-docu-chatbot-updater
 
 导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-cassandra`，它会传递引入 Astra DB Java SDK 1.2.4 / Stargate SDK 2.3.4 的兼容包。Cassandra 的向量检索使用 Cassandra 5.0 和 Apache Cassandra Java Driver 4.19.0。Spring Boot 2.7.18 项目使用前文的 Jackson 2、HttpComponents 5 及 Reactor 版本覆盖。
 
-使用 `CassandraEmbeddingStore` 与 `CassandraChatMemoryStore` 时可传入含 keyspace 的 `CqlSession`。Astra CQL 可沿用 `builderAstra()`，或按官方文档构建带 Secure Connect Bundle 的会话。Astra Data API 则将 `new AstraDB(token, endpoint, keyspace).collection(collection)` 传入 `AstraDbEmbeddingStore`。Java 8 默认构建共 109 个模块。[Astra Java Driver 文档](https://docs.datastax.com/en/astra-db-serverless/drivers/java-driver.html)
+使用 `CassandraEmbeddingStore` 与 `CassandraChatMemoryStore` 时可传入含 keyspace 的 `CqlSession`。Astra CQL 可沿用 `builderAstra()`，或按官方文档构建带 Secure Connect Bundle 的会话。Astra Data API 则将 `new AstraDB(token, endpoint, keyspace).collection(collection)` 传入 `AstraDbEmbeddingStore`。Cassandra 批次覆盖 109 个默认模块。[Astra Java Driver 文档](https://docs.datastax.com/en/astra-db-serverless/drivers/java-driver.html)
+
+## Vespa（JDK 8）
+
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-vespa`，通过 `VespaEmbeddingStore.builder().url(endpoint).build()` 连接已部署向量 schema 的服务。Vespa 8.763.13 已实测。Java 8 客户端通过 Vespa Document API 提交单条和批量写入，批量会逐条提交，并通过 Vespa Query API 执行最近邻搜索。mTLS 应用沿用 `certPath(...)` 和 `keyPath(...)`。Java 8 默认构建共 110 个模块。[Vespa Document API](https://docs.vespa.ai/en/reference/api/document-v1.html)
 
 ---
 

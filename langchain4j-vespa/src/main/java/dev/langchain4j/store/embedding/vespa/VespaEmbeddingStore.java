@@ -9,14 +9,6 @@ import static dev.langchain4j.internal.ValidationUtils.ensureNotNull;
 import static dev.langchain4j.store.embedding.vespa.Record.Fields.Vector;
 import static dev.langchain4j.store.embedding.vespa.VespaClient.createInstance;
 
-import ai.vespa.client.dsl.A;
-import ai.vespa.client.dsl.NearestNeighbor;
-import ai.vespa.client.dsl.Q;
-import ai.vespa.feed.client.DocumentId;
-import ai.vespa.feed.client.FeedClientBuilder;
-import ai.vespa.feed.client.FeedException;
-import ai.vespa.feed.client.JsonFeeder;
-import ai.vespa.feed.client.Result;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.internal.Json;
@@ -27,15 +19,15 @@ import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.vespa.Record.Fields;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Locale;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -52,6 +44,7 @@ public class VespaEmbeddingStore implements EmbeddingStore<TextSegment> {
     private static final Json.JsonCodec CODEC = ProviderJson.codec(
             ProviderJsonSpec.builder().propertyNaming(ProviderJsonSpec.PropertyNaming.SNAKE_CASE).build());
 
+    private static final MediaType JSON = MediaType.get("application/json; charset=UTF-8");
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
     static final String DEFAULT_NAMESPACE = "namespace";
     static final String DEFAULT_DOCUMENT_TYPE = "langchain4j";
@@ -138,7 +131,7 @@ public class VespaEmbeddingStore implements EmbeddingStore<TextSegment> {
     private static EmbeddingMatch<TextSegment> toEmbeddingMatch(Record in) {
         return new EmbeddingMatch<>(
                 in.relevance(),
-                DocumentId.of(in.fields().documentid()).userSpecific(),
+                userSpecificId(in.fields().documentid()),
                 Embedding.from(in.fields().vector().values()),
                 in.fields().textSegment() != null ? TextSegment.from(in.fields().textSegment()) : null);
     }
@@ -181,31 +174,8 @@ public class VespaEmbeddingStore implements EmbeddingStore<TextSegment> {
             return;
         }
 
-        try (JsonFeeder jsonFeeder = feeder()) {
-            List<Record> records = new ArrayList<>();
-
-            for (int i = 0; i < embeddings.size(); i++) {
-                records.add(buildRecord(ids.get(i), embeddings.get(i), embedded != null ? embedded.get(i) : null));
-            }
-
-            jsonFeeder.feedMany(
-                    new ByteArrayInputStream(
-                            CODEC.toJson(records).getBytes()),
-                    new JsonFeeder.ResultCallback() {
-                        @Override
-                        public void onNextResult(Result result, FeedException error) {
-                            if (error != null) {
-                                throw new RuntimeException(error.getMessage());
-                            }
-                        }
-
-                        @Override
-                        public void onError(FeedException error) {
-                            throw new RuntimeException(error.getMessage());
-                        }
-                    });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for (int i = 0; i < embeddings.size(); i++) {
+            add(ids.get(i), embeddings.get(i), embedded == null ? null : embedded.get(i));
         }
     }
 
@@ -216,19 +186,14 @@ public class VespaEmbeddingStore implements EmbeddingStore<TextSegment> {
     @Override
     public EmbeddingSearchResult<TextSegment> search(EmbeddingSearchRequest request) {
         try {
-            String searchQuery = Q.select(FIELD_NAME_DOCUMENT_ID, FIELD_NAME_TEXT_SEGMENT, FIELD_NAME_VECTOR)
-                    .from(documentType)
-                    .where(buildNearestNeighbor())
-                    .fix()
-                    .hits(request.maxResults())
-                    .ranking(rankProfile)
-                    .param(
-                            "input.query(q)",
-                            CODEC.toJson(request.queryEmbedding().vectorAsList()))
-                    .param("input.query(threshold)", String.valueOf(request.minScore()))
-                    .build();
-
-            Response<QueryResponse> response = api().search(searchQuery).execute();
+            String yql = String.format(
+                    Locale.ROOT,
+                    "select %s, %s, %s from %s where ({targetHits:%d}nearestNeighbor(%s,q))",
+                    FIELD_NAME_DOCUMENT_ID, FIELD_NAME_TEXT_SEGMENT, FIELD_NAME_VECTOR,
+                    documentType, targetHits, FIELD_NAME_VECTOR);
+            Response<QueryResponse> response = api().search(
+                    yql, request.maxResults(), rankProfile,
+                    CODEC.toJson(request.queryEmbedding().vectorAsList()), request.minScore()).execute();
             if (response.isSuccessful()) {
                 QueryResponse parsedResponse = response.body();
                 List<Record> children = parsedResponse.root().children();
@@ -260,54 +225,36 @@ public class VespaEmbeddingStore implements EmbeddingStore<TextSegment> {
     }
 
     private String add(String id, Embedding embedding, TextSegment textSegment) {
-        AtomicReference<String> resId = new AtomicReference<>();
-
-        try (JsonFeeder jsonFeeder = feeder()) {
-            jsonFeeder
-                    .feedSingle(CODEC.toJson(buildRecord(id, embedding, textSegment)))
-                    .whenComplete(((result, throwable) -> {
-                        if (throwable != null) {
-                            throw new RuntimeException(throwable);
-                        } else if (Result.Type.success.equals(result.type())) {
-                            resId.set(result.documentId().userSpecific());
-                        }
-                    }));
-        } catch (Exception e) {
+        String recordId = id != null
+                ? id
+                : avoidDups && textSegment != null ? generateUUIDFrom(textSegment.text()) : randomUUID();
+        String text = textSegment != null ? textSegment.text() : null;
+        Record document = new Record(null, null, new Fields(null, text, new Vector(embedding.vectorAsList())));
+        try {
+            Response<Void> response = api().putDocument(namespace, documentType, recordId,
+                    RequestBody.create(CODEC.toJson(document), JSON)).execute();
+            if (!response.isSuccessful()) {
+                throw toException(response);
+            }
+            return recordId;
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return resId.get();
-    }
-
-    private JsonFeeder feeder() {
-        FeedClientBuilder fcBuilder = FeedClientBuilder.create(URI.create(url));
-        if (certPath != null && keyPath != null) {
-            fcBuilder.setCertificate(certPath, keyPath);
-        }
-
-        return JsonFeeder.builder(fcBuilder.build()).withTimeout(timeout).build();
     }
 
     private VespaApi api() {
         if (api == null) {
-            api = createInstance(url, certPath, keyPath, logRequests, logResponses);
+            api = createInstance(url, certPath, keyPath, timeout, logRequests, logResponses);
         }
         return api;
     }
 
-    private Record buildRecord(String id, Embedding embedding, TextSegment textSegment) {
-        String recordId = id != null
-                ? id
-                : avoidDups && textSegment != null ? generateUUIDFrom(textSegment.text()) : randomUUID();
-        DocumentId documentId = DocumentId.of(namespace, documentType, recordId);
-        String text = textSegment != null ? textSegment.text() : null;
-        return new Record(documentId.toString(), null, new Fields(null, text, new Vector(embedding.vectorAsList())));
-    }
-
-    private NearestNeighbor buildNearestNeighbor() {
-        NearestNeighbor nb = Q.nearestNeighbor(FIELD_NAME_VECTOR, "q");
-        nb.annotate(A.a("targetHits", targetHits));
-        return nb;
+    private static String userSpecificId(String documentId) {
+        String[] parts = documentId.split(":", 5);
+        if (parts.length != 5 || !"id".equals(parts[0])) {
+            throw new IllegalArgumentException("Invalid Vespa document ID: " + documentId);
+        }
+        return parts[4];
     }
 
     public static class Builder {

@@ -333,3 +333,8 @@ The internal CLI is in the default source reactor and uses the compatibility bra
 The Cassandra adapter preserves its native Cassandra and Astra entry points and uses Apache Cassandra Java driver 4.19.0. The compatibility artifact backports the Astra data client 1.2.4 and Stargate 2.3.4 data/commons source. The original Java 8 Astra DevOps 1.2.4 binary still serves the CQL secure-connect-bundle flow. Java 8 deployments use SLF4J 1.7 and Reactive Streams 1.0.4.
 
 All 14 unit cases and 15 real Cassandra 5.0 Docker integration cases passed on Java 8. The installed Boot 2 consumer exercised Cassandra vector search/chat memory and a loopback Astra Data API. Hosted Astra acceptance remains separate.
+
+
+## Vespa on Java 8
+
+The store uses the documented Document and Query HTTP APIs with its Java 8 Retrofit transport. The existing Vespa server schema and query ranking remain in use. Batch ingestion submits documents sequentially on this branch. PEM client credentials share the same transport for both queries and document operations. The local Vespa integration exercised server 8.763.13. Hosted Vespa and mTLS deployment acceptance are pending.

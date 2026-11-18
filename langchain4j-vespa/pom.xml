@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>dev.langchain4j</groupId>
+        <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-SNAPSHOT</version>
+        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
 
@@ -14,28 +14,21 @@
     <description>Vespa is a fully featured search engine and vector database</description>
 
     <properties>
-        <vespa.version>8.763.13</vespa.version>
         <skipVespaITs>${skipITs}</skipVespaITs>
     </properties>
 
     <dependencies>
 
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>com.yahoo.vespa</groupId>
-            <artifactId>client</artifactId>
-            <version>${vespa.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.yahoo.vespa</groupId>
-            <artifactId>vespa-feed-client</artifactId>
-            <version>${vespa.version}</version>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>1.83</version>
         </dependency>
 
         <dependency>
@@ -66,16 +59,16 @@
         <!-- test dependencies -->
 
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
             <scope>test</scope>
         </dependency>
@@ -109,25 +102,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <!--
-            Runs this module's existing tests with langchain4j-core-jackson3 on the test classpath,
-            so the JSON SPI resolves to the Jackson 3 codec instead of the Jackson 2 default.
-            Jackson 2 is still present - this checks that the DTOs are readable by both codecs,
-            which is what the opt-in promises.
-        -->
-        <profile>
-            <id>jackson3</id>
-            <dependencies>
-                <dependency>
-                    <groupId>dev.langchain4j</groupId>
-                    <artifactId>langchain4j-core-jackson3</artifactId>
-                    <version>${langchain4j.beta.version}</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 
 </project>

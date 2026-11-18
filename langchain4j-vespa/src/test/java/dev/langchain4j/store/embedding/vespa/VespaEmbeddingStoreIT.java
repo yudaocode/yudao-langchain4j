@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -31,7 +33,8 @@ import org.testcontainers.utility.DockerImageName;
 class VespaEmbeddingStoreIT extends EmbeddingStoreWithoutMetadataIT {
 
     @Container
-    static GenericContainer<?> vespa = new GenericContainer<>(DockerImageName.parse("vespaengine/vespa:8.458.13"))
+    static GenericContainer<?> vespa = new GenericContainer<>(DockerImageName.parse(
+            System.getProperty("vespa.image", "vespaengine/vespa:8.458.13")))
             .waitingFor(Wait.forListeningPorts(19071))
             .withExposedPorts(8080, 19071);
 
@@ -130,7 +133,10 @@ class VespaEmbeddingStoreIT extends EmbeddingStoreWithoutMetadataIT {
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/zip");
 
-            try (InputStream in = VespaEmbeddingStoreIT.class.getResourceAsStream("/vespa_app.zip");
+            String application = System.getProperty("vespa.test.application");
+            try (InputStream in = application == null
+                            ? VespaEmbeddingStoreIT.class.getResourceAsStream("/vespa_app.zip")
+                            : Files.newInputStream(Paths.get(application));
                     DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
                 byte[] buffer = new byte[8192];
                 int read;
