@@ -121,9 +121,25 @@ OpenSearch 扩展已加入 JDK8 默认构建，复用 SDK **3.11.0** 的独立�
 
 保留上游 Qdrant Java Client `1.20.0`。在服务端创建与 embedding 维度一致的集合后，使用 `QdrantEmbeddingStore.builder().host(host).port(6334).collectionName(collection).build()`。端口为 gRPC 端口，TLS 和 API key 按部署配置。应用退出时调用 `close()`。
 
-Java 8 路线现有 77 个默认模块，单测 8,906 项。Qdrant 在原生 JDK8 通过 19 项单测；真实 Qdrant 1.20.0 容器有 70 项通过、1 项按上游条件跳过。独立安装包也验证了向量写入、元数据过滤与删除。
+Qdrant 批次覆盖 77 个默认模块，单测 8,906 项。Qdrant 在原生 JDK8 通过 19 项单测；真实 Qdrant 1.20.0 容器有 70 项通过、1 项按上游条件跳过。独立安装包也验证了向量写入、元数据过滤与删除。
 
 本批同时修复 Java 8 MCP WebSocket 停止连接时，与关闭回调相互等待的问题。已有连接立即中止，正在建立的连接仍在打开后中止。
+
+## Easy RAG（JDK 8）
+
+导入本分支 BOM 后，引入 `cn.iocoder.langchain4j:langchain4j-easy-rag`。默认从依赖发现 Tika 解析器、递归切分器和量化 BGE small en v1.5 模型。
+
+```java
+Document document = FileSystemDocumentLoader.loadDocument(Paths.get("handbook.html"));
+EmbeddingStore<TextSegment> store = new InMemoryEmbeddingStore<>();
+EmbeddingStoreIngestor.ingest(document, store);
+List<Content> matches = EmbeddingStoreContentRetriever.from(store)
+        .retrieve(Query.from("What is the cancellation policy?"));
+```
+
+上述本地流程可直接在 JDK 8 运行。若需要让模型根据检索内容生成答案，再将检索器和 ChatModel 接入 `AiServices`。
+
+Easy RAG 纳入后，Java 8 路线共有 78 个默认模块。
 
 ---
 

@@ -213,3 +213,10 @@ Use `cn.iocoder.langchain4j:langchain4j-qdrant` from the Java 8 BOM. The module 
 The native Java 8 Qdrant suite has 19 unit tests and 71 integration cases, with one negative case conditionally disabled because the backend supports contains filtering. The 77-module default unit run reports 8,906 cases (7,724 native Java 8, 1,182 modern fixtures) and 102 conditional skips. The container integration count is reported separately.
 
 The Java 8 MCP WebSocket transport now clears its connection state under the transport monitor and aborts the detached connection outside that monitor. The reader can invoke its close callback while holding the WebSocket implementation lock. The regression test verifies that stop releases the transport monitor before calling abort, and the local WebSocket server tests cover a silent peer and a stale close callback.
+
+
+## Easy RAG on Java 8
+
+`cn.iocoder.langchain4j:langchain4j-easy-rag` is in the default reactor and the Java 8 BOM. Its SPI-provided Tika HTML parser, token-based recursive splitter and bundled quantized BGE small en v1.5 model run together on native Java 8. The local test parses and ingests an HTML document and retrieves the generated text segment. An installed-artifact consumer managed by the Boot 2.7.18 parent and the compatibility BOM passes the same workflow on native Java 8 with 109 runtime JARs and 31,097 base classes at Java 8 bytecode level. The upstream OpenAI integration test remains conditional on `OPENAI_API_KEY`.
+
+The 78-module reactor passed Maven `validate`. The new module passed native Java 8 `clean install` and `verify`; the previous 77-module unit-test checkpoint is recorded above.
