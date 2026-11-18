@@ -151,7 +151,13 @@ Easy RAG 批次覆盖 78 个 Java 8 默认模块。
 
 导入本分支 BOM 后，引入 `cn.iocoder.langchain4j:langchain4j-mcp-docker`。用 `DockerMcpTransport.builder().dockerHost(dockerHost).image(image).build()` 创建传输对象，再传给 `DefaultMcpClient.Builder.transport(...)`。退出时关闭客户端，由它释放容器。
 
-保留 `docker-java:3.7.1`。使用 Boot 2 父 POM 时，设置 `httpclient5.version=5.6.5`、`httpcore5.version=5.4.4`，使已安装传输层能加载相应 HTTP API。MCP Docker 加入后，Java 8 默认构建有 80 个模块。
+保留 `docker-java:3.7.1`。使用 Boot 2 父 POM 时，设置 `httpclient5.version=5.6.5`、`httpcore5.version=5.4.4`，使已安装传输层能加载相应 HTTP API。MCP Docker 批次覆盖 80 个 Java 8 默认模块。
+
+## Kotlin 扩展（JDK 8）
+
+导入本分支 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-kotlin`。AI Services 接口可返回 `Flow<String>` 或 `Flow<StreamingChatModelReply>`，传入 `StreamingChatModel` 后按正常方式收集 Flow。也可用文档异步解析、模型调用和流式回调扩展。
+
+保留 Kotlin 编译器 `2.1.21`、stdlib `1.9.25` 和 Coroutines `1.8.1`。Boot 2 父 POM 消费验证采用对应的 `kotlin.version` 和 `kotlin-coroutines.version`。本批后 Java 8 默认构建共 81 个模块。
 
 ---
 

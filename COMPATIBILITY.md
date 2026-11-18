@@ -234,3 +234,10 @@ The new module has 13 unit and 5 real inference integration tests on native Java
 The BOM includes `langchain4j-mcp-docker` and retains docker-java 3.7.1. The test fixture accepts an explicit Unix engine socket via `-Dlangchain4j.test.docker-host=unix:///...`; the shipped default remains `/var/run/docker.sock`. The STDERR unit test uses a local logger instead of relying on global static initialization order. The real container tests cover MCP initialize, discovery, tool execution, and error propagation with `mcp/time` and `mcp/everything`.
 
 An independent consumer managed by Boot 2.7.18 opens the real Docker engine, starts the server, invokes the time tool and closes the client on native Java 8. Its 42 JARs and 16,214 base classes are Java 8 compatible. Keep HttpClient 5.6.5 and HttpCore 5.4.4 when Boot 2 manages these dependencies. The 80-module reactor passes Maven `validate`; 13 unit and 4 container integration tests were run in the affected module.
+
+
+## Kotlin extensions on Java 8
+
+The Kotlin module retains compiler 2.1.21, stdlib 1.9.25 and Coroutines 1.8.1. Its compiler checks the Java 8 API surface (`-Xjdk-release=1.8`). The loader tests use `Paths.get` on Java 8. Native Java 8 runs all 34 existing tests, including file traversal, async parsing, callback-based streaming, and AI Services returning Kotlin Flow.
+
+The 81-module reactor passes Maven `validate`. An independently built Kotlin application using the installed artifact and Boot 2.7.18 dependency management runs on Java 8, discovers the Flow adapter via SPI and receives two live streaming callback chunks. Its runtime graph has 22 JARs and 7,301 Java 8 base classes.

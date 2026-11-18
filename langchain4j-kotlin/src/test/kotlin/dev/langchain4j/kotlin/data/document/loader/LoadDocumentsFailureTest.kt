@@ -12,7 +12,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.io.InputStream
-import java.nio.file.Path
+import java.nio.file.Paths
 
 // See issue #4347: a single unparsable file (e.g. blank) used to abort the entire batch with an
 // unhandled exception, losing every already-loaded document in the same call.
@@ -26,7 +26,7 @@ internal class LoadDocumentsFailureTest {
                 loadDocuments(
                     recursive = false,
                     documentParser = parser,
-                    directoryPaths = listOf(Path.of("./src/test/resources/loadDocumentsFailureTest/mixedFiles"))
+                    directoryPaths = listOf(Paths.get("./src/test/resources/loadDocumentsFailureTest/mixedFiles"))
                 )
 
             documents shouldHaveSize 2
@@ -41,7 +41,7 @@ internal class LoadDocumentsFailureTest {
                 loadDocuments(
                     recursive = false,
                     documentParser = parser,
-                    directoryPaths = listOf(Path.of("./src/test/resources/loadDocumentsFailureTest/allBad"))
+                    directoryPaths = listOf(Paths.get("./src/test/resources/loadDocumentsFailureTest/allBad"))
                 )
 
             documents.shouldBeEmpty()
@@ -54,7 +54,7 @@ internal class LoadDocumentsFailureTest {
                 loadDocuments(
                     recursive = true,
                     documentParser = parser,
-                    directoryPaths = listOf(Path.of("./src/test/resources/loadDocumentsFailureTest/recursiveMixed"))
+                    directoryPaths = listOf(Paths.get("./src/test/resources/loadDocumentsFailureTest/recursiveMixed"))
                 )
 
             documents shouldHaveSize 2
@@ -69,7 +69,7 @@ internal class LoadDocumentsFailureTest {
                 loadDocuments(
                     recursive = false,
                     documentParser = failingOn("two"),
-                    directoryPaths = listOf(Path.of("./src/test/resources/loadDocumentsFailureTest/mixedFiles"))
+                    directoryPaths = listOf(Paths.get("./src/test/resources/loadDocumentsFailureTest/mixedFiles"))
                 )
 
             documents shouldHaveSize 1
@@ -90,7 +90,7 @@ internal class LoadDocumentsFailureTest {
                 loadDocuments(
                     recursive = false,
                     documentParser = cancellingParser,
-                    directoryPaths = listOf(Path.of("./src/test/resources/loadDocumentsFailureTest/mixedFiles"))
+                    directoryPaths = listOf(Paths.get("./src/test/resources/loadDocumentsFailureTest/mixedFiles"))
                 )
             }
         }
