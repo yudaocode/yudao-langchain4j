@@ -300,6 +300,24 @@ HibernateEmbeddingStore<EmbeddingEntity> store = HibernateEmbeddingStore.dynamic
 
 已有 Hibernate 5 实体可以用 `HibernateEmbeddingStore.builder(Document.class).sessionFactory(sessionFactory).build()`。按上节配置 `PgVectorFunctions` 与 `PgVectorType`，用 `@EmbeddingVector` 标明向量，`@EmbeddedText` 标明文本，`@UnmappedMetadata` 标明通用元数据；JSON 字符串字段可用 `@Type(type = "dev.langchain4j.store.embedding.hibernate.JsonbMetadataType")`。标注 `@MetadataAttribute` 的标量字段也可以参与过滤。类型化路线支持 halfvec，调用方负责自己提供的 SessionFactory 生命周期。JDK 8 制品支持 PostgreSQL，其他数据库方言和 Hibernate NoSQL 的 HQL 兼容仍在适配。默认构建共 117 个模块。
 
+## Hibernate 5 / Milvus（JDK 8）
+
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-hibernate-milvus`。从 Spring Boot 2 的 `EntityManagerFactory` 获取 Hibernate 5 的 `SessionFactory`，再传入已连接的 Milvus Java SDK 客户端。
+
+```java
+SessionFactory factory = entityManagerFactory.unwrap(SessionFactory.class);
+HibernateMilvusStore<Document> store =
+        new HibernateMilvusStore<>(milvusClient, factory, Document.class, "documents", "vector", 384);
+store.initializeSchema();
+store.upsert(document);
+EmbeddingSearchResult<Document> result = store.search(EmbeddingSearchRequest.builder()
+        .queryEmbedding(reference).filter(metadataKey("language").isEqualTo("zh")).maxResults(10).build());
+```
+
+实体使用 `javax.persistence`，应用指定 String、UUID 或 Long 主键。每个属性映射到单列，字段名沿用 Hibernate 的列名，过滤键使用 Java 属性名。用 `@Type(type = "dev.langchain4j.store.embedding.hibernate.pgvector.PgVectorType")` 将向量属性映射为 `float[]`。支持 String、UUID、Long、Integer、Float、Double 和 Boolean 标量列，写入字段值不能为空；String 主键最长 512 UTF-8 字节，其他 String 字段最长 65,535 字节。标量过滤支持比较、集合成员及逻辑组合。
+
+`initializeSchema()` 会创建或校验集合、创建缺失的 FLAT / COSINE 索引并加载集合。已有 schema 或相似度配置不匹配时会报错，保留已有数据。Milvus Lite 测试使用 `initializeSchema(false)`，由服务处理索引和加载请求。查询返回脱管实体，写入和删除使用 Milvus SDK，调用方管理 client 和 factory 的生命周期。Hibernate 7 / NoSQL 的 JDBC 驱动、HQL 与托管事务仍待兼容。默认构建共 118 个模块。
+
 ---
 
 # LangChain4j: idiomatic, open-source Java library for building LLM-powered applications on the JVM

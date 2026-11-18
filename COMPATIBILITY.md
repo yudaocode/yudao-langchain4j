@@ -375,3 +375,15 @@ The same UserType maps half-precision vectors with the `storage=halfvec` paramet
 ## HibernateEmbeddingStore on PostgreSQL
 
 Java 8 consumers can use the original artifact and builder entry points with a PostgreSQL datasource, JDBC URL or a Hibernate 5 typed factory. The Java 8 source set connects the JPA vector engine to managed typed writes and PostgreSQL atomic upserts, JSONB/scalar predicates and bulk removal. DDL and vectors execute against PostgreSQL 17.12 with pgvector 0.8.7. Advanced Hibernate 7 Restriction overloads use the Java 8 JPA Criteria callback on this branch. Other original database dialects and nested associations remain outside the verified Java 8 scope.
+
+
+## Hibernate 5 on Milvus
+
+The Java 8 artifact `langchain4j-hibernate-milvus` uses the Hibernate 5.6 entity persister
+for flat scalar and dense vector mappings and Milvus SDK 2.6.27 for collection and index lifecycle,
+upserts, filtered scalar queries, cosine searches and deletes. Existing collections are validated
+before schema initialization can proceed. The SDK runs outside Hibernate transactions and hydrates
+detached results. The Hibernate NoSQL Alpha4 JDBC driver, HQL rewriting and managed transactions
+remain pending. The Java 8 integration gate uses Milvus Lite 3.2.2, including an independent
+Spring Boot 2.7.18 application consuming the installed JAR. Standalone server coverage for this
+adapter is pending.
