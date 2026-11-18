@@ -1,0 +1,27 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+package com.ibm.watsonx.ai.embedding;
+
+import static java.util.Objects.isNull;
+import java.util.List;
+import com.ibm.watsonx.ai.Crypto;
+
+/**
+ * Represents a request to generate embeddings from a given model.
+ *
+ * @param modelId the model identifier
+ * @param spaceId the space identifier
+ * @param projectId the project identifier
+ * @param inputs the list of input texts to embed
+ * @param parameters the embedding parameters
+ * @param crypto the crypto configuration for encryption
+ */
+public record EmbeddingPayload(String modelId, String spaceId, String projectId,
+    List<String> inputs, EmbeddingRequestParameters parameters, Crypto crypto) {
+    public EmbeddingPayload {
+        inputs = isNull(inputs) ? null : List.copyOf(inputs);
+    }
+}

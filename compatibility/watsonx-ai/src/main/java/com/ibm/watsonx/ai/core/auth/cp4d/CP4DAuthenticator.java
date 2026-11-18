@@ -1,0 +1,281 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.core.auth.cp4d;
+
+import static com.ibm.watsonx.ai.core.auth.cp4d.AuthMode.LEGACY;
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
+import static dev.langchain4j.internal.compat.Java8Platform.requireNonNullElse;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.util.Date;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import com.ibm.watsonx.ai.core.auth.Authenticator;
+
+/**
+ * The {@code CP4DAuthenticator} class is an implementation of the {@link Authenticator} interface, responsible for authenticating with Cloud Pack for
+ * Data.
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * CP4DAuthenticator.builder()
+ *     .baseUrl("https://...")
+ *     .username("username")
+ *     .apiKey("api-key")
+ *     .authMode(AuthMode.LEGACY)
+ *     .build();
+ * }</pre>
+ */
+public class CP4DAuthenticator implements Authenticator {
+    private static final String BEARER_SCHEME = "Bearer";
+    private static final String ZEN_API_SCHEME = "ZenApiKey";
+
+    private final URI baseUrl;
+    private final String username;
+    private final String password;
+    private final String apiKey;
+    private final Duration timeout;
+    private final CP4DRestClient client;
+    private final AuthMode authMode;
+    private final AtomicReference<TokenResponse> token;
+
+    private CP4DAuthenticator(Builder builder) {
+        baseUrl = requireNonNull(builder.baseUrl, "BaseUrl must be provided");
+        username = requireNonNull(builder.username, "Username must be provided");
+        timeout = requireNonNullElse(builder.timeout, Duration.ofSeconds(60));
+        authMode = requireNonNullElse(builder.authMode, LEGACY);
+        apiKey = builder.apiKey;
+        password = builder.password;
+        token = new AtomicReference<>();
+
+        switch(authMode) {
+            case IAM -> {
+                if (isNull(password))
+                    throw new NullPointerException("Password must be provided");
+            }
+            case LEGACY, ZEN_API_KEY -> {
+                if (isNull(password) && isNull(apiKey))
+                    throw new NullPointerException("Either password or apiKey must be provided");
+            }
+        }
+
+        client = CP4DRestClient.builder(authMode)
+            .baseUrl(baseUrl)
+            .timeout(timeout)
+            .httpClient(builder.httpClient)
+            .verifySsl(builder.verifySsl)
+            .build();
+    }
+
+    @Override
+    public String token() {
+
+        TokenResponse currentToken = token.get();
+
+        if (!isExpired(currentToken))
+            return currentToken.accessToken();
+
+        var tokenResponse = client.token(new TokenRequest(username, password, apiKey));
+        token.getAndSet(tokenResponse);
+        return tokenResponse.accessToken();
+    }
+
+    @Override
+    public CompletableFuture<String> tokenAsync() {
+
+        TokenResponse currentToken = token.get();
+
+        if (!isExpired(currentToken))
+            return completedFuture(token.get().accessToken());
+
+        return client.tokenAsync(new TokenRequest(username, password, apiKey)).thenApply(identityTokenResponse -> {
+            token.getAndSet(identityTokenResponse);
+            return identityTokenResponse.accessToken();
+        });
+    }
+
+    @Override
+    public String scheme() {
+        return authMode == AuthMode.ZEN_API_KEY ? ZEN_API_SCHEME : BEARER_SCHEME;
+    }
+
+    /**
+     * Checks if the current authentication mode matches the provided {@link AuthMode}.
+     *
+     * @param authMode The {@link AuthMode} to compare against the current authentication mode.
+     * @return {@code true} if the current authentication mode matches the provided {@link AuthMode}, {@code false} otherwise.
+     */
+    public boolean isAuthMode(AuthMode authMode) {
+        return this.authMode.equals(authMode);
+    }
+
+    /**
+     * Returns a new {@link Builder} instance.
+     * <p>
+     * <b>Example usage:</b>
+     *
+     * <pre>{@code
+     * CP4DAuthenticator.builder()
+     *     .baseUrl("https://...")
+     *     .username("username")
+     *     .apiKey("api-key")
+     *     .authMode(AuthMode.LEGACY)
+     *     .build();
+     * }</pre>
+     *
+     * @return {@link Builder} instance.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Check whether the token has expired.
+     */
+    private boolean isExpired(TokenResponse token) {
+        if (isNull(token))
+            return true;
+
+        return switch(authMode) {
+            case IAM -> {
+                if (isNull(token.expiration()))
+                    yield true;
+                Date expiration = new Date(TimeUnit.SECONDS.toMillis(token.expiration()));
+                Date now = new Date();
+                yield now.after(expiration);
+            }
+            case LEGACY, ZEN_API_KEY -> false;
+        };
+    }
+
+    /**
+     * The builder class for constructing CP4DAuthenticator instances.
+     */
+    public final static class Builder {
+        private URI baseUrl;
+        private String username;
+        private String password;
+        private String apiKey;
+        private AuthMode authMode;
+        private Duration timeout;
+        private HttpClient httpClient;
+        private boolean verifySsl = true;
+
+        private Builder() {}
+
+        /**
+         * Sets the base URL for the Cloud Pak for Data token endpoint.
+         *
+         * @param baseUrl The base URL for the token endpoint.
+         */
+        public Builder baseUrl(String baseUrl) {
+            return baseUrl(URI.create(baseUrl));
+        }
+
+
+        /**
+         * Sets the base URL for the Cloud Pak for Data token endpoint.
+         *
+         * @param baseUrl The base URL for the token endpoint.
+         */
+        public Builder baseUrl(URI baseUrl) {
+            this.baseUrl = baseUrl;
+            return this;
+        }
+
+        /**
+         * Sets the username used for authentication.
+         *
+         * @param username The username for authentication.
+         */
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        /**
+         * Sets the password used for authentication.
+         *
+         * @param password The password for authentication.
+         */
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        /**
+         * Sets the API key used for authentication.
+         *
+         * @param apiKey The API key for authentication.
+         */
+        public Builder apiKey(String apiKey) {
+            this.apiKey = apiKey;
+            return this;
+        }
+
+        /**
+         * Sets the timeout duration for the token request.
+         *
+         * @param timeout The timeout duration for the token request.
+         */
+        public Builder timeout(Duration timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
+        /**
+         * Sets the authentication mode.
+         *
+         * @param authMode the authentication mode to apply
+         */
+        public Builder authMode(AuthMode authMode) {
+            this.authMode = authMode;
+            return this;
+        }
+
+        /**
+         * Sets a custom {@link HttpClient} to be used for HTTP communication.
+         * <p>
+         * This allows customization of the underlying HTTP client, such as configuring a custom {@link javax.net.ssl.SSLContext} for TLS/SSL
+         * settings, proxy configuration, connection timeouts, or other HTTP client properties. If not specified, a default {@link HttpClient} will be
+         * created automatically.
+         *
+         * @param httpClient the custom {@link HttpClient} to use
+         */
+        public Builder httpClient(HttpClient httpClient) {
+            this.httpClient = httpClient;
+            return this;
+        }
+
+        /**
+         * Sets whether SSL/TLS certificate verification should be performed.
+         * <p>
+         * When set to {@code true} (default), the client validates server certificates against trusted Certificate Authorities. When set to
+         * {@code false}, all certificates are accepted without validation, including self-signed certificates.
+         * <p>
+         * This setting is ignored if a custom {@link HttpClient} is provided via {@link #httpClient(HttpClient)}.
+         *
+         * @param verifySsl {@code true} to enable certificate verification, {@code false} to accept all certificates
+         */
+        public Builder verifySsl(boolean verifySsl) {
+            this.verifySsl = verifySsl;
+            return this;
+        }
+
+        /**
+         * Builds and returns an CP4DAuthenticator instance.
+         *
+         * @return {@link CP4DAuthenticator} instance
+         */
+        public CP4DAuthenticator build() {
+            return new CP4DAuthenticator(this);
+        }
+    }
+}

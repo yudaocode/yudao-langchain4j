@@ -1,0 +1,112 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.chat.model.schema;
+
+import static java.util.Objects.isNull;
+import java.util.List;
+
+/**
+ * Represents a JSON Schema constraint that specifies required properties.
+ * <p>
+ * Use {@link JsonSchema#required(String...)} to create an instance.
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * // Either age OR dateOfBirth must be present
+ * JsonSchema.object()
+ *     .property("age", JsonSchema.integer())
+ *     .property("dateOfBirth", JsonSchema.string())
+ *     .oneOf(
+ *         JsonSchema.required("age"),
+ *         JsonSchema.required("dateOfBirth")
+ *     );
+ * }</pre>
+ *
+ */
+public final class RequiredSchema extends JsonSchema {
+    private final List<String> required;
+
+    RequiredSchema(Builder builder) {
+        super(null, builder);
+        required = isNull(builder.required) ? null : List.copyOf(builder.required);
+    }
+
+    public List<String> required() {
+        return required;
+    }
+
+    /**
+     * Builder class for constructing {@link RequiredSchema} instances with configurable parameters.
+     */
+    public static final class Builder extends JsonSchema.Builder<Builder, RequiredSchema, RequiredSchema.Builder> {
+        private final List<String> required;
+
+        Builder(List<String> required) {
+            this.required = required;
+        }
+
+        @Override
+        public Builder description(String description) {
+            throw new UnsupportedOperationException("RequiredSchema does not support description");
+        }
+
+        @Override
+        public Builder nullable() {
+            throw new UnsupportedOperationException("RequiredSchema does not support nullable");
+        }
+
+        @Override
+        public Builder oneOf(Builder... oneOf) {
+            throw new UnsupportedOperationException("RequiredSchema does not support oneOf");
+        }
+
+        @Override
+        public Builder oneOf(List<Builder> oneOf) {
+            throw new UnsupportedOperationException("RequiredSchema does not support oneOf");
+        }
+
+        /**
+         * Builds a {@link RequiredSchema} instance using the configured parameters.
+         *
+         * @return a new instance of {@link RequiredSchema}
+         */
+        @Override
+        public RequiredSchema build() {
+            return new RequiredSchema(this);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((required == null) ? 0 : required.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        RequiredSchema other = (RequiredSchema) obj;
+        if (required == null) {
+            if (other.required != null)
+                return false;
+        } else if (!required.equals(other.required))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "RequiredSchema [title=" + title + ", description=" + description + ", defaultValue=" + defaultValue + ", examples=" + examples
+            + ", readOnly=" + readOnly + ", writeOnly=" + writeOnly + ", deprecated=" + deprecated + ", type=" + type + ", nullable=" + nullable
+            + ", oneOf=" + oneOf + ", anyOf=" + anyOf + ", allOf=" + allOf + ", not=" + not + ", if=" + ifSchema + ", then=" + thenSchema
+            + ", else=" + elseSchema + ", required=" + required + "]";
+    }
+}

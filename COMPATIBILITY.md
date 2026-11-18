@@ -338,3 +338,8 @@ All 14 unit cases and 15 real Cassandra 5.0 Docker integration cases passed on J
 ## Vespa on Java 8
 
 The store uses the documented Document and Query HTTP APIs with its Java 8 Retrofit transport. The existing Vespa server schema and query ranking remain in use. Batch ingestion submits documents sequentially on this branch. PEM client credentials share the same transport for both queries and document operations. The local Vespa integration exercised server 8.763.13. Hosted Vespa and mTLS deployment acceptance are pending.
+
+
+## IBM watsonx.ai on Java 8
+
+The adapter uses the backported Watsonx SDK, core and Jackson 2 binding pinned to IBM 0.50.0. It preserves the ServiceLoader entry and uses the Spring AI Java 8 HTTP bridge for response metadata, streaming text and request replay. Local tests cover the model catalog, gateway DTOs, and synchronous and asynchronous chat. Acceptance against IBM Cloud or a hosted deployment requires an appropriate account.

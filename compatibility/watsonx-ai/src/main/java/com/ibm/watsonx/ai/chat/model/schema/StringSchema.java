@@ -1,0 +1,194 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.chat.model.schema;
+
+import static java.util.Objects.requireNonNull;
+import java.util.List;
+
+/**
+ * Represents a JSON Schema of type {@code string}.
+ * <p>
+ * Use {@link JsonSchema#string()} to create an instance.
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * JsonSchema.string()
+ *     .description("The full name of the user")
+ *     .nullable();
+ * }</pre>
+ *
+ */
+public final class StringSchema extends JsonSchema {
+    private final String pattern;
+    private final Integer maxLength;
+    private final Integer minLength;
+    private final String format;
+
+    private StringSchema(Builder builder) {
+        super(builder.nullable ? List.of("string", "null") : "string", builder);
+        pattern = builder.pattern;
+        maxLength = builder.maxLength;
+        minLength = builder.minLength;
+        format = builder.format;
+    }
+
+    public String pattern() {
+        return pattern;
+    }
+
+    public Integer maxLength() {
+        return maxLength;
+    }
+
+    public Integer minLength() {
+        return minLength;
+    }
+
+    public String format() {
+        return format;
+    }
+
+    /**
+     * Returns a new {@link Builder} instance.
+     * <p>
+     * Use {@link JsonSchema#string()} to create an instance.
+     * <p>
+     * <b>Example usage:</b>
+     *
+     * <pre>{@code
+     * JsonSchema.string()
+     *     .description("The full name of the user")
+     *     .nullable();
+     * }</pre>
+     *
+     * @return {@link Builder} instance.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder class for constructing {@link StringSchema} instances with configurable parameters.
+     */
+    public final static class Builder extends JsonSchema.Builder<Builder, StringSchema, StringSchema.Builder> {
+        private String pattern;
+        private Integer minLength;
+        private Integer maxLength;
+        private String format;
+
+        private Builder() {}
+
+        /**
+         * Sets a regular expression pattern that the string value must match.
+         *
+         * @param pattern the regular expression that the string must match
+         */
+        public Builder pattern(String pattern) {
+            this.pattern = pattern;
+            return this;
+        }
+
+        /**
+         * Sets the minimum allowed length for the string value.
+         *
+         * @param minLength the minimum number of characters allowed
+         */
+        public Builder minLength(int minLength) {
+            this.minLength = minLength;
+            return this;
+        }
+
+        /**
+         * Sets the maximum allowed length for the string value.
+         *
+         * @param maxLength the maximum number of characters allowed
+         */
+        public Builder maxLength(int maxLength) {
+            this.maxLength = maxLength;
+            return this;
+        }
+
+        /**
+         * Sets a predefined semantic format for the string value.
+         *
+         * @param format the predefined string format.
+         */
+        public Builder format(Format format) {
+            requireNonNull(format, "The format cannot be null");
+            this.format = format.getValue();
+            return this;
+        }
+
+        /**
+         * Sets a custom semantic format for the string value as a raw string.
+         *
+         * @param format the format string value
+         */
+        public Builder format(String format) {
+            requireNonNull(format, "The format cannot be null");
+            this.format = format;
+            return this;
+        }
+
+        /**
+         * Builds a {@link StringSchema} instance using the configured parameters.
+         *
+         * @return a new instance of {@link StringSchema}
+         */
+        public StringSchema build() {
+            return new StringSchema(this);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
+        result = prime * result + ((maxLength == null) ? 0 : maxLength.hashCode());
+        result = prime * result + ((minLength == null) ? 0 : minLength.hashCode());
+        result = prime * result + ((format == null) ? 0 : format.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        StringSchema other = (StringSchema) obj;
+        if (pattern == null) {
+            if (other.pattern != null)
+                return false;
+        } else if (!pattern.equals(other.pattern))
+            return false;
+        if (maxLength == null) {
+            if (other.maxLength != null)
+                return false;
+        } else if (!maxLength.equals(other.maxLength))
+            return false;
+        if (minLength == null) {
+            if (other.minLength != null)
+                return false;
+        } else if (!minLength.equals(other.minLength))
+            return false;
+        if (format == null) {
+            if (other.format != null)
+                return false;
+        } else if (!format.equals(other.format))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "StringSchema [title=" + title + ", description=" + description + ", defaultValue=" + defaultValue + ", examples=" + examples
+            + ", readOnly=" + readOnly + ", writeOnly=" + writeOnly + ", deprecated=" + deprecated + ", type=" + type + ", nullable=" + nullable
+            + ", oneOf=" + oneOf + ", anyOf=" + anyOf + ", allOf=" + allOf + ", not=" + not + ", if=" + ifSchema + ", then=" + thenSchema
+            + ", else=" + elseSchema + ", pattern=" + pattern + ", maxLength=" + maxLength + ", minLength=" + minLength + ", format=" + format + "]";
+    }
+}

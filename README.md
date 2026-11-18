@@ -246,7 +246,11 @@ module=internal/langchain4j-docu-chatbot-updater
 
 ## Vespa（JDK 8）
 
-导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-vespa`，通过 `VespaEmbeddingStore.builder().url(endpoint).build()` 连接已部署向量 schema 的服务。Vespa 8.763.13 已实测。Java 8 客户端通过 Vespa Document API 提交单条和批量写入，批量会逐条提交，并通过 Vespa Query API 执行最近邻搜索。mTLS 应用沿用 `certPath(...)` 和 `keyPath(...)`。Java 8 默认构建共 110 个模块。[Vespa Document API](https://docs.vespa.ai/en/reference/api/document-v1.html)
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-vespa`，通过 `VespaEmbeddingStore.builder().url(endpoint).build()` 连接已部署向量 schema 的服务。Vespa 8.763.13 已实测。Java 8 客户端通过 Vespa Document API 提交单条和批量写入，批量会逐条提交，并通过 Vespa Query API 执行最近邻搜索。mTLS 应用沿用 `certPath(...)` 和 `keyPath(...)`。Vespa 批次覆盖 110 个默认模块。[Vespa Document API](https://docs.vespa.ai/en/reference/api/document-v1.html)
+
+## IBM watsonx.ai（JDK 8）
+
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-watsonx`。它使用 IBM SDK 0.50.0 的 Java 8 兼容源码与 Jackson 2 SPI，并依赖已更新的 Spring AI Java 8 HTTP 兼容包。使用 `WatsonxChatModel` 或 `WatsonxStreamingChatModel` 的 builder 配置 `baseUrl`、`projectId`、`modelName` 与 `apiKey` 或 `authenticator`。Spring Boot 2.7.18 应用采用前文的 Jackson 2、HttpComponents 5 和 Reactor 版本覆盖。Java 8 默认构建共 112 个模块。[IBM Java SDK](https://github.com/IBM/watsonx-ai-java-sdk/tree/0.50.0)
 
 ---
 

@@ -1,0 +1,278 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.textgeneration;
+
+import static java.util.Objects.isNull;
+import java.util.List;
+
+/**
+ * Container class for different moderation configurations.
+ * <p>
+ * Supports various moderation types such as Hate and Profanity (HAP), Personally Identifiable Information (PII), and Granite Guardian.
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * Moderation.builder()
+ *     .hap(TextModeration.of(0.85f), TextModeration.of(0.9f), true)
+ *     .pii(true, false, false)
+ *     .graniteGuardian(TextModeration.of(0.95f), true)
+ *     .inputRanges(List.of(InputRanges.of(0, 100)))
+ *     .build();
+ * }</pre>
+ *
+ */
+public final class Moderation {
+
+    /**
+     * Properties controlling the moderation of text with threshold.
+     *
+     * @param enabled whether the moderation is enabled
+     * @param threshold threshold score for triggering moderation
+     */
+    public record TextModeration(boolean enabled, float threshold) {
+
+        public static TextModeration of(float threshold) {
+            return new TextModeration(true, threshold);
+        }
+    }
+
+    /**
+     * Properties for masking behavior during moderation. If this object exists (even empty), masking will be applied.
+     *
+     * @param removeEntityValue if true, the detected entity value will be removed from the output
+     */
+    public record MaskProperties(boolean removeEntityValue) {}
+
+    /**
+     * Properties specific to Hate and Profanity (HAP) moderation.
+     *
+     * @param input moderation properties applied to the input text
+     * @param output moderation properties applied to the output text
+     * @param mask masking properties applied when moderation detects content
+     */
+    public record Hap(TextModeration input, TextModeration output, MaskProperties mask) {}
+
+    /**
+     * Moderation properties without threshold, used for PII filtering.
+     *
+     * @param enabled whether the moderation is enabled
+     */
+    public record TextModerationWithoutThreshold(boolean enabled) {}
+
+    /**
+     * Properties specific to Personally Identifiable Information (PII) moderation.
+     *
+     * @param input moderation properties applied to the input text
+     * @param output moderation properties applied to the output text
+     * @param mask masking properties applied when PII is detected
+     */
+    public record Pii(TextModerationWithoutThreshold input, TextModerationWithoutThreshold output,
+        MaskProperties mask) {}
+
+    /**
+     * Properties specific to the Granite Guardian moderation detector. This detector is in beta and may change in future versions.
+     *
+     * @param input moderation properties applied to the input text
+     * @param mask masking properties applied when Granite Guardian detects content
+     */
+    public record GraniteGuardian(TextModeration input, MaskProperties mask) {}
+
+    /**
+     * Represents a range within the input text to which moderation is applied. The end index is exclusive.
+     *
+     * @param start the start index of the range (inclusive), must be >= 0
+     * @param end the end index of the range (exclusive), must be >= 0
+     */
+    public record InputRanges(Integer start, Integer end) {
+
+        public static InputRanges of(Integer start, Integer end) {
+            return new InputRanges(start, end);
+        }
+    }
+
+    private final Hap hap;
+    private final Pii pii;
+    private final GraniteGuardian graniteGuardian;
+    private final List<InputRanges> inputRanges;
+
+    private Moderation(Builder builder) {
+        hap = builder.hap;
+        pii = builder.pii;
+        graniteGuardian = builder.graniteGuardian;
+        inputRanges = isNull(builder.inputRanges) ? null : List.copyOf(builder.inputRanges);
+    }
+
+    /**
+     * Gets the Hate and Profanity (HAP) moderation configuration.
+     *
+     * @return the HAP moderation settings, or null if not configured
+     */
+    public Hap hap() {
+        return hap;
+    }
+
+    /**
+     * Gets the Personally Identifiable Information (PII) moderation configuration.
+     *
+     * @return the PII moderation settings, or null if not configured
+     */
+    public Pii pii() {
+        return pii;
+    }
+
+    /**
+     * Gets the Granite Guardian moderation configuration.
+     *
+     * @return the Granite Guardian moderation settings, or null if not configured
+     */
+    public GraniteGuardian graniteGuardian() {
+        return graniteGuardian;
+    }
+
+    /**
+     * Gets the list of input ranges to which moderation should be applied.
+     *
+     * @return the list of input ranges, or null if not configured
+     */
+    public List<InputRanges> inputRanges() {
+        return inputRanges;
+    }
+
+    /**
+     * Returns a new {@link Builder} instance.
+     * <p>
+     * <b>Example usage:</b>
+     *
+     * <pre>{@code
+     * Moderation.builder()
+     *     .hap(Hap.of(TextModeration.of(0.85f), TextModeration.of(0.9f), true))
+     *     .pii(Pii.of(true, false, false))
+     *     .graniteGuardian(GraniteGuardian.of(TextModeration.of(0.95f), true))
+     *     .inputRanges(List.of(InputRanges.of(0, 100)))
+     *     .build();
+     * }</pre>
+     *
+     * @return {@link Builder} instance.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder class for constructing {@link Moderation} instances with configurable parameters.
+     */
+    public final static class Builder {
+        private Hap hap;
+        private Pii pii;
+        private GraniteGuardian graniteGuardian;
+        private List<InputRanges> inputRanges;
+
+        private Builder() {}
+
+        /**
+         * Sets the Hate and Profanity (HAP) moderation configuration.
+         *
+         * @param input Moderation settings for input text.
+         * @param output Moderation settings for output text.
+         * @param mask Whether to apply masking when HAP content is detected.
+         */
+        public Builder hap(TextModeration input, TextModeration output, boolean mask) {
+            this.hap = new Hap(input, output, new MaskProperties(mask));
+            return this;
+        }
+
+        /**
+         * Sets the Personally Identifiable Information (PII) moderation configuration.
+         *
+         * @param input Whether to enable PII detection on input text.
+         * @param output Whether to enable PII detection on output text.
+         * @param mask Whether to apply masking when PII is detected.
+         */
+        public Builder pii(boolean input, boolean output, boolean mask) {
+            this.pii = new Pii(new TextModerationWithoutThreshold(input), new TextModerationWithoutThreshold(output),
+                new MaskProperties(mask));
+            return this;
+        }
+
+        /**
+         * Sets the Granite Guardian moderation configuration.
+         *
+         * @param input Moderation settings for input text.
+         * @param mask Whether to apply masking when Granite Guardian detects content.
+         */
+        public Builder graniteGuardian(TextModeration input, boolean mask) {
+            this.graniteGuardian = new GraniteGuardian(input, new MaskProperties(mask));
+            return this;
+        }
+
+        /**
+         * Sets the list of input ranges to which moderation should be applied. Only the specified ranges of the input text will be evaluated.
+         *
+         * @param inputRanges the list of {@link InputRanges}
+         */
+        public Builder inputRanges(List<InputRanges> inputRanges) {
+            this.inputRanges = inputRanges;
+            return this;
+        }
+
+        /**
+         * Builds a {@link Moderation} instance using the configured parameters.
+         *
+         * @return a new instance of {@link Moderation}
+         */
+        public Moderation build() {
+            return new Moderation(this);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((hap == null) ? 0 : hap.hashCode());
+        result = prime * result + ((pii == null) ? 0 : pii.hashCode());
+        result = prime * result + ((graniteGuardian == null) ? 0 : graniteGuardian.hashCode());
+        result = prime * result + ((inputRanges == null) ? 0 : inputRanges.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Moderation other = (Moderation) obj;
+        if (hap == null) {
+            if (other.hap != null)
+                return false;
+        } else if (!hap.equals(other.hap))
+            return false;
+        if (pii == null) {
+            if (other.pii != null)
+                return false;
+        } else if (!pii.equals(other.pii))
+            return false;
+        if (graniteGuardian == null) {
+            if (other.graniteGuardian != null)
+                return false;
+        } else if (!graniteGuardian.equals(other.graniteGuardian))
+            return false;
+        if (inputRanges == null) {
+            if (other.inputRanges != null)
+                return false;
+        } else if (!inputRanges.equals(other.inputRanges))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Moderation [hap=" + hap + ", pii=" + pii + ", graniteGuardian=" + graniteGuardian + ", inputRanges=" + inputRanges + "]";
+    }
+}

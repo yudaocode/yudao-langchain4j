@@ -1,0 +1,51 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.textprocessing.textclassification;
+
+import static java.util.Objects.isNull;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import com.ibm.watsonx.ai.textprocessing.DataReference;
+import com.ibm.watsonx.ai.textprocessing.Error;
+import com.ibm.watsonx.ai.textprocessing.Metadata;
+
+/**
+ * Represents a response for the Text Classification API.
+ *
+ * @param metadata Metadata associated with the response.
+ * @param entity The text classification entity.
+ */
+public record TextClassificationResponse(Metadata metadata, Entity entity) {
+
+    /**
+     * Represents the document details for the text classification.
+     *
+     * @param documentReference Reference to the input document data.
+     * @param results The current status and metadata of the text classification process.
+     * @param parameters Parameters used for this classification process.
+     * @param custom User defined properties specified as key-value pairs.
+     */
+    public record Entity(DataReference documentReference, ClassificationResult results, Parameters parameters,
+        Map<String, Object> custom) {
+
+        public Entity {
+            custom = isNull(custom) ? null : Collections.unmodifiableMap(new LinkedHashMap<>(custom));
+        }
+    }
+
+    /**
+     * Represents the result and status of a text classification process.
+     *
+     * @param status The status of the extraction request.
+     * @param runningAt The time when processing started.
+     * @param completedAt The time when the classification completed or failed.
+     * @param documentClassified A flag to indicate if the classification was found.
+     * @param documentType The classification of the document if found.
+     * @param error Optional error details in case of failure.
+     */
+    public record ClassificationResult(String status, String runningAt, String completedAt, Boolean documentClassified,
+        String documentType, Error error) {}
+}

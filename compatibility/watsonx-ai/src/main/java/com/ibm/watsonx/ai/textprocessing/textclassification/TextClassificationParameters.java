@@ -1,0 +1,438 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.textprocessing.textclassification;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
+import static dev.langchain4j.internal.compat.Java8Platform.requireNonNullElse;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import com.ibm.watsonx.ai.WatsonxParameters;
+import com.ibm.watsonx.ai.textprocessing.ContainerReference;
+import com.ibm.watsonx.ai.textprocessing.CosReference;
+import com.ibm.watsonx.ai.textprocessing.DocumentReference;
+import com.ibm.watsonx.ai.textprocessing.Language;
+import com.ibm.watsonx.ai.textprocessing.OcrMode;
+
+/**
+ * Represents a set of parameters used to control the behavior of a text classification operation.
+ * <p>
+ * Instances of this class are created using the {@link Builder} pattern:
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * TextClassificationParameters.builder()
+ *     .classificationMode(ClassificationMode.EXACT)
+ *     .languages(Language.ENGLISH)
+ *     .build();
+ * }</pre>
+ *
+ * For more information, see the
+ * <a href="https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-api-text-classification-params.html?context=wx">documentation</a>.
+ */
+public final class TextClassificationParameters extends WatsonxParameters {
+    private final String ocrMode;
+    private final String classificationMode;
+    private final Boolean autoRotationCorrection;
+    private final List<String> languages;
+    private final TextClassificationSemanticConfig semanticConfig;
+    private final boolean removeUploadedFile;
+    private final DocumentReference documentReference;
+    private final Map<String, Object> custom;
+    private final Duration timeout;
+
+    private TextClassificationParameters(Builder builder) {
+        super(builder);
+        this.ocrMode = builder.ocrMode;
+        this.classificationMode = nonNull(builder.classificationMode) ? builder.classificationMode.value() : null;
+        this.autoRotationCorrection = builder.autoRotationCorrection;
+        this.languages = isNull(builder.languages) ? null : List.copyOf(builder.languages);
+        this.semanticConfig = builder.semanticConfig;
+        this.removeUploadedFile = builder.removeUploadedFile;
+        this.documentReference = builder.documentReference;
+        this.custom = isNull(builder.custom) ? null : Collections.unmodifiableMap(new LinkedHashMap<>(builder.custom));
+        this.timeout = builder.timeout;
+    }
+
+    /**
+     * Gets the OCR mode.
+     *
+     * @return the OCR mode
+     */
+    public String ocrMode() {
+        return ocrMode;
+    }
+
+    /**
+     * Gets the classification mode.
+     *
+     * @return the classification mode
+     */
+    public String classificationMode() {
+        return classificationMode;
+    }
+
+    /**
+     * Gets whether automatic rotation correction is enabled.
+     *
+     * @return true if auto rotation correction is enabled
+     */
+    public Boolean autoRotationCorrection() {
+        return autoRotationCorrection;
+    }
+
+    /**
+     * Gets the list of languages for OCR.
+     *
+     * @return the list of language codes
+     */
+    public List<String> languages() {
+        return languages;
+    }
+
+    /**
+     * Gets the semantic configuration.
+     *
+     * @return the semantic configuration
+     */
+    public TextClassificationSemanticConfig semanticConfig() {
+        return semanticConfig;
+    }
+
+    /**
+     * Gets whether to remove the uploaded file after classification.
+     *
+     * @return true if the uploaded file should be removed
+     */
+    public boolean isRemoveUploadedFile() {
+        return removeUploadedFile;
+    }
+
+    /**
+     * Gets the document reference.
+     *
+     * @return the document reference
+     */
+    public DocumentReference documentReference() {
+        return documentReference;
+    }
+
+    /**
+     * Gets the custom properties map.
+     *
+     * @return the map of custom properties
+     */
+    public Map<String, Object> custom() {
+        return custom;
+    }
+
+    /**
+     * Gets the timeout duration.
+     *
+     * @return the timeout duration
+     */
+    public Duration timeout() {
+        return timeout;
+    }
+
+    /**
+     * Converts the {@link TextClassificationParameters} into a new {@link Parameters} object.
+     */
+    Parameters toParameters() {
+        var semanticConfig = isNull(semanticConfig())
+            ? null
+            : new Parameters.SemanticConfig(
+                this.semanticConfig.enableTextHints(),
+                this.semanticConfig.enableSchemaKvp(),
+                this.semanticConfig.groundingMode(),
+                this.semanticConfig.forceSchemaName(),
+                this.semanticConfig.defaultModelName(),
+                this.semanticConfig.taskModelNameOverride(),
+                this.semanticConfig.schemasMergeStrategy(),
+                this.semanticConfig.schemas());
+
+        return new Parameters(
+            ocrMode(),
+            classificationMode(),
+            autoRotationCorrection(),
+            languages(),
+            semanticConfig
+        );
+    }
+
+    /**
+     * Returns a new {@link Builder} instance.
+     * <p>
+     * <b>Example usage:</b>
+     *
+     * <pre>{@code
+     * TextClassificationParameters.builder()
+     *     .classificationMode(ClassificationMode.EXACT)
+     *     .languages(Language.ENGLISH)
+     *     .build();
+     * }</pre>
+     *
+     * @return {@link Builder} instance.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder class for constructing {@link TextClassificationParameters} instances with configurable parameters.
+     */
+    public final static class Builder extends WatsonxParameters.Builder<Builder> {
+        private String ocrMode;
+        private ClassificationMode classificationMode;
+        private Boolean autoRotationCorrection;
+        private List<String> languages;
+        private TextClassificationSemanticConfig semanticConfig;
+        private boolean removeUploadedFile = false;
+        private DocumentReference documentReference;
+        private Map<String, Object> custom;
+        private Duration timeout;
+
+        private Builder() {}
+
+        /**
+         * Sets the OCR mode.
+         *
+         * @param ocrMode the OCR mode
+         */
+        public Builder ocrMode(OcrMode ocrMode) {
+            this.ocrMode = switch(ocrMode) {
+                case AUTO -> null;
+                default -> ocrMode.value();
+            };
+            return this;
+        }
+
+        /**
+         * Sets the classification mode.
+         * <p>
+         * The value {@code exact} gives the exact schema name the document is classified to.
+         * <p>
+         * The option {@code binary} only gives whether the document is classified to a known schema or not.
+         *
+         * @param classificationMode classification mode value.
+         */
+        public Builder classificationMode(ClassificationMode classificationMode) {
+            this.classificationMode = classificationMode;
+            return this;
+        }
+
+        /**
+         * Enables or disables automatic rotation correction.
+         *
+         * @param autoRotationCorrection true to enable rotation correction, false otherwise
+         */
+        public Builder autoRotationCorrection(boolean autoRotationCorrection) {
+            this.autoRotationCorrection = autoRotationCorrection;
+            return this;
+        }
+
+        /**
+         * Sets the list of languages expected in the document.
+         *
+         * @param languages the list of language codes (ISO 639)
+         */
+        public Builder languages(List<String> languages) {
+            this.languages = languages;
+            return this;
+        }
+
+        /**
+         * Sets the list of languages expected in the document.
+         *
+         * @param languages the list of language
+         */
+        public Builder languages(Language... languages) {
+            return languages(Stream.of(languages).map(Language::isoCode).toList());
+        }
+
+        /**
+         * Sets properties related to semantic config.
+         *
+         * @param semanticConfig the semantic configuration instance
+         */
+        public Builder semanticConfig(TextClassificationSemanticConfig semanticConfig) {
+            this.semanticConfig = semanticConfig;
+            return this;
+        }
+
+        /**
+         * Specifies whether the source file should be removed from storage after processing completes.
+         * <p>
+         * When set to {@code true}, the service deletes the file identified by the path passed to the classification method:
+         * <ul>
+         * <li>For upload methods ({@code uploadClassifyAndFetch}), the file that was just uploaded.</li>
+         * <li>For path-only methods ({@code classifyAndFetch}), the existing document at {@code absolutePath}.</li>
+         * </ul>
+         *
+         * @param removeUploadedFile {@code true} to delete the source file after processing, {@code false} to retain it.
+         */
+        public Builder removeUploadedFile(boolean removeUploadedFile) {
+            this.removeUploadedFile = removeUploadedFile;
+            return this;
+        }
+
+        /**
+         * Sets the reference to the Cloud Object Storage location of the input document.
+         *
+         * @param documentReference the {@link CosReference} pointing to the input file location.
+         */
+        public Builder documentReference(CosReference documentReference) {
+            this.documentReference = documentReference;
+            return this;
+        }
+
+        /**
+         * Sets the container reference for the input document.
+         *
+         * @param documentReference the {@link ContainerReference} pointing to the input file path.
+         */
+        public Builder documentReference(ContainerReference documentReference) {
+            this.documentReference = documentReference;
+            return this;
+        }
+
+        /**
+         * Adds a custom property.
+         * <p>
+         * This method allows you to include arbitrary key-value pairs that can be used to pass additional, user-defined metadata or configuration to
+         * the classification process.
+         *
+         * @param key the name of the custom property.
+         * @param value the value of the custom property.
+         */
+        public Builder addCustomProperty(String key, Object value) {
+            requireNonNull(key, "key cannot be null");
+            requireNonNull(value, "value cannot be null");
+            custom = requireNonNullElse(custom, new HashMap<String, Object>());
+            custom.put(key, value);
+            return this;
+        }
+
+        /**
+         * Sets the timeout.
+         *
+         * @param timeout timeout
+         */
+        public Builder timeout(Duration timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
+        /**
+         * Builds a {@link TextClassificationParameters} instance using the configured parameters.
+         *
+         * @return a new instance of {@link TextClassificationParameters}
+         */
+        public TextClassificationParameters build() {
+            return new TextClassificationParameters(this);
+        }
+    }
+
+    /**
+     * Enum representing the possible types of classification.
+     */
+    public static enum ClassificationMode {
+        EXACT("exact"),
+        BINARY("binary");
+
+        private String value;
+
+        ClassificationMode(String value) {
+            this.value = value;
+        }
+
+        public String value() {
+            return this.value;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((ocrMode == null) ? 0 : ocrMode.hashCode());
+        result = prime * result + ((classificationMode == null) ? 0 : classificationMode.hashCode());
+        result = prime * result + ((autoRotationCorrection == null) ? 0 : autoRotationCorrection.hashCode());
+        result = prime * result + ((languages == null) ? 0 : languages.hashCode());
+        result = prime * result + ((semanticConfig == null) ? 0 : semanticConfig.hashCode());
+        result = prime * result + (removeUploadedFile ? 1231 : 1237);
+        result = prime * result + ((documentReference == null) ? 0 : documentReference.hashCode());
+        result = prime * result + ((custom == null) ? 0 : custom.hashCode());
+        result = prime * result + ((timeout == null) ? 0 : timeout.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        TextClassificationParameters other = (TextClassificationParameters) obj;
+        if (ocrMode == null) {
+            if (other.ocrMode != null)
+                return false;
+        } else if (!ocrMode.equals(other.ocrMode))
+            return false;
+        if (classificationMode == null) {
+            if (other.classificationMode != null)
+                return false;
+        } else if (!classificationMode.equals(other.classificationMode))
+            return false;
+        if (autoRotationCorrection == null) {
+            if (other.autoRotationCorrection != null)
+                return false;
+        } else if (!autoRotationCorrection.equals(other.autoRotationCorrection))
+            return false;
+        if (languages == null) {
+            if (other.languages != null)
+                return false;
+        } else if (!languages.equals(other.languages))
+            return false;
+        if (semanticConfig == null) {
+            if (other.semanticConfig != null)
+                return false;
+        } else if (!semanticConfig.equals(other.semanticConfig))
+            return false;
+        if (removeUploadedFile != other.removeUploadedFile)
+            return false;
+        if (documentReference == null) {
+            if (other.documentReference != null)
+                return false;
+        } else if (!documentReference.equals(other.documentReference))
+            return false;
+        if (custom == null) {
+            if (other.custom != null)
+                return false;
+        } else if (!custom.equals(other.custom))
+            return false;
+        if (timeout == null) {
+            if (other.timeout != null)
+                return false;
+        } else if (!timeout.equals(other.timeout))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "TextClassificationParameters [projectId=" + projectId + ", spaceId=" + spaceId + ", transactionId=" + transactionId + ", ocrMode="
+            + ocrMode + ", classificationMode=" + classificationMode + ", autoRotationCorrection=" + autoRotationCorrection + ", languages="
+            + languages + ", semanticConfig=" + semanticConfig + ", removeUploadedFile=" + removeUploadedFile + ", documentReference="
+            + documentReference + ", custom=" + custom + ", timeout=" + timeout + "]";
+    }
+}

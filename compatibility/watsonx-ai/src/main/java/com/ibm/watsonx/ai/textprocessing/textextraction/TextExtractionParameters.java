@@ -1,0 +1,741 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.textprocessing.textextraction;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
+import static dev.langchain4j.internal.compat.Java8Platform.requireNonNullElse;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import com.ibm.watsonx.ai.WatsonxParameters;
+import com.ibm.watsonx.ai.textprocessing.ContainerReference;
+import com.ibm.watsonx.ai.textprocessing.CosReference;
+import com.ibm.watsonx.ai.textprocessing.DocumentReference;
+import com.ibm.watsonx.ai.textprocessing.Language;
+import com.ibm.watsonx.ai.textprocessing.Mode;
+import com.ibm.watsonx.ai.textprocessing.OcrMode;
+
+/**
+ * Represents a set of parameters used to control the behavior of a text extraction operation.
+ * <p>
+ * Instances of this class are created using the {@link Builder} pattern:
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * TextExtractionParameters.builder()
+ *     .requestedOutputs(Type.JSON)
+ *     .mode(Mode.HIGH_QUALITY)
+ *     .languages(Language.ENGLISH, Language.ITALIAN)
+ *     .outputFileName("extracted.json")
+ *     .build();
+ * }</pre>
+ *
+ * For more information, see the
+ * <a href="https://dataplatform.cloud.ibm.com/docs/content/wsj/analyze-data/fm-api-text-extraction-params.html?context=wx">documentation</a>.
+ */
+public final class TextExtractionParameters extends WatsonxParameters {
+    private final List<String> requestedOutputs;
+    private final String mode;
+    private final String ocrMode;
+    private final List<String> languages;
+    private final Boolean autoRotationCorrection;
+    private final String createEmbeddedImages;
+    private final Integer outputDpi;
+    private final Boolean outputTokens;
+    private final String kvpMode;
+    private final TextExtractionSemanticConfig semanticConfig;
+    private final boolean removeUploadedFile;
+    private final boolean removeOutputFile;
+    private final String outputFileName;
+    private final DocumentReference documentReference;
+    private final DocumentReference resultReference;
+    private final Map<String, Object> custom;
+    private final Duration timeout;
+
+    private TextExtractionParameters(Builder builder) {
+        super(builder);
+        this.requestedOutputs = isNull(builder.requestedOutputs) || builder.requestedOutputs.isEmpty()
+            ? List.of(Type.MD.value)
+            : List.copyOf(builder.requestedOutputs);
+        this.mode = builder.mode;
+        this.ocrMode = builder.ocrMode;
+        this.languages = isNull(builder.languages) ? null : List.copyOf(builder.languages);
+        this.autoRotationCorrection = builder.autoRotationCorrection;
+        this.createEmbeddedImages = builder.createEmbeddedImages;
+        this.outputDpi = builder.outputDpi;
+        this.outputTokens = builder.outputTokens;
+        this.kvpMode = builder.kvpMode;
+        this.semanticConfig = builder.semanticConfig;
+        this.removeUploadedFile = builder.removeUploadedFile;
+        this.removeOutputFile = builder.removeOutputFile;
+        this.outputFileName = builder.outputFileName;
+        this.documentReference = builder.documentReference;
+        this.resultReference = builder.resultReference;
+        this.custom = isNull(builder.custom) ? null : Collections.unmodifiableMap(new LinkedHashMap<>(builder.custom));
+        this.timeout = builder.timeout;
+    }
+
+    /**
+     * Gets the list of requested output types.
+     *
+     * @return the list of output types
+     */
+    public List<String> requestedOutputs() {
+        return requestedOutputs;
+    }
+
+    /**
+     * Gets the extraction mode.
+     *
+     * @return the extraction mode
+     */
+    public String mode() {
+        return mode;
+    }
+
+    /**
+     * Gets the OCR mode.
+     *
+     * @return the OCR mode
+     */
+    public String ocrMode() {
+        return ocrMode;
+    }
+
+    /**
+     * Gets the list of languages for OCR.
+     *
+     * @return the list of language codes
+     */
+    public List<String> languages() {
+        return languages;
+    }
+
+    /**
+     * Gets whether automatic rotation correction is enabled.
+     *
+     * @return true if auto rotation correction is enabled
+     */
+    public Boolean autoRotationCorrection() {
+        return autoRotationCorrection;
+    }
+
+    /**
+     * Gets the embedded image creation mode.
+     *
+     * @return the embedded image mode
+     */
+    public String createEmbeddedImages() {
+        return createEmbeddedImages;
+    }
+
+    /**
+     * Gets the output DPI for images.
+     *
+     * @return the output DPI value
+     */
+    public Integer outputDpi() {
+        return outputDpi;
+    }
+
+    /**
+     * Gets whether to output tokens.
+     *
+     * @return true if tokens should be output
+     */
+    public Boolean outputTokens() {
+        return outputTokens;
+    }
+
+    /**
+     * Gets the key-value pair extraction mode.
+     *
+     * @return the KVP mode
+     */
+    public String kvpMode() {
+        return kvpMode;
+    }
+
+    /**
+     * Gets the semantic configuration.
+     *
+     * @return the semantic configuration
+     */
+    public TextExtractionSemanticConfig semanticConfig() {
+        return semanticConfig;
+    }
+
+    /**
+     * Gets whether to remove the uploaded file after extraction.
+     *
+     * @return true if the uploaded file should be removed
+     */
+    public boolean isRemoveUploadedFile() {
+        return removeUploadedFile;
+    }
+
+    /**
+     * Gets whether to remove the output file after extraction.
+     *
+     * @return true if the output file should be removed
+     */
+    public boolean isRemoveOutputFile() {
+        return removeOutputFile;
+    }
+
+    /**
+     * Gets the output file name.
+     *
+     * @return the output file name
+     */
+    public String outputFileName() {
+        return outputFileName;
+    }
+
+    /**
+     * Gets the document reference.
+     *
+     * @return the document reference
+     */
+    public DocumentReference documentReference() {
+        return documentReference;
+    }
+
+    /**
+     * Gets the result reference.
+     *
+     * @return the result reference
+     */
+    public DocumentReference resultReference() {
+        return resultReference;
+    }
+
+    /**
+     * Gets the custom properties map.
+     *
+     * @return the map of custom properties
+     */
+    public Map<String, Object> custom() {
+        return custom;
+    }
+
+    /**
+     * Gets the timeout duration.
+     *
+     * @return the timeout duration
+     */
+    public Duration timeout() {
+        return timeout;
+    }
+
+    /**
+     * Converts the {@link TextExtractionParameters} into a new {@link Parameters} object.
+     */
+    Parameters toParameters() {
+        var semanticConfig = isNull(semanticConfig())
+            ? null
+            : new Parameters.SemanticConfig(
+                this.semanticConfig.enableTextHints(),
+                this.semanticConfig.enableSchemaKvp(),
+                this.semanticConfig.groundingMode(),
+                this.semanticConfig.forceSchemaName(),
+                this.semanticConfig.defaultModelName(),
+                this.semanticConfig.taskModelNameOverride(),
+                this.semanticConfig.schemasMergeStrategy(),
+                this.semanticConfig.schemas());
+
+        return new Parameters(
+            requestedOutputs(),
+            mode(),
+            ocrMode(),
+            languages(),
+            autoRotationCorrection(),
+            createEmbeddedImages(),
+            outputDpi(),
+            outputTokens(),
+            kvpMode(),
+            semanticConfig
+        );
+    }
+
+    /**
+     * Returns a new {@link Builder} instance.
+     * <p>
+     * <b>Example usage:</b>
+     *
+     * <pre>{@code
+     * TextExtractionParameters.builder()
+     *     .requestedOutputs(Type.JSON)
+     *     .mode(Mode.HIGH_QUALITY)
+     *     .languages(Language.ENGLISH, Language.ITALIAN)
+     *     .outputFileName("extracted.json")
+     *     .build();
+     * }</pre>
+     *
+     * @return {@link Builder} instance.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder class for constructing {@link TextExtractionParameters} instances with configurable parameters.
+     */
+    public static final class Builder extends WatsonxParameters.Builder<Builder> {
+        private List<String> requestedOutputs;
+        private String mode;
+        private String ocrMode;
+        private List<String> languages;
+        private Boolean autoRotationCorrection;
+        private String createEmbeddedImages;
+        private Integer outputDpi;
+        private Boolean outputTokens;
+        private String kvpMode;
+        private TextExtractionSemanticConfig semanticConfig;
+        private boolean removeUploadedFile = false;
+        private boolean removeOutputFile = false;
+        private String outputFileName;
+        private DocumentReference documentReference;
+        private DocumentReference resultReference;
+        private Map<String, Object> custom;
+        private Duration timeout;
+
+        private Builder() {}
+
+        /**
+         * Sets the list of requested output types.
+         *
+         * @param types the list of output types
+         */
+        public Builder requestedOutputs(List<Type> types) {
+            requestedOutputs = types.stream().map(Type::value).toList();
+            return this;
+        }
+
+        /**
+         * Sets the list of requested output types.
+         *
+         * @param types the list of output types
+         */
+        public Builder requestedOutputs(Type... types) {
+            return requestedOutputs(Arrays.asList(types));
+        }
+
+        /**
+         * Sets the processing mode.
+         *
+         * @param mode the processing mode
+         */
+        public Builder mode(Mode mode) {
+            this.mode = mode.value();
+            return this;
+        }
+
+        /**
+         * Sets the OCR mode.
+         *
+         * @param ocrMode the OCR mode
+         */
+        public Builder ocrMode(OcrMode ocrMode) {
+            this.ocrMode = switch(ocrMode) {
+                case AUTO -> null;
+                default -> ocrMode.value();
+            };
+            return this;
+        }
+
+        /**
+         * Sets the list of languages expected in the document.
+         *
+         * @param languages the list of language codes (ISO 639)
+         */
+        public Builder languages(List<String> languages) {
+            this.languages = languages;
+            return this;
+        }
+
+        /**
+         * Sets the list of languages expected in the document.
+         *
+         * @param languages the list of language
+         */
+        public Builder languages(Language... languages) {
+            return languages(Stream.of(languages).map(Language::isoCode).toList());
+        }
+
+        /**
+         * Enables or disables automatic rotation correction.
+         *
+         * @param autoRotationCorrection true to enable rotation correction, false otherwise
+         */
+        public Builder autoRotationCorrection(boolean autoRotationCorrection) {
+            this.autoRotationCorrection = autoRotationCorrection;
+            return this;
+        }
+
+        /**
+         * Sets the embedded images creation mode.
+         *
+         * @param embeddedImageMode the embedded images mode
+         */
+        public Builder createEmbeddedImages(EmbeddedImageMode embeddedImageMode) {
+            requireNonNull(embeddedImageMode, "embeddedImageMode cannot be null");
+            this.createEmbeddedImages = embeddedImageMode.value();
+            return this;
+        }
+
+        /**
+         * Sets the DPI (dots per inch) for extracted images.
+         *
+         * @param outputDpi the output DPI
+         */
+        public Builder outputDpi(int outputDpi) {
+            this.outputDpi = outputDpi;
+            return this;
+        }
+
+        /**
+         * Enables or disables output of tokens and bounding boxes.
+         *
+         * @param outputTokens true to output tokens and bounding boxes, false otherwise
+         */
+        public Builder outputTokens(boolean outputTokens) {
+            this.outputTokens = outputTokens;
+            return this;
+        }
+
+        /**
+         * Sets which version of KVP should be used when processing, if not set then KVP is disabled.
+         *
+         * @param kvpMode the KVP mode
+         */
+        public Builder kvpMode(KvpMode kvpMode) {
+            requireNonNull(kvpMode, "kvpMode cannot be null");
+            this.kvpMode = kvpMode.value();
+            return this;
+        }
+
+        /**
+         * Sets properties related to semantic config.
+         *
+         * @param semanticConfig the semantic configuration instance
+         */
+        public Builder semanticConfig(TextExtractionSemanticConfig semanticConfig) {
+            this.semanticConfig = semanticConfig;
+            return this;
+        }
+
+        /**
+         * Specifies whether the source file should be removed from storage after processing completes.
+         * <p>
+         * When set to {@code true}, the service deletes the file identified by the path passed to the extraction method:
+         * <ul>
+         * <li>For upload methods ({@code uploadExtractAndFetch}), the file that was just uploaded.</li>
+         * <li>For path-only methods ({@code extractAndFetch}), the existing document at {@code absolutePath}.</li>
+         * </ul>
+         *
+         * @param removeUploadedFile {@code true} to delete the source file after processing, {@code false} to retain it.
+         */
+        public Builder removeUploadedFile(boolean removeUploadedFile) {
+            this.removeUploadedFile = removeUploadedFile;
+            return this;
+        }
+
+        /**
+         * Specifies whether the generated output file should be removed after processing.
+         *
+         * @param removeOutputFile {@code true} to delete the output file after processing, {@code false} to retain it.
+         */
+        public Builder removeOutputFile(boolean removeOutputFile) {
+            this.removeOutputFile = removeOutputFile;
+            return this;
+        }
+
+        /**
+         * Sets the name of the output file to be generated by the extraction request.
+         *
+         * @param outputFileName the desired name of the output file.
+         */
+        public Builder outputFileName(String outputFileName) {
+            this.outputFileName = outputFileName;
+            return this;
+        }
+
+        /**
+         * Sets the reference to the Cloud Object Storage (COS) location of the input document.
+         *
+         * @param documentReference the {@link CosReference} pointing to the input file location.
+         */
+        public Builder documentReference(CosReference documentReference) {
+            this.documentReference = documentReference;
+            return this;
+        }
+
+        /**
+         * Sets the container reference for the input document.
+         *
+         * @param documentReference the {@link ContainerReference} pointing to the input file path.
+         */
+        public Builder documentReference(ContainerReference documentReference) {
+            this.documentReference = documentReference;
+            return this;
+        }
+
+        /**
+         * Sets the reference to the Cloud Object Storage location where the output should be stored.
+         *
+         * @param resultReference the {@link CosReference} pointing to the output file location.
+         */
+        public Builder resultReference(CosReference resultReference) {
+            this.resultReference = resultReference;
+            return this;
+        }
+
+        /**
+         * Sets the container reference for the output location.
+         *
+         * @param resultReference the {@link ContainerReference} pointing to the output path.
+         */
+        public Builder resultReference(ContainerReference resultReference) {
+            this.resultReference = resultReference;
+            return this;
+        }
+
+        /**
+         * Adds a custom property.
+         * <p>
+         * This method allows you to include arbitrary key-value pairs that can be used to pass additional, user-defined metadata or configuration to
+         * the extraction process.
+         *
+         * @param key the name of the custom property.
+         * @param value the value of the custom property.
+         */
+        public Builder addCustomProperty(String key, Object value) {
+            requireNonNull(key, "key cannot be null");
+            requireNonNull(value, "value cannot be null");
+            custom = requireNonNullElse(custom, new HashMap<String, Object>());
+            custom.put(key, value);
+            return this;
+        }
+
+        /**
+         * Sets the timeout.
+         *
+         * @param timeout timeout
+         */
+        public Builder timeout(Duration timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
+        /**
+         * Builds a {@link TextExtractionParameters} instance using the configured parameters.
+         *
+         * @return a new instance of {@link TextExtractionParameters}
+         */
+        public TextExtractionParameters build() {
+            return new TextExtractionParameters(this);
+        }
+    }
+
+    /**
+     * Enum representing the possible types of requested outputs for text extraction.
+     */
+    public static enum Type {
+        JSON("assembly"),
+        HTML("html"),
+        MD("md"),
+        PLAIN_TEXT("plain_text"),
+        PAGE_IMAGES("page_images");
+
+        private final String value;
+
+        Type(String value) {
+            this.value = value;
+        }
+
+        public String value() {
+            return this.value;
+        }
+
+        public static Type fromValue(String value) {
+            return Stream.of(Type.values())
+                .filter(status -> status.value.equalsIgnoreCase(value))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown Type value: " + value));
+        }
+    }
+
+    /**
+     * Enum representing the modes for returning embedded images in the output.
+     */
+    public static enum EmbeddedImageMode {
+        DISABLED("disabled"),
+        ENABLED_PLACEHOLDER("enabled_placeholder"),
+        ENABLED_TEXT("enabled_text"),
+        ENABLED_VERBALIZATION("enabled_verbalization"),
+        ENABLED_VERBALIZATION_ALL("enabled_verbalization_all");
+
+        private final String value;
+
+        EmbeddedImageMode(String value) {
+            this.value = value;
+        }
+
+        public String value() {
+            return value;
+        }
+    }
+
+    /**
+     * Enum representing the different (KVP) processing modes.
+     */
+    public static enum KvpMode {
+        DISABLED("disabled"),
+        INVOICE("invoice"),
+        UBILL("ubill"),
+        GENERIC_WITH_SEMANTIC("generic_with_semantic");
+
+        private final String value;
+
+        KvpMode(String value) {
+            this.value = value;
+        }
+
+        public String value() {
+            return value;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((requestedOutputs == null) ? 0 : requestedOutputs.hashCode());
+        result = prime * result + ((mode == null) ? 0 : mode.hashCode());
+        result = prime * result + ((ocrMode == null) ? 0 : ocrMode.hashCode());
+        result = prime * result + ((languages == null) ? 0 : languages.hashCode());
+        result = prime * result + ((autoRotationCorrection == null) ? 0 : autoRotationCorrection.hashCode());
+        result = prime * result + ((createEmbeddedImages == null) ? 0 : createEmbeddedImages.hashCode());
+        result = prime * result + ((outputDpi == null) ? 0 : outputDpi.hashCode());
+        result = prime * result + ((outputTokens == null) ? 0 : outputTokens.hashCode());
+        result = prime * result + ((kvpMode == null) ? 0 : kvpMode.hashCode());
+        result = prime * result + ((semanticConfig == null) ? 0 : semanticConfig.hashCode());
+        result = prime * result + (removeUploadedFile ? 1231 : 1237);
+        result = prime * result + (removeOutputFile ? 1231 : 1237);
+        result = prime * result + ((outputFileName == null) ? 0 : outputFileName.hashCode());
+        result = prime * result + ((documentReference == null) ? 0 : documentReference.hashCode());
+        result = prime * result + ((resultReference == null) ? 0 : resultReference.hashCode());
+        result = prime * result + ((custom == null) ? 0 : custom.hashCode());
+        result = prime * result + ((timeout == null) ? 0 : timeout.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        TextExtractionParameters other = (TextExtractionParameters) obj;
+        if (requestedOutputs == null) {
+            if (other.requestedOutputs != null)
+                return false;
+        } else if (!requestedOutputs.equals(other.requestedOutputs))
+            return false;
+        if (mode == null) {
+            if (other.mode != null)
+                return false;
+        } else if (!mode.equals(other.mode))
+            return false;
+        if (ocrMode == null) {
+            if (other.ocrMode != null)
+                return false;
+        } else if (!ocrMode.equals(other.ocrMode))
+            return false;
+        if (languages == null) {
+            if (other.languages != null)
+                return false;
+        } else if (!languages.equals(other.languages))
+            return false;
+        if (autoRotationCorrection == null) {
+            if (other.autoRotationCorrection != null)
+                return false;
+        } else if (!autoRotationCorrection.equals(other.autoRotationCorrection))
+            return false;
+        if (createEmbeddedImages == null) {
+            if (other.createEmbeddedImages != null)
+                return false;
+        } else if (!createEmbeddedImages.equals(other.createEmbeddedImages))
+            return false;
+        if (outputDpi == null) {
+            if (other.outputDpi != null)
+                return false;
+        } else if (!outputDpi.equals(other.outputDpi))
+            return false;
+        if (outputTokens == null) {
+            if (other.outputTokens != null)
+                return false;
+        } else if (!outputTokens.equals(other.outputTokens))
+            return false;
+        if (kvpMode == null) {
+            if (other.kvpMode != null)
+                return false;
+        } else if (!kvpMode.equals(other.kvpMode))
+            return false;
+        if (semanticConfig == null) {
+            if (other.semanticConfig != null)
+                return false;
+        } else if (!semanticConfig.equals(other.semanticConfig))
+            return false;
+        if (removeUploadedFile != other.removeUploadedFile)
+            return false;
+        if (removeOutputFile != other.removeOutputFile)
+            return false;
+        if (outputFileName == null) {
+            if (other.outputFileName != null)
+                return false;
+        } else if (!outputFileName.equals(other.outputFileName))
+            return false;
+        if (documentReference == null) {
+            if (other.documentReference != null)
+                return false;
+        } else if (!documentReference.equals(other.documentReference))
+            return false;
+        if (resultReference == null) {
+            if (other.resultReference != null)
+                return false;
+        } else if (!resultReference.equals(other.resultReference))
+            return false;
+        if (custom == null) {
+            if (other.custom != null)
+                return false;
+        } else if (!custom.equals(other.custom))
+            return false;
+        if (timeout == null) {
+            if (other.timeout != null)
+                return false;
+        } else if (!timeout.equals(other.timeout))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "TextExtractionParameters [projectId=" + projectId + ", spaceId=" + spaceId + ", transactionId=" + transactionId
+            + ", requestedOutputs=" + requestedOutputs + ", mode=" + mode + ", ocrMode=" + ocrMode + ", languages=" + languages
+            + ", autoRotationCorrection=" + autoRotationCorrection + ", createEmbeddedImages=" + createEmbeddedImages + ", outputDpi=" + outputDpi
+            + ", outputTokens=" + outputTokens + ", kvpMode=" + kvpMode + ", semanticConfig=" + semanticConfig + ", removeUploadedFile="
+            + removeUploadedFile + ", removeOutputFile=" + removeOutputFile + ", outputFileName=" + outputFileName + ", documentReference="
+            + documentReference + ", resultReference=" + resultReference + ", custom=" + custom + ", timeout=" + timeout + "]";
+    }
+}

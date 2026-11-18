@@ -1,0 +1,224 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.core.auth.ibmcloud;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
+import static dev.langchain4j.internal.compat.Java8Platform.requireNonNullElse;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.util.Date;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import com.ibm.watsonx.ai.core.auth.Authenticator;
+
+/**
+ * The {@code IBMCloudAuthenticator} class is an implementation of the {@link Authenticator} interface, responsible for authenticating with IBM Cloud
+ * Identity and Access Management using an API key.
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * IBMCloudAuthenticator.builder()
+ *     .apiKey("api-key")
+ *     .build();
+ * }</pre>
+ */
+public class IBMCloudAuthenticator implements Authenticator {
+    private static final String SCHEME = "Bearer";
+
+    private final URI baseUrl;
+    private final String apiKey;
+    private final String grantType;
+    private final Duration timeout;
+    private final IBMCloudRestClient client;
+    private final AtomicReference<TokenResponse> token;
+
+    /**
+     * Constructs an IBMCloudAuthenticator instance using the provided builder.
+     *
+     * @param builder the builder instance
+     */
+    private IBMCloudAuthenticator(Builder builder) {
+        token = new AtomicReference<>();
+        apiKey = requireNonNull(builder.apiKey);
+        baseUrl = requireNonNullElse(builder.baseUrl, URI.create("https://iam.cloud.ibm.com"));
+        grantType = requireNonNullElse(builder.grantType, "urn:ibm:params:oauth:grant-type:apikey");
+        timeout = requireNonNullElse(builder.timeout, Duration.ofSeconds(60));
+        client = IBMCloudRestClient.builder()
+            .baseUrl(baseUrl)
+            .timeout(timeout)
+            .httpClient(builder.httpClient)
+            .verifySsl(builder.verifySsl)
+            .build();
+    }
+
+    @Override
+    public String token() {
+
+        TokenResponse currentToken = token.get();
+
+        if (!isExpired(currentToken))
+            return currentToken.accessToken();
+
+        var identityTokenResponse = client.token(apiKey, grantType);
+        token.getAndSet(identityTokenResponse);
+        return identityTokenResponse.accessToken();
+    }
+
+    @Override
+    public CompletableFuture<String> tokenAsync() {
+
+        TokenResponse currentToken = token.get();
+
+        if (!isExpired(currentToken))
+            return completedFuture(currentToken.accessToken());
+
+        return client.tokenAsync(apiKey, grantType).thenApply(identityTokenResponse -> {
+            token.getAndSet(identityTokenResponse);
+            return identityTokenResponse.accessToken();
+        });
+    }
+
+    @Override
+    public String scheme() {
+        return SCHEME;
+    }
+
+    /**
+     * Returns a new {@link Builder} instance.
+     * <p>
+     * <b>Example usage:</b>
+     *
+     * <pre>{@code
+     * IBMCloudAuthenticator.builder()
+     *     .apiKey("api-key")
+     *     .build();
+     * }</pre>
+     *
+     * @return {@link Builder} instance.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Creates an {@link IBMCloudAuthenticator} instance with the specified API key.
+     *
+     * @param apiKey The IBM Cloud API key to use for authentication.
+     * @return A configured {@link IBMCloudAuthenticator} instance.
+     */
+    public static IBMCloudAuthenticator withKey(String apiKey) {
+        return builder().apiKey(apiKey).build();
+    }
+
+    /**
+     * Check whether the token has expired.
+     */
+    private boolean isExpired(TokenResponse token) {
+        if (isNull(token))
+            return true;
+
+        Date expiration = new Date(TimeUnit.SECONDS.toMillis(token.expiration()));
+        Date now = new Date();
+
+        return now.after(expiration);
+    }
+
+    /**
+     * The builder class for constructing IBMCloudAuthenticator instances.
+     */
+    public final static class Builder {
+        private URI baseUrl;
+        private String apiKey;
+        private String grantType;
+        private Duration timeout;
+        private HttpClient httpClient;
+        private boolean verifySsl = true;
+
+        private Builder() {}
+
+        /**
+         * Sets the base URL for the IBM Cloud IAM token endpoint.
+         *
+         * @param baseUrl The base URL.
+         */
+        public Builder baseUrl(URI baseUrl) {
+            this.baseUrl = baseUrl;
+            return this;
+        }
+
+        /**
+         * Sets the API key used for authentication.
+         *
+         * @param apiKey The API key for authentication.
+         */
+        public Builder apiKey(String apiKey) {
+            this.apiKey = apiKey;
+            return this;
+        }
+
+        /**
+         * Sets the grant type used for authentication.
+         *
+         * @param grantType The grant type for authentication.
+         */
+        public Builder grantType(String grantType) {
+            this.grantType = grantType;
+            return this;
+        }
+
+        /**
+         * Sets the timeout duration for the token request.
+         *
+         * @param timeout The timeout duration for the token request.
+         */
+        public Builder timeout(Duration timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
+        /**
+         * Sets a custom {@link HttpClient} to be used for HTTP communication.
+         * <p>
+         * This allows customization of the underlying HTTP client, such as configuring a custom {@link javax.net.ssl.SSLContext} for TLS/SSL
+         * settings, proxy configuration, connection timeouts, or other HTTP client properties. If not specified, a default {@link HttpClient} will be
+         * created automatically.
+         *
+         * @param httpClient the custom {@link HttpClient} to use
+         */
+        public Builder httpClient(HttpClient httpClient) {
+            this.httpClient = httpClient;
+            return this;
+        }
+
+        /**
+         * Sets whether SSL/TLS certificate verification should be performed.
+         * <p>
+         * When set to {@code true} (default), the client validates server certificates against trusted Certificate Authorities. When set to
+         * {@code false}, all certificates are accepted without validation, including self-signed certificates.
+         * <p>
+         * This setting is ignored if a custom {@link HttpClient} is provided via {@link #httpClient(HttpClient)}.
+         *
+         * @param verifySsl {@code true} to enable certificate verification, {@code false} to accept all certificates
+         */
+        public Builder verifySsl(boolean verifySsl) {
+            this.verifySsl = verifySsl;
+            return this;
+        }
+
+        /**
+         * Builds and returns an IBMCloudAuthenticator instance.
+         *
+         * @return {@link IBMCloudAuthenticator} instance
+         */
+        public IBMCloudAuthenticator build() {
+            return new IBMCloudAuthenticator(this);
+        }
+    }
+}

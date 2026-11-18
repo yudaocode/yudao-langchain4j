@@ -1,0 +1,229 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.timeseries;
+
+import static java.util.Objects.requireNonNull;
+import com.ibm.watsonx.ai.deployment.DeploymentService;
+
+/**
+ * Represents a time series forecast request.
+ * <p>
+ * <b>Example usage:</b>
+ *
+ * <pre>{@code
+ * var inputSchema = InputSchema.builder()
+ *     .timestampColumn("date")
+ *     .addIdColumn("ID1")
+ *     .build();
+ *
+ * var data = ForecastData.create()
+ *     .add("date", "2020-01-01T00:00:00")
+ *     .add("date", "2020-01-01T01:00:00")
+ *     .add("date", "2020-01-05T01:00:00")
+ *     .add("ID1", "D1", 3)
+ *     .addAll("TARGET1", 1.46, 2.34, 4.55);
+ *
+ * TimeSeriesRequest request = TimeSeriesRequest.builder()
+ *     .inputSchema(inputSchema)
+ *     .data(data)
+ *     .build();
+ * }</pre>
+ */
+public final class TimeSeriesRequest {
+    private String deploymentId;
+    private InputSchema inputSchema;
+    private ForecastData data;
+    private TimeSeriesParameters parameters;
+
+    private TimeSeriesRequest(Builder builder) {
+        inputSchema = requireNonNull(builder.inputSchema, "InputSchema cannot be null");
+        data = requireNonNull(builder.data, "Data cannot be null");
+        parameters = builder.parameters;
+        deploymentId = builder.deploymentId;
+    }
+
+    /**
+     * Gets the deployment identifier.
+     *
+     * @return the deployment ID
+     */
+    public String deploymentId() {
+        return deploymentId;
+    }
+
+    /**
+     * Gets the input schema.
+     *
+     * @return the input schema
+     */
+    public InputSchema inputSchema() {
+        return inputSchema;
+    }
+
+    /**
+     * Gets the forecast data.
+     *
+     * @return the forecast data
+     */
+    public ForecastData data() {
+        return data;
+    }
+
+    /**
+     * Gets the time series parameters.
+     *
+     * @return the parameters
+     */
+    public TimeSeriesParameters parameters() {
+        return parameters;
+    }
+
+    /**
+     * Returns a new {@link Builder} instance.
+     * <p>
+     * <b>Example usage:</b>
+     *
+     * <pre>{@code
+     * var inputSchema = InputSchema.builder()
+     *     .timestampColumn("date")
+     *     .addIdColumn("ID1")
+     *     .build();
+     *
+     * var data = ForecastData.create()
+     *     .add("date", "2020-01-01T00:00:00")
+     *     .add("date", "2020-01-01T01:00:00")
+     *     .add("date", "2020-01-05T01:00:00")
+     *     .add("ID1", "D1", 3)
+     *     .addAll("TARGET1", 1.46, 2.34, 4.55);
+     *
+     * TimeSeriesRequest request = TimeSeriesRequest.builder()
+     *     .inputSchema(inputSchema)
+     *     .data(data)
+     *     .build();
+     * }</pre>
+     *
+     * @return {@link Builder} instance
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder class for constructing {@link TimeSeriesRequest} instances.
+     */
+    public final static class Builder {
+        private String deploymentId;
+        private InputSchema inputSchema;
+        private ForecastData data;
+        private TimeSeriesParameters parameters;
+
+        private Builder() {}
+
+        /**
+         * Sets the deployment identifier for the time series request.
+         * <p>
+         * This value is required if the request will be sent via a {@link DeploymentService}. For other services, this value may be ignored.
+         *
+         * @param deploymentId the unique identifier of the deployment
+         */
+        public Builder deploymentId(String deploymentId) {
+            this.deploymentId = deploymentId;
+            return this;
+        }
+
+        /**
+         * Sets the input schema for the time series request.
+         * <p>
+         * The {@link InputSchema} defines the timestamp column and any identifier columns for the time series. This is required for the service to
+         * understand the structure of the provided data.
+         *
+         * @param inputSchema the {@link InputSchema} instance
+         */
+        public Builder inputSchema(InputSchema inputSchema) {
+            this.inputSchema = inputSchema;
+            return this;
+        }
+
+        /**
+         * Sets the actual data for the time series forecast request.
+         * <p>
+         * The {@link ForecastData} contains all the timestamped records and target values that the service will use for forecasting.
+         *
+         * @param data the {@link ForecastData} instance
+         */
+        public Builder data(ForecastData data) {
+            this.data = data;
+            return this;
+        }
+
+        /**
+         * Sets the parameters controlling the time series forecast behavior.
+         *
+         * @param parameters a {@link TimeSeriesParameters} instance
+         */
+        public Builder parameters(TimeSeriesParameters parameters) {
+            this.parameters = parameters;
+            return this;
+        }
+
+        /**
+         * Builds a {@link TimeSeriesRequest} instance using the configured parameters.
+         *
+         * @return a new instance of {@link TimeSeriesRequest}
+         */
+        public TimeSeriesRequest build() {
+            return new TimeSeriesRequest(this);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((deploymentId == null) ? 0 : deploymentId.hashCode());
+        result = prime * result + ((inputSchema == null) ? 0 : inputSchema.hashCode());
+        result = prime * result + ((data == null) ? 0 : data.hashCode());
+        result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TimeSeriesRequest other = (TimeSeriesRequest) obj;
+        if (deploymentId == null) {
+            if (other.deploymentId != null)
+                return false;
+        } else if (!deploymentId.equals(other.deploymentId))
+            return false;
+        if (inputSchema == null) {
+            if (other.inputSchema != null)
+                return false;
+        } else if (!inputSchema.equals(other.inputSchema))
+            return false;
+        if (data == null) {
+            if (other.data != null)
+                return false;
+        } else if (!data.equals(other.data))
+            return false;
+        if (parameters == null) {
+            if (other.parameters != null)
+                return false;
+        } else if (!parameters.equals(other.parameters))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "TimeSeriesRequest [deploymentId=" + deploymentId + ", inputSchema=" + inputSchema + ", data=" + data + ", parameters="
+            + parameters + "]";
+    }
+}

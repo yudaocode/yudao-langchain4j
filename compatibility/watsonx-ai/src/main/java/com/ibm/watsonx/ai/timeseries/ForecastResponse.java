@@ -1,0 +1,32 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.timeseries;
+
+import static java.util.Objects.isNull;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Represents the response returned by the time series forecast api.
+ *
+ * @param modelId the identifier of the model used to generate the forecast
+ * @param modelVersion the version of the model used to generate the forecast
+ * @param createdAt the ISO 8601 timestamp when the response was created
+ * @param results a list of prediction result maps, each containing forecasted values
+ * @param inputDataPoints the total number of input data points (rows * input columns)
+ * @param outputDataPoints the total number of forecasted data points
+ */
+public record ForecastResponse(
+    String modelId,
+    String modelVersion,
+    String createdAt,
+    List<Map<String, Object>> results,
+    int inputDataPoints,
+    int outputDataPoints) {
+
+    public ForecastResponse {
+        results = isNull(results) ? null : List.copyOf(results);
+    }
+}

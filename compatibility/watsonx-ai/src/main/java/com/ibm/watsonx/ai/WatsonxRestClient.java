@@ -1,0 +1,191 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai;
+
+import static java.util.Objects.requireNonNull;
+import static dev.langchain4j.internal.compat.Java8Platform.requireNonNullElse;
+import java.net.http.HttpClient;
+import java.time.Duration;
+import org.slf4j.event.Level;
+import com.ibm.watsonx.ai.core.auth.Authenticator;
+import com.ibm.watsonx.ai.core.http.logging.HttpRequestLogger;
+import com.ibm.watsonx.ai.core.http.logging.HttpResponseLogger;
+import com.ibm.watsonx.ai.core.provider.HttpClientProvider;
+
+/**
+ * Abstract base class for REST client implementations used to communicate with watsonx.ai services.
+ * <p>
+ * This class provides common configuration and functionality for making HTTP requests to watsonx.ai endpoints, including authentication, timeout
+ * management, and request/response logging.
+ */
+public abstract class WatsonxRestClient {
+    public static final String TRANSACTION_ID_HEADER = "X-Global-Transaction-Id";
+    protected final String baseUrl;
+    protected final String version;
+    protected final Duration timeout;
+    protected final boolean logRequests, logResponses;
+    protected final HttpRequestLogger requestLogger;
+    protected final Level requestLogLevel;
+    protected final HttpResponseLogger responseLogger;
+    protected final Level responseLogLevel;
+    protected final Authenticator authenticator;
+    protected final HttpClient httpClient;
+
+    protected WatsonxRestClient(Builder<?, ?> builder) {
+        baseUrl = requireNonNull(builder.baseUrl, "The url must be provided");
+        version = requireNonNull(builder.version, "The version must be provided");
+        timeout = requireNonNull(builder.timeout, "The timeout must be provided");
+        authenticator = builder.authenticator;
+        logRequests = requireNonNullElse(builder.logRequests, false);
+        logResponses = requireNonNullElse(builder.logResponses, false);
+        requestLogger = builder.requestLogger;
+        requestLogLevel = requireNonNullElse(builder.requestLogLevel, Level.INFO);
+        responseLogger = builder.responseLogger;
+        responseLogLevel = requireNonNullElse(builder.responseLogLevel, Level.INFO);
+        httpClient = requireNonNullElse(builder.httpClient, HttpClientProvider.httpClient(builder.verifySsl));
+    }
+
+    /**
+     * Abstract builder class for constructing {@link WatsonxRestClient} instances.
+     *
+     * @param <T> the type of the REST client being built
+     * @param <B> the type of the concrete builder subclass
+     */
+    @SuppressWarnings("unchecked")
+    protected static abstract class Builder<T, B extends Builder<T, B>> {
+        private String baseUrl;
+        private String version;
+        private Duration timeout;
+        private Boolean logRequests;
+        private Boolean logResponses;
+        private HttpRequestLogger requestLogger;
+        private Level requestLogLevel = Level.INFO;
+        private HttpResponseLogger responseLogger;
+        private Level responseLogLevel = Level.INFO;
+        private Authenticator authenticator;
+        private HttpClient httpClient;
+        private boolean verifySsl = true;
+
+        /**
+         * Builds and returns the configured REST client instance.
+         *
+         * @return the constructed REST client
+         */
+        public abstract T build();
+
+        /**
+         * Sets the endpoint URL to which the chat request will be sent.
+         *
+         * @param baseUrl the endpoint URL as a string
+         */
+        public B baseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+            return (B) this;
+        }
+
+        /**
+         * The version date for the API of the form YYYY-MM-DD.
+         *
+         * @param version Version date
+         */
+        public B version(String version) {
+            this.version = version;
+            return (B) this;
+        }
+
+        /**
+         * Enables or disables logging of the request payload.
+         *
+         * @param logRequests {@code true} to log the request, {@code false} otherwise
+         */
+        public B logRequests(Boolean logRequests) {
+            this.logRequests = logRequests;
+            return (B) this;
+        }
+
+        /**
+         * Enables or disables logging of the response payload.
+         *
+         * @param logResponses {@code true} to log the response, {@code false} otherwise
+         */
+        public B logResponses(Boolean logResponses) {
+            this.logResponses = logResponses;
+            return (B) this;
+        }
+
+        /**
+         * Sets the custom request logger and the level that enables it.
+         *
+         * @param requestLogger the custom request logger, or {@code null} to use the default SLF4J behavior
+         * @param requestLogLevel the level that enables {@code requestLogger}
+         */
+        public B requestLogger(HttpRequestLogger requestLogger, Level requestLogLevel) {
+            this.requestLogger = requestLogger;
+            this.requestLogLevel = requestLogLevel;
+            return (B) this;
+        }
+
+        /**
+         * Sets the custom response logger and the level that enables it.
+         *
+         * @param responseLogger the custom response logger, or {@code null} to use the default SLF4J behavior
+         * @param responseLogLevel the level that enables {@code responseLogger}
+         */
+        public B responseLogger(HttpResponseLogger responseLogger, Level responseLogLevel) {
+            this.responseLogger = responseLogger;
+            this.responseLogLevel = responseLogLevel;
+            return (B) this;
+        }
+
+        /**
+         * Sets the request timeout.
+         *
+         * @param timeout {@link Duration} timeout.
+         */
+        public B timeout(Duration timeout) {
+            this.timeout = timeout;
+            return (B) this;
+        }
+
+        /**
+         * Sets the {@link Authenticator} used to authenticate requests.
+         *
+         * @param authenticator {@link Authenticator} instance
+         */
+        public B authenticator(Authenticator authenticator) {
+            this.authenticator = authenticator;
+            return (B) this;
+        }
+
+        /**
+         * Sets a custom {@link HttpClient} to be used for HTTP communication.
+         * <p>
+         * This allows customization of the underlying HTTP client, such as configuring a custom {@link javax.net.ssl.SSLContext} for TLS/SSL
+         * settings, proxy configuration, connection timeouts, or other HTTP client properties. If not specified, a default {@link HttpClient} will be
+         * created automatically.
+         *
+         * @param httpClient the custom {@link HttpClient} to use
+         */
+        public B httpClient(HttpClient httpClient) {
+            this.httpClient = httpClient;
+            return (B) this;
+        }
+
+        /**
+         * Sets whether SSL/TLS certificate verification should be performed.
+         * <p>
+         * When set to {@code true} (default), the client validates server certificates against trusted Certificate Authorities. When set to
+         * {@code false}, all certificates are accepted without validation, including self-signed certificates.
+         * <p>
+         * This setting is ignored if a custom {@link HttpClient} is provided via {@link #httpClient(HttpClient)}.
+         *
+         * @param verifySsl {@code true} to enable certificate verification, {@code false} to accept all certificates
+         */
+        public B verifySsl(boolean verifySsl) {
+            this.verifySsl = verifySsl;
+            return (B) this;
+        }
+    }
+}

@@ -21,7 +21,10 @@ public class HttpUtils {
 
             @Override
             public void onNext(ByteBuffer item) {
-                baos.write(item.array(), item.position(), item.remaining());
+                ByteBuffer bytes = item.duplicate();
+                byte[] contents = new byte[bytes.remaining()];
+                bytes.get(contents);
+                baos.write(contents, 0, contents.length);
             }
 
             @Override

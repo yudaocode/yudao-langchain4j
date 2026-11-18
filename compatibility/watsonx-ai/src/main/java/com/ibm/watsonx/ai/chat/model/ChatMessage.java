@@ -1,0 +1,18 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.chat.model;
+
+/**
+ * Represents a generic message exchanged during a chat interaction.
+ *
+ * @see AssistantMessage
+ * @see ControlMessage
+ * @see DeveloperMessage
+ * @see SystemMessage
+ * @see ToolMessage
+ * @see UserMessage
+ */
+public sealed interface ChatMessage permits
+    AssistantMessage, ControlMessage, DeveloperMessage, SystemMessage, ToolMessage, UserMessage {}

@@ -1,0 +1,434 @@
+/*
+ * Copyright 2025 IBM Corporation
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.ibm.watsonx.ai.core.http.interceptors;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static dev.langchain4j.internal.compat.Java8Platform.requireNonNullElse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandler;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.Flow.Subscription;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import com.ibm.watsonx.ai.core.WatsonxLogSupport;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+import com.ibm.watsonx.ai.core.HttpUtils;
+import com.ibm.watsonx.ai.core.Json;
+import com.ibm.watsonx.ai.core.exception.WatsonxException;
+import com.ibm.watsonx.ai.core.http.AsyncHttpInterceptor;
+import com.ibm.watsonx.ai.core.http.SyncHttpInterceptor;
+import com.ibm.watsonx.ai.core.http.logging.HttpRequestLog;
+import com.ibm.watsonx.ai.core.http.logging.HttpRequestLogger;
+import com.ibm.watsonx.ai.core.http.logging.HttpResponseLog;
+import com.ibm.watsonx.ai.core.http.logging.HttpResponseLogger;
+import com.ibm.watsonx.ai.core.provider.ExecutorProvider;
+
+/**
+ * Interceptor that logs HTTP requests and responses.
+ */
+public final class LoggerInterceptor implements SyncHttpInterceptor, AsyncHttpInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoggerInterceptor.class);
+    private static final Pattern BASE64_IMAGE_PATTERN =
+        Pattern.compile("(data:[\\w\\/+]+;base64,)(.{15})([^\"]+)");
+
+    private static final Pattern BASE64_AUDIO_PATTERN =
+        Pattern.compile("(\"data\"\\s*:\\s*\")(.{15})([^\"]+)(?=\")");
+
+    private static final Pattern JSON_SECRET_PATTERN =
+        Pattern.compile("\"([^\"]*(?:api[_-]?key|password|secret|access_token|refresh_token)[^\"]*)\"\\s*:\\s*\"[^\"]*\"", Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern FORM_SECRET_PATTERN =
+        Pattern.compile("(api[_-]?key|password|secret|access_token|refresh_token)=([^&\\s]*)", Pattern.CASE_INSENSITIVE);
+
+    private final boolean logRequest;
+    private final boolean logResponse;
+    private final HttpRequestLogger requestLogger;
+    private final Level requestLogLevel;
+    private final HttpResponseLogger responseLogger;
+    private final Level responseLogLevel;
+
+    /**
+     * Constructs a LoggerInterceptor with default log mode (BOTH).
+     */
+    public LoggerInterceptor() {
+        this(LogMode.BOTH, null, Level.INFO, null, Level.INFO);
+    }
+
+    /**
+     * Constructs a LoggerInterceptor with custom logging behavior.
+     *
+     * @param logRequest {@code true} to enable logging of outgoing requests, {@code false} to disable
+     * @param logResponse {@code true} to enable logging of incoming responses, {@code false} to disable
+     */
+    public LoggerInterceptor(boolean logRequest, boolean logResponse) {
+        this(LogMode.of(logRequest, logResponse), null, Level.INFO, null, Level.INFO);
+    }
+
+    /**
+     * Constructs a LoggerInterceptor with the specified log mode.
+     *
+     * @param mode The log mode.
+     */
+    public LoggerInterceptor(LogMode mode) {
+        this(mode, null, Level.INFO, null, Level.INFO);
+    }
+
+    /**
+     * Constructs a LoggerInterceptor with the specified log mode and custom loggers.
+     *
+     * @param mode the log mode
+     * @param requestLogger the custom request logger, or {@code null} to use the default SLF4J behavior
+     * @param requestLogLevel the level that enables {@code requestLogger}
+     * @param responseLogger the custom response logger, or {@code null} to use the default SLF4J behavior
+     * @param responseLogLevel the level that enables {@code responseLogger}
+     */
+    public LoggerInterceptor(LogMode mode, HttpRequestLogger requestLogger, Level requestLogLevel, HttpResponseLogger responseLogger,
+        Level responseLogLevel) {
+        mode = requireNonNullElse(mode, LogMode.BOTH);
+        this.logRequest = switch(mode) {
+            case BOTH, REQUEST -> true;
+            case RESPONSE, DISABLED -> false;
+        };
+        this.logResponse = switch(mode) {
+            case BOTH, RESPONSE -> true;
+            case REQUEST, DISABLED -> false;
+        };
+        this.requestLogger = requestLogger;
+        this.requestLogLevel = requireNonNullElse(requestLogLevel, Level.INFO);
+        this.responseLogger = responseLogger;
+        this.responseLogLevel = requireNonNullElse(responseLogLevel, Level.INFO);
+    }
+
+    @Override
+    public <T> CompletableFuture<HttpResponse<T>> intercept(HttpRequest request, BodyHandler<T> bodyHandler, int index, AsyncChain chain) {
+        return CompletableFuture
+            .runAsync(() -> logRequest(request), ExecutorProvider.ioExecutor())
+            .thenCompose(v -> chain.proceed(request, bodyHandler))
+            .whenComplete((response, exception) -> {
+                var watsonxSDKRequestId = request.headers().firstValue("Watsonx-AI-SDK-Request-Id").orElse("");
+                if (isNull(exception))
+                    logResponse(watsonxSDKRequestId, response);
+                else
+                    logResponse(watsonxSDKRequestId, exception);
+            });
+    }
+
+    @Override
+    public <T> HttpResponse<T> intercept(HttpRequest request, BodyHandler<T> bodyHandler, int index, Chain chain)
+        throws WatsonxException, IOException, InterruptedException {
+        logRequest(request);
+        var watsonxSDKRequestId = request.headers().firstValue("Watsonx-AI-SDK-Request-Id").orElse("");
+        try {
+            var response = chain.proceed(request, bodyHandler);
+            logResponse(watsonxSDKRequestId, response);
+            return response;
+        } catch (RuntimeException e) {
+            logResponse(watsonxSDKRequestId, e);
+            throw e;
+        }
+    }
+
+    private void logRequest(HttpRequest request) {
+        boolean enabled = nonNull(requestLogger) ? WatsonxLogSupport.isEnabledForLevel(logger, requestLogLevel) : logger.isInfoEnabled();
+        if (!logRequest || !enabled)
+            return; // skip body read entirely when logging is disabled
+
+        Optional<BodyPublisher> maybePublisher = request.bodyPublisher();
+        if (maybePublisher.isEmpty()) {
+            logRequest(request, null);
+            return;
+        }
+
+        BodyPublisher publisher = maybePublisher.get();
+
+        if (isNonRepeatablePublisher(publisher)) {
+            logRequest(request, "[non-repeatable body skipped]");
+            return;
+        }
+
+        publisher.subscribe(new Subscriber<>() {
+            private StringBuilder builder;
+
+            @Override
+            public void onSubscribe(Subscription subscription) {
+                builder = new StringBuilder();
+                subscription.request(Long.MAX_VALUE);
+            }
+
+            @Override
+            public void onNext(ByteBuffer item) {
+                String body = StandardCharsets.UTF_8.decode(item).toString();
+                builder.append(body);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                logger.warn("Error reading request body for logging", throwable);
+            }
+
+            @Override
+            public void onComplete() {
+                logRequest(request, builder.toString());
+            }
+        });
+    }
+
+    private <T> void logResponse(String watsonxAISDKRequestId, Throwable exception) {
+        if (!logResponse)
+            return;
+
+        if (nonNull(responseLogger)) {
+            if (!WatsonxLogSupport.isEnabledForLevel(logger, responseLogLevel))
+                return;
+
+            int statusCode = exception instanceof WatsonxException e ? e.statusCode() : -1;
+            String body = maskSecrets(exception.getMessage());
+            var entry = HttpResponseLog.of(watsonxAISDKRequestId, statusCode, null, null, body, exception);
+            ExecutorProvider.callbackExecutor().execute(() -> {
+                try {
+                    responseLogger.log(entry);
+                } catch (Exception e) {
+                    logger.warn("Failed to log response", e);
+                }
+            });
+            return;
+        }
+
+        WatsonxLogSupport.info(logger, () -> {
+            StringJoiner joiner = new StringJoiner("\n", "Response:\n", "");
+            joiner.add("- Watsonx-AI-SDK-Request-Id: " + watsonxAISDKRequestId);
+
+            if (exception instanceof WatsonxException e) {
+                joiner.add("- status code: " + e.statusCode());
+                joiner.add("- body: " + Json.prettyPrint(exception.getMessage()));
+            } else {
+                joiner.add("- body: " + exception.getMessage());
+            }
+
+            return joiner.toString();
+        });
+    }
+
+    private <T> void logResponse(String watsonxAISDKRequestId, HttpResponse<T> response) {
+        if (!logResponse)
+            return;
+
+        if (nonNull(responseLogger)) {
+            if (!WatsonxLogSupport.isEnabledForLevel(logger, responseLogLevel))
+                return;
+
+            HttpResponseLog entry;
+            try {
+                T responseBody = response.body();
+                boolean isStream = responseBody instanceof InputStream;
+                String body = isStream ? null : HttpUtils.extractBodyAsString(response).map(this::maskSecrets).orElse(null);
+                entry = HttpResponseLog.of(watsonxAISDKRequestId, response.statusCode(), response.headers(), response.uri(), body, null);
+            } catch (Exception e) {
+                logger.warn("Failed to log response", e);
+                return;
+            }
+
+            ExecutorProvider.callbackExecutor().execute(() -> {
+                try {
+                    responseLogger.log(entry);
+                } catch (Exception e) {
+                    logger.warn("Failed to log response", e);
+                }
+            });
+            return;
+        }
+
+        WatsonxLogSupport.info(logger, () -> {
+            try {
+
+                String body = null;
+                boolean prettyPrint = false;
+
+                T responseBody = response.body();
+                boolean isStream = responseBody instanceof InputStream;
+
+                if (!isStream)
+                    body = HttpUtils.extractBodyAsString(response).orElse(null);
+
+                StringJoiner joiner = new StringJoiner("\n", "Response:\n", "");
+                joiner.add("- Watsonx-AI-SDK-Request-Id: " + watsonxAISDKRequestId);
+                joiner.add("- url: " + response.uri());
+                joiner.add("- status code: " + response.statusCode());
+
+                if (nonNull(response.headers())) {
+                    joiner.add("- headers: " + HttpUtils.inOneLine(response.headers().map()));
+
+                    var contentType = response.headers().firstValue("Content-Type");
+
+                    if (contentType.isPresent() && contentType.get().contains("application/json"))
+                        prettyPrint = true;
+                }
+
+                if (nonNull(body)) {
+                    body = maskSecrets(body);
+                    body = prettyPrint ? Json.prettyPrint(body) : body;
+                    joiner.add("- body: " + body);
+                }
+
+                return joiner.toString();
+
+            } catch (Exception e) {
+                return "Failed to log response: " + e.getMessage();
+            }
+        });
+    }
+
+    private void logRequest(HttpRequest request, String body) {
+        if (nonNull(requestLogger)) {
+            String formatted = formatBase64Image(body);
+            formatted = maskSecrets(formatted);
+            var entry = HttpRequestLog.of(request, formatted);
+            ExecutorProvider.callbackExecutor().execute(() -> {
+                try {
+                    requestLogger.log(entry);
+                } catch (Exception e) {
+                    logger.warn("Failed to log request", e);
+                }
+            });
+            return;
+        }
+
+        WatsonxLogSupport.info(logger, () -> {
+            StringJoiner joiner = new StringJoiner("\n", "Request:\n", "");
+            joiner.add("- method: " + request.method());
+            joiner.add("- url: " + request.uri());
+
+            if (nonNull(request.headers())) {
+                joiner.add("- headers: " + HttpUtils.inOneLine(request.headers().map()));
+                if (nonNull(body)) {
+                    String formatted = formatBase64Image(body);
+                    formatted = maskSecrets(formatted);
+
+                    var contentType = request.headers().firstValue("Content-Type");
+
+                    if (contentType.isPresent() && contentType.get().contains("application/json"))
+                        formatted = Json.prettyPrint(formatted);
+
+                    joiner.add("- body: " + formatted);
+                }
+            }
+
+            return joiner.toString();
+        });
+    }
+
+    private boolean isNonRepeatablePublisher(HttpRequest.BodyPublisher publisher) {
+        String className = publisher.getClass().getName();
+        return className.contains("StreamPublisher") ||
+            className.contains("FilePublisher") ||
+            className.contains("InputStream") ||
+            className.contains("BufferedInputStream");
+    }
+
+    private String maskSecrets(String body) {
+
+        if (body == null || body.isBlank())
+            return body;
+
+        Matcher jsonMatcher = JSON_SECRET_PATTERN.matcher(body);
+        StringBuffer sb = new StringBuffer();
+        while (jsonMatcher.find())
+            jsonMatcher.appendReplacement(sb, Matcher.quoteReplacement("\"" + jsonMatcher.group(1) + "\": \"***\""));
+        jsonMatcher.appendTail(sb);
+        body = sb.toString();
+
+        Matcher formMatcher = FORM_SECRET_PATTERN.matcher(body);
+        sb = new StringBuffer();
+
+        while (formMatcher.find())
+            formMatcher.appendReplacement(sb, Matcher.quoteReplacement(formMatcher.group(1) + "=***"));
+
+        formMatcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    private String formatBase64Image(String body) {
+
+        if (body == null || body.isBlank())
+            return body;
+
+        Matcher matcher = BASE64_IMAGE_PATTERN.matcher(body);
+        StringBuffer sb = new StringBuffer();
+
+        while (matcher.find())
+            matcher.appendReplacement(sb, matcher.group(1) + matcher.group(2) + "...");
+
+        matcher.appendTail(sb);
+        body = sb.toString();
+
+        matcher = BASE64_AUDIO_PATTERN.matcher(body);
+        sb = new StringBuffer();
+
+        while (matcher.find())
+            matcher.appendReplacement(sb, matcher.group(1) + matcher.group(2) + "...");
+
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Specifies which parts of the HTTP transaction should be logged.
+     */
+    public enum LogMode {
+
+        /**
+         * No log.
+         */
+        DISABLED,
+
+        /**
+         * Log only the HTTP request.
+         */
+        REQUEST,
+
+        /**
+         * Log only the HTTP response.
+         */
+        RESPONSE,
+
+        /**
+         * Log both the HTTP request and the HTTP response.
+         */
+        BOTH;
+
+        /**
+         * Creates a LogMode enum value based on the given logRequest and logResponse booleans.
+         *
+         * @param logRequest true if request logging is desired, false otherwise
+         * @param logResponse true if response logging is desired, false otherwise
+         * @return The appropriate LogMode enum value based on the input booleans
+         */
+        public static LogMode of(boolean logRequest, boolean logResponse) {
+            if (logRequest && logResponse)
+                return BOTH;
+
+            if (logRequest)
+                return REQUEST;
+
+            if (logResponse)
+                return RESPONSE;
+
+            return DISABLED;
+        }
+    }
+}
