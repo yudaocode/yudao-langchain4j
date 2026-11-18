@@ -227,3 +227,10 @@ The 78-module reactor passed Maven `validate`. The new module passed native Java
 The compatibility BOM includes `langchain4j-onnx-scoring` with ONNX Runtime 1.23.2 and DJL 0.40.0. The test fixture uses pinned Xenova MiniLM model and tokenizer files. Pass `-Dlangchain4j.test.scoring-fixture-dir=/path/to/fixtures` to use verified local files in disconnected test environments. Both files are checked by SHA-256.
 
 The new module has 13 unit and 5 real inference integration tests on native Java 8. An installed consumer under Boot 2.7.18 dependency management also ranks real passages on Java 8 with 23 runtime JARs and 6,247 Java 8 base classes. The 79-module project passes Maven `validate`; the previously validated unit-test checkpoint and the new component suite are recorded separately.
+
+
+## MCP Docker transport on Java 8
+
+The BOM includes `langchain4j-mcp-docker` and retains docker-java 3.7.1. The test fixture accepts an explicit Unix engine socket via `-Dlangchain4j.test.docker-host=unix:///...`; the shipped default remains `/var/run/docker.sock`. The STDERR unit test uses a local logger instead of relying on global static initialization order. The real container tests cover MCP initialize, discovery, tool execution, and error propagation with `mcp/time` and `mcp/everything`.
+
+An independent consumer managed by Boot 2.7.18 opens the real Docker engine, starts the server, invokes the time tool and closes the client on native Java 8. Its 42 JARs and 16,214 base classes are Java 8 compatible. Keep HttpClient 5.6.5 and HttpCore 5.4.4 when Boot 2 manages these dependencies. The 80-module reactor passes Maven `validate`; 13 unit and 4 container integration tests were run in the affected module.

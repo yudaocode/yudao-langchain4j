@@ -145,7 +145,13 @@ Easy RAG 批次覆盖 78 个 Java 8 默认模块。
 
 导入本分支 BOM 后，加入 `cn.iocoder.langchain4j:langchain4j-onnx-scoring`。准备排序模型的 ONNX 文件和 `tokenizer.json`，使用 `new OnnxScoringModel(modelPath, tokenizerPath, 512)`，通过 `scoreAll(segments, query)` 对段落评分，使用完后关闭模型。
 
-保持 ONNX Runtime `1.23.2` 和 DJL `0.40.0`。原生 JDK 8 用量化 MiniLM 实际推理。ONNX 排序加入后共 79 个默认模块。
+保持 ONNX Runtime `1.23.2` 和 DJL `0.40.0`。原生 JDK 8 用量化 MiniLM 实际推理。该批次覆盖 79 个默认模块。
+
+## MCP Docker Transport（JDK 8）
+
+导入本分支 BOM 后，引入 `cn.iocoder.langchain4j:langchain4j-mcp-docker`。用 `DockerMcpTransport.builder().dockerHost(dockerHost).image(image).build()` 创建传输对象，再传给 `DefaultMcpClient.Builder.transport(...)`。退出时关闭客户端，由它释放容器。
+
+保留 `docker-java:3.7.1`。使用 Boot 2 父 POM 时，设置 `httpclient5.version=5.6.5`、`httpcore5.version=5.4.4`，使已安装传输层能加载相应 HTTP API。MCP Docker 加入后，Java 8 默认构建有 80 个模块。
 
 ---
 

@@ -20,6 +20,7 @@ class DockerResultCallback extends ResultCallback.Adapter<Frame> {
 
     private final boolean logEvents;
     private final Logger trafficLog;
+    private final Logger diagnosticLog;
     private final McpOperationHandler messageHandler;
 
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -30,16 +31,21 @@ class DockerResultCallback extends ResultCallback.Adapter<Frame> {
     }
 
     public DockerResultCallback(boolean logEvents, Logger logger, McpOperationHandler messageHandler) {
+        this(logEvents, logger, messageHandler, LOG);
+    }
+
+    DockerResultCallback(boolean logEvents, Logger logger, McpOperationHandler messageHandler, Logger diagnosticLog) {
         this.logEvents = logEvents;
         this.messageHandler = messageHandler;
         this.trafficLog = getOrDefault(logger, DEFAULT_TRAFFIC_LOG);
+        this.diagnosticLog = diagnosticLog;
     }
 
     @Override
     public void onNext(Frame frame) {
         String frameStr = new String(frame.getPayload(), StandardCharsets.UTF_8);
         if (frame.getStreamType() == StreamType.STDERR) {
-            LOG.debug("[STDERR] {}", frameStr);
+            diagnosticLog.debug("[STDERR] {}", frameStr);
         } else if (frame.getStreamType() == StreamType.STDOUT) {
             this.send(frameStr);
         }

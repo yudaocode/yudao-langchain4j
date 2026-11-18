@@ -55,6 +55,7 @@
         <module>langchain4j-qdrant</module>
         <module>langchain4j-easy-rag</module>
         <module>langchain4j-onnx-scoring</module>
+        <module>langchain4j-mcp-docker</module>
     </modules>
     <properties>
         <langchain4j.stable.version>1.24.0-jdk8-SNAPSHOT</langchain4j.stable.version>

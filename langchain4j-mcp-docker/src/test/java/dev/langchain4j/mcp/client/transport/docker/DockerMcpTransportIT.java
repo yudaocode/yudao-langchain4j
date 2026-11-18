@@ -15,7 +15,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -26,13 +27,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @EnabledIf("dockerSocketExists")
 class DockerMcpTransportIT {
+    private static final String DOCKER_HOST = System.getProperty("langchain4j.test.docker-host", "unix:///var/run/docker.sock");
+
     private static McpClient mcpClient;
 
     @BeforeAll
     static void setup() {
         McpTransport transport = new DockerMcpTransport.Builder()
                 .image("mcp/time")
-                .dockerHost("unix:///var/run/docker.sock")
+                .dockerHost(DOCKER_HOST)
                 .logEvents(true)
                 .build();
         // The protocol version is pinned because the mcp/time image ships a legacy server that
@@ -53,7 +56,8 @@ class DockerMcpTransportIT {
     }
 
     static boolean dockerSocketExists() {
-        return Files.exists(Path.of("/var/run/docker.sock"));
+        URI host = URI.create(DOCKER_HOST);
+        return "unix".equals(host.getScheme()) && Files.exists(Paths.get(host.getPath()));
     }
 
     @Test
@@ -92,26 +96,27 @@ class DockerMcpTransportIT {
     }
 
     @Test
-    public void executeABiggerTool() {
+    public void executeABiggerTool() throws Exception {
         McpTransport transport = new DockerMcpTransport.Builder()
                 .image("mcp/everything")
-                .dockerHost("unix:///var/run/docker.sock")
+                .dockerHost(DOCKER_HOST)
                 .logEvents(true)
                 .build();
-        McpClient mcpClient = new DefaultMcpClient.Builder()
+        try (McpClient mcpClient = new DefaultMcpClient.Builder()
                 .transport(transport)
                 .toolExecutionTimeout(Duration.ofSeconds(4))
-                .build();
+                .build()) {
 
-        ToolProviderResult toolProviderResult =  McpToolProvider.builder().mcpClients(mcpClient).build().provideTools(null);
-        ToolExecutor executor = toolProviderResult.toolExecutorByName("add");
-        ToolExecutionRequest toolExecutionRequest = ToolExecutionRequest.builder()
-                .name("add")
-                .arguments("{\"a\": 5, \"b\": 6}")
-                .build();
-        String toolExecutionResultString = executor.execute(toolExecutionRequest, null);
-        assertThat(toolExecutionResultString).isNotNull();
-        assertThat(toolExecutionResultString).contains("11");
+            ToolProviderResult toolProviderResult =  McpToolProvider.builder().mcpClients(mcpClient).build().provideTools(null);
+            ToolExecutor executor = toolProviderResult.toolExecutorByName("add");
+            ToolExecutionRequest toolExecutionRequest = ToolExecutionRequest.builder()
+                    .name("add")
+                    .arguments("{\"a\": 5, \"b\": 6}")
+                    .build();
+            String toolExecutionResultString = executor.execute(toolExecutionRequest, null);
+            assertThat(toolExecutionResultString).isNotNull();
+            assertThat(toolExecutionResultString).contains("11");
+        }
     }
 
     @Test
