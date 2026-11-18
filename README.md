@@ -264,6 +264,10 @@ module=internal/langchain4j-docu-chatbot-updater
 
 导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-reactive-streaming`。该模块使用兼容版 Mutiny Zero 1.3.1 和 Spring AI 的 Java 8 Flow API，已验证六种背压策略及 Boot 2 安装包的上游取消行为。构建会生成二进制、源码和 Javadoc 制品。
 
+## 构建制品（JDK 8 路线）
+
+使用 JDK 17 构建和生成 Javadoc。发布的库编译为 Java 8 字节码，单测和安装包消费验证可用实际 JDK 8 运行。使用 Jackson 2 的 Java 8 制品已纳入默认 BOM。Jackson 3 和依赖较新 JVM 的原生推理扩展保留上游环境要求。
+
 ---
 
 # LangChain4j: idiomatic, open-source Java library for building LLM-powered applications on the JVM

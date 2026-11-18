@@ -358,3 +358,8 @@ The Java 8 artifact runs Hot Rod 13.0.22.Final with ProtoStream 4.4.4.Final. It 
 ## Mutiny Zero artifacts
 
 The Java 8 Mutiny Zero compatibility artifact builds its Javadoc with the Java 8 Flow compatibility ABI, while the source-level switch selects exactly the upstream backpressure implementations. Six native Java 8 test cases exercise the policies. An independent Spring Boot 2.7.18 installation exercises completion and cancellation through the reactive streaming artifact.
+
+
+## Core artifact build
+
+Javadoc reads the generated sources with JDK 17 syntax support. Main Java compilation still targets Java 8. The core suite executes 1856 cases on Java 8, with 6 conditional skips. A separate Boot 2.7.18 program loads the installed core artifacts and round-trips Unicode chat messages through the JSON serializer.
