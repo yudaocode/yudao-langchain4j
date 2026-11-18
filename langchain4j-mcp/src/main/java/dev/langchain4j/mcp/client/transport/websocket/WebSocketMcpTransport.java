@@ -195,13 +195,16 @@ public class WebSocketMcpTransport implements McpTransport {
      * the HTTP client: the next {@link #start} opens a new connection.
      */
     @Override
-    public synchronized void stop() {
-        connectionToken = null;
-        initializeRequest = null;
-        CompletableFuture<WebSocket> current = webSocketRef.getAndSet(null);
+    public void stop() {
+        CompletableFuture<WebSocket> current;
+        synchronized (this) {
+            connectionToken = null;
+            initializeRequest = null;
+            current = webSocketRef.getAndSet(null);
+        }
         if (current != null) {
-            // Not sendClose(): a server that does not answer would keep the connection open, and a late answer
-            // would reach the close callback, which would then forget the connection of the next start().
+            // Abort without holding the transport monitor. The WebSocket client can invoke its close callback
+            // while holding its own lock, and that callback acquires the transport monitor.
             current.thenAccept(WebSocket::abort);
         }
     }

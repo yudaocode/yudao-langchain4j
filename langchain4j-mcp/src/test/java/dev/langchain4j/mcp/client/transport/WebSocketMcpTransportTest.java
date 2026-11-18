@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,6 +86,11 @@ class WebSocketMcpTransportTest {
         WebSocket webSocket = mock(WebSocket.class);
         WebSocketMcpTransport transport =
                 WebSocketMcpTransport.builder().url("ws://localhost/mcp").build();
+        AtomicBoolean heldTransportMonitor = new AtomicBoolean();
+        doAnswer(invocation -> {
+            heldTransportMonitor.set(Thread.holdsLock(transport));
+            return null;
+        }).when(webSocket).abort();
         webSocketRef(transport).set(CompletableFuture.completedFuture(webSocket));
 
         transport.stop();
@@ -91,6 +98,7 @@ class WebSocketMcpTransportTest {
         // the connection is aborted and forgotten, so that the next start opens a new one, while the transport
         // itself, unlike after close(), is still usable
         verify(webSocket).abort();
+        assertThat(heldTransportMonitor).as("abort can invoke a transport close callback").isFalse();
         assertThat(webSocketRef(transport).get()).isNull();
         assertThat(isClosed(transport)).isFalse();
 

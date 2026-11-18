@@ -47,7 +47,7 @@ class QdrantEmbeddingStoreIT extends EmbeddingStoreWithFilteringIT {
     private static final String COLLECTION_NAME = "langchain4j-" + randomUUID();
 
     @Container
-    private static final QdrantContainer QDRANT_CONTAINER = new QdrantContainer("qdrant/qdrant:latest");
+    private static final QdrantContainer QDRANT_CONTAINER = new QdrantContainer("qdrant/qdrant:v1.20.0");
 
     private static QdrantEmbeddingStore EMBEDDING_STORE;
     private static final EmbeddingModel EMBEDDING_MODEL = new AllMiniLmL6V2QuantizedEmbeddingModel();

@@ -204,3 +204,12 @@ The complete76-module clean install unit gate passed8887 executions, zero failur
 Six-loader component acceptance passed24 native8 cases with zero skips (15unit,3 protocol,4 Azurite,2 browser). The independent Boot2 parent consumer passed12 native8 cases with zero skips, including context/version checks and guarded SDK fallback paths. These are distinct runs, not one combined full-suite count.
 
 Runtime scan including standalone consumers:78 classpath files,587 jars,175864 effective base classes, none above Java8 major52. The static API audit keeps60 third-party findings rather than deleting guarded modern-JDK implementations. No live S3/Azure/GCS/COS account, all browser engines or every SDK feature is claimed.
+
+
+## Qdrant 1.20.0 on Java 8
+
+Use `cn.iocoder.langchain4j:langchain4j-qdrant` from the Java 8 BOM. The module keeps the Qdrant Java Client at 1.20.0. Its integration tests use the matching server image and native Java 8. The installed consumer opens a gRPC connection, creates a test collection, writes and filters a UTF-8 text segment, then deletes it. The native runtime dependency graph contains 38 JARs and 13,870 base classes, all at Java 8 class-file level.
+
+The native Java 8 Qdrant suite has 19 unit tests and 71 integration cases, with one negative case conditionally disabled because the backend supports contains filtering. The 77-module default unit run reports 8,906 cases (7,724 native Java 8, 1,182 modern fixtures) and 102 conditional skips. The container integration count is reported separately.
+
+The Java 8 MCP WebSocket transport now clears its connection state under the transport monitor and aborts the detached connection outside that monitor. The reader can invoke its close callback while holding the WebSocket implementation lock. The regression test verifies that stop releases the transport monitor before calling abort, and the local WebSocket server tests cover a silent peer and a stale close callback.

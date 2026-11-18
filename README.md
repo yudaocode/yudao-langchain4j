@@ -104,9 +104,26 @@ OpenSearch 扩展已加入 JDK8 默认构建，复用 SDK **3.11.0** 的独立�
 支持范围、构建步骤与验证边界见 **`main-jdk8` 分支的 [COMPATIBILITY.md](https://github.com/yudaocode/yudao-langchain4j/blob/main-jdk8/COMPATIBILITY.md)**。BOM 仅列入已纳入兼容构建的模块；其余上游模块源码保留，不代表已经支持 Java 8。
 
 
-新增 **S3、Azure Blob、GCS、腾讯 COS、Playwright、Selenium** 六个文档加载器，当前默认兼容范围为 **76 个 Maven 模块**。按需引入 `cn.iocoder.langchain4j:langchain4j-document-loader-…`，beta 版本由 BOM 管理；完整 POM、SDK 版本和调用示例见[文档加载器用法](document-loaders/README-JAVA8.md)。Selenium 使用官方最后支持 Java8 的 `4.13.0`，其余五类 SDK 保留上游基线；Boot2 父 POM 的版本覆盖示例见[独立消费者](compatibility-tests/boot2-document-loaders)。
+新增 **S3、Azure Blob、GCS、腾讯 COS、Playwright、Selenium** 六个文档加载器，该批次覆盖 **76 个 Maven 模块**。按需引入 `cn.iocoder.langchain4j:langchain4j-document-loader-…`，beta 版本由 BOM 管理；完整 POM、SDK 版本和调用示例见[文档加载器用法](document-loaders/README-JAVA8.md)。Selenium 使用官方最后支持 Java8 的 `4.13.0`，其余五类 SDK 保留上游基线；Boot2 父 POM 的版本覆盖示例见[独立消费者](compatibility-tests/boot2-document-loaders)。
 
 76模块完整单测8887项零失败/错误、102条件跳过（7705 native8，1182现代fixture17）；组件24项、独立Boot2消费12项原生8全部通过且零跳过。Playwright另保留原8项浏览器断言并通过原生8实跑。扫描587jar/175864基础类无高于Java8字节码；第三方受guard API引用仍保留审计，不代表全部云账号或外部服务验收。详见兼容说明。
+
+## Qdrant 向量存储（JDK 8）
+
+导入本分支 BOM 后，按需引入：
+
+```xml
+<dependency>
+    <groupId>cn.iocoder.langchain4j</groupId>
+    <artifactId>langchain4j-qdrant</artifactId>
+</dependency>
+```
+
+保留上游 Qdrant Java Client `1.20.0`。在服务端创建与 embedding 维度一致的集合后，使用 `QdrantEmbeddingStore.builder().host(host).port(6334).collectionName(collection).build()`。端口为 gRPC 端口，TLS 和 API key 按部署配置。应用退出时调用 `close()`。
+
+Java 8 路线现有 77 个默认模块，单测 8,906 项。Qdrant 在原生 JDK8 通过 19 项单测；真实 Qdrant 1.20.0 容器有 70 项通过、1 项按上游条件跳过。独立安装包也验证了向量写入、元数据过滤与删除。
+
+本批同时修复 Java 8 MCP WebSocket 停止连接时，与关闭回调相互等待的问题。已有连接立即中止，正在建立的连接仍在打开后中止。
 
 ---
 
