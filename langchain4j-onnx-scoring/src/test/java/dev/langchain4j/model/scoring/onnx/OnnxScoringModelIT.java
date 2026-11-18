@@ -3,15 +3,20 @@ package dev.langchain4j.model.scoring.onnx;
 import ai.onnxruntime.OrtSession;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.output.Response;
-import dev.langchain4j.model.scoring.ScoringModel;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,28 +30,40 @@ class OnnxScoringModelIT {
     @TempDir
     private static Path tempDir;
 
-    private static ScoringModel model;
+    private static OnnxScoringModel model;
 
     private static Path modelPath;
     private static Path tokenizerPath;
 
+    private static final String FIXTURE_BASE =
+            "https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/a09144355adeed5f58c8ed011d209bf8ee5a1fec/";
+
     @BeforeAll
-    static void initModel() throws IOException {
-
-        // I set up a local proxy to download the model
-        // System.setProperty("https.proxyHost","127.0.0.1" );
-        // System.setProperty("https.proxyPort","7890" );
-
-        URL modelUrl = new URL("https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/main/onnx/model_quantized.onnx?download=true");
-        modelPath = tempDir.resolve("model_quantized.onnx");
-        Files.copy(modelUrl.openStream(), modelPath, REPLACE_EXISTING);
-
-        URL tokenizerUrl = new URL("https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/main/tokenizer.json?download=true");
-        tokenizerPath = tempDir.resolve("tokenizer.json");
-        Files.copy(tokenizerUrl.openStream(), tokenizerPath, REPLACE_EXISTING);
-
-        // To check the modelMaxLength parameter, refer to the model configuration file at  https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2/resolve/main/tokenizer_config.json
+    static void initModel() throws IOException, NoSuchAlgorithmException {
+        modelPath = fixture("onnx/model_quantized.onnx", "e9d8ebf845c413e981c175bfe49a3bfa9b3dcce2a3ba54875ee5df5a58639fbe");
+        tokenizerPath = fixture("tokenizer.json", "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66");
         model = new OnnxScoringModel(modelPath.toString(), new OrtSession.SessionOptions(), tokenizerPath.toString(), 512, false);
+    }
+
+    @AfterAll
+    static void closeModel() {
+        if (model != null) {
+            model.close();
+        }
+    }
+
+    private static Path fixture(String path, String expectedSha256) throws IOException, NoSuchAlgorithmException {
+        Path file = Paths.get(path).getFileName();
+        String localDirectory = System.getProperty("langchain4j.test.scoring-fixture-dir");
+        Path fixture = localDirectory == null ? tempDir.resolve(file) : Paths.get(localDirectory).resolve(file);
+        if (localDirectory == null) {
+            try (InputStream in = new URL(FIXTURE_BASE + path + "?download=true").openStream()) {
+                Files.copy(in, fixture, REPLACE_EXISTING);
+            }
+        }
+        byte[] checksum = MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(fixture));
+        assertThat(String.format("%064x", new BigInteger(1, checksum))).as(path).isEqualTo(expectedSha256);
+        return fixture;
     }
 
     private OnnxScoringModel createModel() {

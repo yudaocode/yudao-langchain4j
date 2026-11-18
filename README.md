@@ -139,7 +139,13 @@ List<Content> matches = EmbeddingStoreContentRetriever.from(store)
 
 上述本地流程可直接在 JDK 8 运行。若需要让模型根据检索内容生成答案，再将检索器和 ChatModel 接入 `AiServices`。
 
-Easy RAG 纳入后，Java 8 路线共有 78 个默认模块。
+Easy RAG 批次覆盖 78 个 Java 8 默认模块。
+
+## ONNX 文本排序（JDK 8）
+
+导入本分支 BOM 后，加入 `cn.iocoder.langchain4j:langchain4j-onnx-scoring`。准备排序模型的 ONNX 文件和 `tokenizer.json`，使用 `new OnnxScoringModel(modelPath, tokenizerPath, 512)`，通过 `scoreAll(segments, query)` 对段落评分，使用完后关闭模型。
+
+保持 ONNX Runtime `1.23.2` 和 DJL `0.40.0`。原生 JDK 8 用量化 MiniLM 实际推理。ONNX 排序加入后共 79 个默认模块。
 
 ---
 

@@ -220,3 +220,10 @@ The Java 8 MCP WebSocket transport now clears its connection state under the tra
 `cn.iocoder.langchain4j:langchain4j-easy-rag` is in the default reactor and the Java 8 BOM. Its SPI-provided Tika HTML parser, token-based recursive splitter and bundled quantized BGE small en v1.5 model run together on native Java 8. The local test parses and ingests an HTML document and retrieves the generated text segment. An installed-artifact consumer managed by the Boot 2.7.18 parent and the compatibility BOM passes the same workflow on native Java 8 with 109 runtime JARs and 31,097 base classes at Java 8 bytecode level. The upstream OpenAI integration test remains conditional on `OPENAI_API_KEY`.
 
 The 78-module reactor passed Maven `validate`. The new module passed native Java 8 `clean install` and `verify`; the previous 77-module unit-test checkpoint is recorded above.
+
+
+## ONNX text scoring on Java 8
+
+The compatibility BOM includes `langchain4j-onnx-scoring` with ONNX Runtime 1.23.2 and DJL 0.40.0. The test fixture uses pinned Xenova MiniLM model and tokenizer files. Pass `-Dlangchain4j.test.scoring-fixture-dir=/path/to/fixtures` to use verified local files in disconnected test environments. Both files are checked by SHA-256.
+
+The new module has 13 unit and 5 real inference integration tests on native Java 8. An installed consumer under Boot 2.7.18 dependency management also ranks real passages on Java 8 with 23 runtime JARs and 6,247 Java 8 base classes. The 79-module project passes Maven `validate`; the previously validated unit-test checkpoint and the new component suite are recorded separately.
