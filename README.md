@@ -203,7 +203,11 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 ## Elasticsearch（JDK 8）
 
-导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-elasticsearch`，使用 `ElasticsearchEmbeddingStore.builder()` 配置客户端及索引。Java 8 路线使用 Elasticsearch Java 与 REST 客户端 `8.19.25`，Spring Boot 2.7.18 中对应 `elasticsearch.version=8.19.25`、`jakarta-json.version=2.1.3` 和 `jackson-bom.version=2.21.4`。使用 RRF 混合检索和返回向量时，服务端还需支持对应 API。Java 8 默认构建共 102 个模块。
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-elasticsearch`，使用 `ElasticsearchEmbeddingStore.builder()` 配置客户端及索引。Java 8 路线使用 Elasticsearch Java 与 REST 客户端 `8.19.25`，Spring Boot 2.7.18 中对应 `elasticsearch.version=8.19.25`、`jakarta-json.version=2.1.3` 和 `jackson-bom.version=2.21.4`。使用 RRF 混合检索和返回向量时，服务端还需支持对应 API。Elasticsearch 批次覆盖 102 个默认模块。
+
+## Oracle Coherence（JDK 8）
+
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-coherence`。先安装 [Spring AI Java 8 Coherence 兼容包](https://github.com/yudaocode/yudao-spring-ai/tree/main-jdk8/compatibility/coherence-ai) `cn.iocoder.spring-ai:spring-ai-coherence-ai-compat:2.1.0-jdk8-SNAPSHOT`。构造 `CoherenceEmbeddingStore` 或 `CoherenceChatMemoryStore` 时可以传入 Java 8 的 `Session.create()` 结果，也可以使用默认缓存工厂。字符串命名 Session 属于现代版本路线。POF 应用使用 `coherence.pof.config=langchain4j-coherence-java8-pof-config.xml` 或在自己的 POF 配置中包含它。Java 8 默认构建共 103 个模块。
 
 ---
 

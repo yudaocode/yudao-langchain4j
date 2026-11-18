@@ -12,8 +12,8 @@ import com.oracle.coherence.ai.Vector;
 import com.oracle.coherence.ai.VectorIndexExtractor;
 import com.oracle.coherence.ai.search.SimilaritySearch;
 import com.tangosol.internal.util.processor.CacheProcessors;
-import com.tangosol.net.Coherence;
-import com.tangosol.net.NamedMap;
+import com.tangosol.net.CacheFactory;
+import com.tangosol.net.NamedCache;
 import com.tangosol.net.Session;
 import com.tangosol.util.Filter;
 import com.tangosol.util.UUID;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An {@link EmbeddingStore} backed by an Oracle Coherence {@link NamedMap}.
+ * An {@link EmbeddingStore} backed by an Oracle Coherence {@link NamedCache}.
  */
 public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
     /**
@@ -45,14 +45,14 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
             ValueExtractor.of(DocumentChunk::vector);
 
     /**
-     * The default {@link NamedMap} name.
+     * The default {@link NamedCache} name.
      */
     public static final String DEFAULT_MAP_NAME = "documentChunks";
 
     /**
-     * The {@link NamedMap} used to store the {@link DocumentChunk document chunks}.
+     * The {@link NamedCache} used to store the {@link DocumentChunk document chunks}.
      */
-    protected final NamedMap<DocumentChunk.Id, DocumentChunk> documentChunks;
+    protected final NamedCache<DocumentChunk.Id, DocumentChunk> documentChunks;
 
     protected final boolean normalizeEmbeddings;
 
@@ -62,11 +62,11 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
      * This method is protected, instances of {@link CoherenceEmbeddingStore}
      * are created using the builder.
      *
-     * @param namedMap             the {@link NamedMap} to contain the {@link DocumentChunk document chunks}
+     * @param namedMap             the {@link NamedCache} to contain the {@link DocumentChunk document chunks}
      * @param normalizeEmbeddings  {@code true} if this {@link CoherenceEmbeddingStore} should call
      *                             {@link Embedding#normalize()} on embeddings when adding or searching
      */
-    protected CoherenceEmbeddingStore(NamedMap<DocumentChunk.Id, DocumentChunk> namedMap, boolean normalizeEmbeddings) {
+    protected CoherenceEmbeddingStore(NamedCache<DocumentChunk.Id, DocumentChunk> namedMap, boolean normalizeEmbeddings) {
         this.documentChunks = namedMap;
         this.normalizeEmbeddings = normalizeEmbeddings;
     }
@@ -141,7 +141,8 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
         Float32Vector vector = new Float32Vector(queryEmbedding.vector());
 
         SimilaritySearch<DocumentChunk.Id, DocumentChunk, float[]> aggregator =
-                new SimilaritySearch<>(EXTRACTOR, vector, request.maxResults());
+                new SimilaritySearch<DocumentChunk.Id, DocumentChunk, float[]>(EXTRACTOR, vector, request.maxResults())
+                        .withResultSerializer(documentChunks.getCacheService().getSerializer());
         if (filter != null) {
             aggregator = aggregator.filter(filter);
         }
@@ -255,9 +256,9 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
 
     /**
      * Create a {@link CoherenceEmbeddingStore} that uses the
-     * specified Coherence {@link NamedMap} name.
+     * specified Coherence {@link NamedCache} name.
      *
-     * @param name  the name of the Coherence {@link NamedMap} used to store documents
+     * @param name  the name of the Coherence {@link NamedCache} used to store documents
      *
      * @return a {@link CoherenceEmbeddingStore}
      */
@@ -267,13 +268,13 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
 
     /**
      * Create a {@link CoherenceEmbeddingStore} that uses the
-     * specified Coherence {@link NamedMap} name.
+     * specified Coherence {@link NamedCache} name.
      *
-     * @param map  the {@link NamedMap} used to store documents
+     * @param map  the {@link NamedCache} used to store documents
      *
      * @return a {@link CoherenceEmbeddingStore}
      */
-    public static CoherenceEmbeddingStore create(NamedMap<DocumentChunk.Id, DocumentChunk> map) {
+    public static CoherenceEmbeddingStore create(NamedCache<DocumentChunk.Id, DocumentChunk> map) {
         return new CoherenceEmbeddingStore(map, false);
     }
 
@@ -291,22 +292,22 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
      */
     public static class Builder {
         /**
-         * The name of the {@link NamedMap} to contain the {@link DocumentChunk document chunks}.
+         * The name of the {@link NamedCache} to contain the {@link DocumentChunk document chunks}.
          */
         private String name = DEFAULT_MAP_NAME;
 
         /**
-         * The name of the {@link Session} to use to obtain the {@link NamedMap}.
+         * The name of the {@link Session} to use to obtain the {@link NamedCache}.
          */
         private String sessionName;
 
         /**
-         * The {@link Session} to use to obtain the {@link NamedMap}.
+         * The {@link Session} to use to obtain the {@link NamedCache}.
          */
         private Session session;
 
         /**
-         * The {@link VectorIndexExtractor} to use to create a vector index used to query the {@link NamedMap}.
+         * The {@link VectorIndexExtractor} to use to create a vector index used to query the {@link NamedCache}.
          */
         private VectorIndexExtractor<DocumentChunk, float[]> extractor;
 
@@ -321,10 +322,10 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
         protected Builder() {}
 
         /**
-         * Set the name of the {@link NamedMap} that will hold the
+         * Set the name of the {@link NamedCache} that will hold the
          * {@link DocumentChunk document chunks}.
          *
-         * @param name  the name of the {@link NamedMap} that will hold
+         * @param name  the name of the {@link NamedCache} that will hold
          *              the {@link DocumentChunk document chunks}
          *
          * @return this builder for fluent method calls
@@ -335,10 +336,10 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
         }
 
         /**
-         * Set the name of the {@link Session} to use to obtain the
-         * document chunk {@link NamedMap}.
+         * Select the default by passing {@code null}. For an application-specific
+         * Java 8 session, use {@link #session(Session)}.
          *
-         * @param sessionName  the session name
+         * @param sessionName  {@code null} for the default cache factory
          *
          * @return this builder for fluent method calls
          */
@@ -350,7 +351,7 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
 
         /**
          * Set the {@link Session} to use to obtain the
-         * document chunk {@link NamedMap}.
+         * document chunk {@link NamedCache}.
          *
          * @param session  the {@link Session} to use
          *
@@ -363,7 +364,7 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
         }
 
         /**
-         * Set the vector index to add to the underlying {@link NamedMap}.
+         * Set the vector index to add to the underlying {@link NamedCache}.
          *
          * @param extractor  the {@link VectorIndexExtractor} to use to create the index
          *
@@ -393,17 +394,12 @@ public class CoherenceEmbeddingStore implements EmbeddingStore<TextSegment> {
          * @return a new instance of a {@link CoherenceEmbeddingStore}
          */
         public CoherenceEmbeddingStore build() {
-            Session session = this.session;
-            if (session == null) {
-                if (sessionName != null) {
-                    session = Coherence.getInstance().getSession(sessionName);
-                } else {
-                    session = Coherence.getInstance().getSession();
-                }
+            if (session == null && sessionName != null) {
+                throw new UnsupportedOperationException("Named Coherence sessions require the modern route. Pass a Session on Java 8.");
             }
-            NamedMap<DocumentChunk.Id, DocumentChunk> map = session.getMap(name);
+            NamedCache<DocumentChunk.Id, DocumentChunk> map = session == null ? CacheFactory.getCache(name) : session.getCache(name);
             if (extractor != null) {
-                map.addIndex(extractor);
+                map.addIndex(extractor, false, null);
             }
             return new CoherenceEmbeddingStore(map, normalizeEmbeddings);
         }

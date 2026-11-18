@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pof-config xmlns="http://xmlns.oracle.com/coherence/coherence-pof-config">
+    <user-type-list>
+        <include>coherence-ai-java8-pof-config.xml</include>
+        <user-type>
+            <type-id>4991</type-id>
+            <class-name>java.util.UUID</class-name>
+            <serializer>
+                <class-name>dev.langchain4j.store.coherence.UuidPofSerializer</class-name>
+            </serializer>
+        </user-type>
+    </user-type-list>
+</pof-config>

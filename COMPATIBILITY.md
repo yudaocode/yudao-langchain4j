@@ -307,3 +307,10 @@ All five upstream unit tests pass. The Boot 2.7.18 installed-artifact test pins 
 The Java 8 route uses the 8.19.25 Java and low-level REST clients. The adapter uses the 8.x RRF retriever and script builders. The REST client retains the required Commons Logging API. Jackson 3 is excluded from this artifact's runtime dependencies. Native Java 8 passes 45 tests, including the refresh query parameter over actual loopback HTTP for both REST construction paths.
 
 The independent Boot 2.7.18 project verifies a real Elasticsearch 8.5.3 server through script scoring, showing vector insertion, non-ASCII metadata filtering, retrieval and removal. Hybrid request construction is unit-tested. Hybrid features and source vector options on newer servers need the corresponding server-side support.
+
+
+## Coherence on Java 8
+
+The adapter reuses the Spring AI Java 8 build of Oracle vector capabilities 24.09 and the Coherence 14.1.1-0-29 runtime. Both stores use the Java 8 NamedCache API. Applications may pass an explicit Coherence Session. Named Session lookup from the current SDK is unavailable on Coherence 14.1. Configure POF with `langchain4j-coherence-java8-pof-config.xml` and use `jakarta-json-bind.version=2.0.0` with Boot 2.7.18.
+
+Java 8 passes 21 unit tests and 128 single-member Coherence integrations. Two existing contains-filter conditions skip. The independent installed project verifies Unicode vector and chat storage, UUID metadata filtering through POF, and the named-session compatibility boundary.

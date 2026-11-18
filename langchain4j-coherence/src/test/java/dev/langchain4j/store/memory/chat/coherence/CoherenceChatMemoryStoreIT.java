@@ -3,18 +3,8 @@ package dev.langchain4j.store.memory.chat.coherence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.oracle.bedrock.junit.CoherenceClusterExtension;
-import com.oracle.bedrock.junit.SessionBuilders;
-import com.oracle.bedrock.runtime.coherence.CoherenceClusterMember;
-import com.oracle.bedrock.runtime.coherence.options.ClusterName;
-import com.oracle.bedrock.runtime.coherence.options.LocalHost;
-import com.oracle.bedrock.runtime.coherence.options.RoleName;
-import com.oracle.bedrock.runtime.coherence.options.WellKnownAddress;
-import com.oracle.bedrock.runtime.java.options.IPv4Preferred;
-import com.oracle.bedrock.runtime.java.options.SystemProperty;
-import com.oracle.bedrock.runtime.options.DisplayName;
-import com.oracle.bedrock.testsupport.junit.TestLogsExtension;
 import com.tangosol.net.Session;
+import dev.langchain4j.store.coherence.CoherenceTestCluster;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.ChatMessageType;
 import dev.langchain4j.data.message.Content;
@@ -35,17 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class CoherenceChatMemoryStoreIT {
 
     @RegisterExtension
-    static TestLogsExtension testLogs = new TestLogsExtension();
-
-    @RegisterExtension
-    static CoherenceClusterExtension cluster = new CoherenceClusterExtension()
-            .with(
-                    ClusterName.of("NamedMapEmbeddingRepositoryIT"),
-                    WellKnownAddress.loopback(),
-                    LocalHost.only(),
-                    IPv4Preferred.autoDetect(),
-                    SystemProperty.of("coherence.serializer", "pof"))
-            .include(3, CoherenceClusterMember.class, DisplayName.of("storage"), RoleName.of("storage"), testLogs);
+    static CoherenceTestCluster cluster = new CoherenceTestCluster();
 
     static Session session;
 
@@ -55,7 +35,7 @@ class CoherenceChatMemoryStoreIT {
 
     @BeforeAll
     static void beforeAll() {
-        session = cluster.buildSession(SessionBuilders.storageDisabledMember(RoleName.of("test")));
+        session = cluster.session();
     }
 
     @BeforeEach
