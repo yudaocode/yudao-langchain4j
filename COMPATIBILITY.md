@@ -295,3 +295,8 @@ Azure Cosmos NoSQL keeps SDK 4.83.0, Couchbase 3.13.1, MongoDB Atlas driver 5.6.
 The independent Boot 2.7.18 project pins `couchbase-client.version=3.13.1`, `mongodb.version=5.6.0`, `reactor-bom.version=2024.0.18`, `netty.version=4.1.140.Final`, `gson.version=2.15.0`, `jackson-bom.version=2.21.4`, `okhttp.version=4.12.0`, `httpclient5.version=5.6.5`, and `httpcore5.version=5.4.4`.
 
 Installed-package tests verify Cosmos bulk operation mapping, Couchbase's SDK JSON serializer, Atlas BSON serialization, and Pinecone Protobuf metadata using local SDK boundary test doubles. Hosted services require their own acceptance runs.
+
+
+## Azure Container Apps Dynamic Sessions on Java 8
+
+All five upstream unit tests pass. The Boot 2.7.18 installed-artifact test pins the HTTP Client 5/Core 5 pair to 5.6.5/5.4.4 and verifies an arithmetic request and parsed response through the native Java 8 HTTP client, a loopback service, and a synthetic Azure credential. Azure-hosted execution requires a configured session pool and its own service acceptance.
