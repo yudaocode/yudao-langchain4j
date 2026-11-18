@@ -157,7 +157,13 @@ Easy RAG 批次覆盖 78 个 Java 8 默认模块。
 
 导入本分支 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-kotlin`。AI Services 接口可返回 `Flow<String>` 或 `Flow<StreamingChatModelReply>`，传入 `StreamingChatModel` 后按正常方式收集 Flow。也可用文档异步解析、模型调用和流式回调扩展。
 
-保留 Kotlin 编译器 `2.1.21`、stdlib `1.9.25` 和 Coroutines `1.8.1`。Boot 2 父 POM 消费验证采用对应的 `kotlin.version` 和 `kotlin-coroutines.version`。本批后 Java 8 默认构建共 81 个模块。
+保留 Kotlin 编译器 `2.1.21`、stdlib `1.9.25` 和 Coroutines `1.8.1`。Boot 2 父 POM 消费验证采用对应的 `kotlin.version` 和 `kotlin-coroutines.version`。Kotlin 批次覆盖 81 个默认模块。
+
+## Agentic A2A（JDK 8）
+
+导入 `cn.iocoder.langchain4j:langchain4j-bom:1.24.0-jdk8-SNAPSHOT` 后引入 `cn.iocoder.langchain4j:langchain4j-agentic-a2a`，通过 `AgenticServices.a2aBuilder(url, MyAgent.class)` 连接 A2A 服务。A2A Java SDK 1.5.1.Final 由 [AgentScope Java 8 兼容分支](https://github.com/yudaocode/yudao-agentscope-java/tree/main-jdk8) 提供，请先安装其 `agentscope-a2a-sdk-java8:2.1.0-jdk8-SNAPSHOT`。同一应用只使用一套 A2A SDK 制品。
+
+Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode/yudao-agentscope-java/blob/main-jdk8/JAVA8-COMPATIBILITY.md#a2anacos-与聚合包) 对齐 Gson、Jackson、HTTP Client 与 Reactor。Java 8 默认构建现有 82 个模块。
 
 ---
 

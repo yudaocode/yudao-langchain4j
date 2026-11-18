@@ -241,3 +241,10 @@ An independent consumer managed by Boot 2.7.18 opens the real Docker engine, sta
 The Kotlin module retains compiler 2.1.21, stdlib 1.9.25 and Coroutines 1.8.1. Its compiler checks the Java 8 API surface (`-Xjdk-release=1.8`). The loader tests use `Paths.get` on Java 8. Native Java 8 runs all 34 existing tests, including file traversal, async parsing, callback-based streaming, and AI Services returning Kotlin Flow.
 
 The 81-module reactor passes Maven `validate`. An independently built Kotlin application using the installed artifact and Boot 2.7.18 dependency management runs on Java 8, discovers the Flow adapter via SPI and receives two live streaming callback chunks. Its runtime graph has 22 JARs and 7,301 Java 8 base classes.
+
+
+## Agentic A2A on Java 8
+
+The Agentic A2A module consumes AgentScope's Java 8 build of A2A Java SDK 1.5.1.Final, which includes both the client and JSON-RPC transport. Install `cn.iocoder.agentscope:agentscope-a2a-sdk-java8:2.1.0-jdk8-SNAPSHOT` from its `main-jdk8` branch with the AgentCard cancellation fix before building. The module and its BOM install locally with source and Javadoc artifacts for the JAR. JDK 17 reads the original Java source syntax for compilation and Javadoc. The runtime bytecode is lowered to Java 8.
+
+All 90 Agentic A2A unit tests pass on a native Java 8 VM, including cancellation for a peer that never returns its card. A separate HTTP integration fixture uses the installed compatibility BOMs and 19 tests pass under Boot 2.7.18 and native Java 8, including a Chinese response from the installed AgentScope A2A starter. The upstream model-provider ITs require standalone services and model credentials.
