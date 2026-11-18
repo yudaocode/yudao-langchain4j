@@ -280,6 +280,8 @@ module=internal/langchain4j-docu-chatbot-updater
 private float[] embedding;
 ```
 
+半精度列使用 `@Parameter(name = "storage", value = "halfvec")` 作为 `@Type` 的 `parameters` 属性，并配置 `@Column(columnDefinition = "halfvec(3)")`。查询会根据实体映射使用对应的 PostgreSQL 运算符和类型，可对接已有的 halfvec 向量索引。
+
 在应用的 JPA 上下文调用 `new HibernatePgVectorSearch<>(Document.class, "embedding").search(entityManager, vector, Metric.COSINE, 0.8, 10, restriction)`。其中 `vector` 是 LangChain4j 的 `Embedding`，`restriction` 可传 JPA Criteria 条件或 `null`。实体写入与更新继续使用 JPA。支持余弦、L2、平方 L2、L1 和内积。Boot 2 项目可以设置 `postgresql.version=42.7.14` 对齐已经通过验证的 JDBC 驱动。原 Hibernate 通用向量存储及 Milvus 方言仍在适配。
 
 ---

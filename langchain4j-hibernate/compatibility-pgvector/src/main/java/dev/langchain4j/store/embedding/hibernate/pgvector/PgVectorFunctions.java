@@ -13,13 +13,16 @@ import org.hibernate.type.StandardBasicTypes;
 public final class PgVectorFunctions implements MetadataBuilderContributor {
     @Override
     public void contribute(MetadataBuilder metadata) {
-        metadata.applySqlFunction("lc_cosine", distance("<=>"));
-        metadata.applySqlFunction("lc_l2", distance("<->"));
-        metadata.applySqlFunction("lc_negative_inner_product", distance("<#>"));
-        metadata.applySqlFunction("lc_l1", distance("<+>"));
+        for (PgVectorType.Storage storage : PgVectorType.Storage.values()) {
+            register(metadata, storage, "cosine", "<=>");
+            register(metadata, storage, "l2", "<->");
+            register(metadata, storage, "negative_inner_product", "<#>");
+            register(metadata, storage, "l1", "<+>");
+        }
     }
 
-    private SQLFunctionTemplate distance(String operator) {
-        return new SQLFunctionTemplate(StandardBasicTypes.DOUBLE, "(?1 " + operator + " cast(?2 as vector))");
+    private void register(MetadataBuilder metadata, PgVectorType.Storage storage, String metric, String operator) {
+        String sql = "(?1 " + operator + " cast(?2 as " + storage.sqlType + "))";
+        metadata.applySqlFunction(storage.functionPrefix + metric, new SQLFunctionTemplate(StandardBasicTypes.DOUBLE, sql));
     }
 }

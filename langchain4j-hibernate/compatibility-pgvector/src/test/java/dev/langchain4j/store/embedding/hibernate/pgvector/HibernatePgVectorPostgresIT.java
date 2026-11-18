@@ -3,22 +3,26 @@ package dev.langchain4j.store.embedding.hibernate.pgvector;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.store.embedding.hibernate.pgvector.HibernatePgVectorSearch.Match;
 import dev.langchain4j.store.embedding.hibernate.pgvector.HibernatePgVectorSearch.Metric;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.resource.jdbc.spi.StatementInspector;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,6 +35,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 class HibernatePgVectorPostgresIT {
 
     private static final Embedding REFERENCE = Embedding.from(new float[] {1, 0, 0});
+    private static final AtomicReference<String> LAST_SQL = new AtomicReference<>();
     private static StandardServiceRegistry registry;
     private static SessionFactory factory;
 
@@ -42,6 +47,10 @@ class HibernatePgVectorPostgresIT {
                 .applySetting("hibernate.connection.password", "fixture-only")
                 .applySetting("hibernate.dialect", "org.hibernate.dialect.PostgreSQL10Dialect")
                 .applySetting("hibernate.hbm2ddl.auto", "create-drop")
+                .applySetting("hibernate.session_factory.statement_inspector", (StatementInspector) sql -> {
+                    LAST_SQL.set(sql);
+                    return sql;
+                })
                 .build();
         MetadataBuilder metadata = new MetadataSources(registry).addAnnotatedClass(Item.class).getMetadataBuilder();
         new PgVectorFunctions().contribute(metadata);
@@ -108,6 +117,29 @@ class HibernatePgVectorPostgresIT {
         }
     }
 
+    @Test
+    void usesNativeHalfvecOperatorsWithAHalfvecIndex() {
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+            session.doWork(connection -> {
+                try (java.sql.Statement statement = connection.createStatement()) {
+                    statement.execute("create index lc_hibernate5_vector_half_idx on lc_hibernate5_vector_fixture "
+                            + "using hnsw (half_vector halfvec_cosine_ops)");
+                    statement.execute("set local enable_seqscan=off");
+                }
+            });
+            HibernatePgVectorSearch<Item> search = new HibernatePgVectorSearch<>(Item.class, "halfVector");
+            List<Match<Item>> matches = search.search(session, REFERENCE, Metric.COSINE, 0.75, 3,
+                    (root, criteria) -> criteria.equal(root.get("language"), "zh"));
+            assertEquals(2, matches.size());
+            assertEquals("a", matches.get(0).entity().id);
+            assertEquals("c", matches.get(1).entity().id);
+            assertArrayEquals(new float[] {0.6f, 0.8f, 0}, matches.get(1).entity().halfVector, 5e-4f);
+            assertTrue(LAST_SQL.get().contains("<=> cast(? as halfvec)"), LAST_SQL.get());
+            session.getTransaction().rollback();
+        }
+    }
+
     /**
      * @author 芋道源码
      */
@@ -123,6 +155,12 @@ class HibernatePgVectorPostgresIT {
         @Column(columnDefinition = "vector(3)")
         float[] vector;
 
+        @Type(
+                type = "dev.langchain4j.store.embedding.hibernate.pgvector.PgVectorType",
+                parameters = @Parameter(name = "storage", value = "halfvec"))
+        @Column(name = "half_vector", columnDefinition = "halfvec(3)")
+        float[] halfVector;
+
         protected Item() {}
 
         Item(String id, String body, String language, float[] vector) {
@@ -130,6 +168,7 @@ class HibernatePgVectorPostgresIT {
             this.body = body;
             this.language = language;
             this.vector = vector;
+            this.halfVector = vector;
         }
     }
 }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.store.embedding.hibernate.pgvector.HibernatePgVectorSearch.Metric;
 import java.io.Serializable;
+import java.util.Properties;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -63,4 +64,17 @@ class HibernatePgVectorSearchTest {
         restored[1] = -7;
         assertArrayEquals(new float[] {1, 2, 3}, (float[]) assembled);
     }
+
+    @Test
+    void rejectsStorageThatCouldNotMatchThePostgresColumnType() {
+        PgVectorType type = new PgVectorType();
+        Properties parameters = new Properties();
+        assertEquals(PgVectorType.Storage.VECTOR, type.storage());
+        parameters.setProperty("storage", "halfvec");
+        type.setParameterValues(parameters);
+        assertEquals(PgVectorType.Storage.HALFVEC, type.storage());
+        parameters.setProperty("storage", "bit");
+        assertThrows(IllegalArgumentException.class, () -> type.setParameterValues(parameters));
+    }
+
 }

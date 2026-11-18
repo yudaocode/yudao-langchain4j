@@ -1,6 +1,5 @@
 package dev.langchain4j.store.embedding.hibernate.pgvector;
 
-import com.pgvector.PGvector;
 import dev.langchain4j.data.embedding.Embedding;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +15,9 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.type.CustomType;
+import org.hibernate.type.Type;
 
 /**
  * Searches a Hibernate 5 entity with a pgvector-mapped attribute in the caller's persistence context.
@@ -81,8 +83,10 @@ public final class HibernatePgVectorSearch<E> {
         SingularAttribute<? super E, float[]> attribute =
                 root.getModel().getSingularAttribute(vectorAttribute, float[].class);
         Path<float[]> column = root.get(attribute);
+        PgVectorType.Storage storage = storage(entityManager);
         ParameterExpression<String> vectorParameter = criteria.parameter(String.class);
-        Expression<Double> distance = criteria.function(metric.function, Double.class, column, vectorParameter);
+        Expression<Double> distance =
+                criteria.function(storage.functionPrefix + metric.function, Double.class, column, vectorParameter);
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(criteria.isNotNull(column));
@@ -97,7 +101,7 @@ public final class HibernatePgVectorSearch<E> {
                 .where(predicates.toArray(new Predicate[0]))
                 .orderBy(criteria.asc(distance));
         List<Tuple> rows = entityManager.createQuery(query)
-                .setParameter(vectorParameter, new PGvector(vector).getValue())
+                .setParameter(vectorParameter, storage.bind(vector).getValue())
                 .setMaxResults(limit)
                 .getResultList();
         List<Match<E>> matches = new ArrayList<>(rows.size());
@@ -107,17 +111,28 @@ public final class HibernatePgVectorSearch<E> {
         return matches;
     }
 
+    private PgVectorType.Storage storage(EntityManager entityManager) {
+        SessionFactoryImplementor sessionFactory =
+                entityManager.getEntityManagerFactory().unwrap(SessionFactoryImplementor.class);
+        Type type = sessionFactory.getMetamodel().entityPersister(entityClass).getPropertyType(vectorAttribute);
+        if (type instanceof CustomType && ((CustomType) type).getUserType() instanceof PgVectorType) {
+            return ((PgVectorType) ((CustomType) type).getUserType()).storage();
+        }
+        throw new IllegalArgumentException("The attribute " + entityClass.getName() + "." + vectorAttribute
+                + " must be mapped with " + PgVectorType.class.getSimpleName());
+    }
+
     /**
      * Distance metrics for dense float vectors.
      *
      * @author 芋道源码
      */
     public enum Metric {
-        COSINE("lc_cosine"),
-        EUCLIDEAN("lc_l2"),
-        EUCLIDEAN_SQUARED("lc_l2"),
-        MANHATTAN("lc_l1"),
-        INNER_PRODUCT("lc_negative_inner_product");
+        COSINE("cosine"),
+        EUCLIDEAN("l2"),
+        EUCLIDEAN_SQUARED("l2"),
+        MANHATTAN("l1"),
+        INNER_PRODUCT("negative_inner_product");
 
         private final String function;
 
