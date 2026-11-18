@@ -187,7 +187,11 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 ## Weaviate（JDK 8）
 
-导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-weaviate`，在 `WeaviateEmbeddingStore.builder()` 中填写服务地址、对象类名与元数据字段。可按需开启 gRPC 写入并配置 gRPC 端口。保留上游 Java 客户端 `5.5.0`，实测 Weaviate 服务端 `1.40.5`。Spring Boot 2.7.18 应用使用 `gson.version=2.15.0` 与客户端调用对齐。Java 8 默认构建共 92 个模块。
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-weaviate`，在 `WeaviateEmbeddingStore.builder()` 中填写服务地址、对象类名与元数据字段。可按需开启 gRPC 写入并配置 gRPC 端口。保留上游 Java 客户端 `5.5.0`，实测 Weaviate 服务端 `1.40.5`。Spring Boot 2.7.18 应用使用 `gson.version=2.15.0` 与客户端调用对齐。Weaviate 批次覆盖 92 个默认模块。
+
+## Vertex AI 与 Tablestore（JDK 8）
+
+导入兼容 BOM 后，按需选择 `langchain4j-vertex-ai`、`langchain4j-vertex-ai-gemini`、`langchain4j-vertex-ai-anthropic` 或 `langchain4j-tablestore`。Vertex AI 通过相应 builder 传入工程、区域、模型名与 Google 凭据。Tablestore 可使用 `new TablestoreEmbeddingStore(syncClient, vectorDimension)` 并按需调用 `init()` 建表与索引。Spring Boot 2.7.18 已验证的依赖配置见 [兼容说明](COMPATIBILITY.md#vertex-ai-and-tablestore-on-java-8)。Java 8 默认构建共 96 个模块。
 
 ---
 

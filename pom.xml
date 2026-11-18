@@ -58,6 +58,10 @@
         <module>langchain4j-mcp-docker</module>
         <module>langchain4j-kotlin</module>
         <module>experimental/langchain4j-experimental-sql</module>
+    <module>langchain4j-tablestore</module>
+    <module>langchain4j-vertex-ai</module>
+    <module>langchain4j-vertex-ai-gemini</module>
+    <module>langchain4j-vertex-ai-anthropic</module>
     <module>langchain4j-weaviate</module>
     <module>langchain4j-oracle</module>
     <module>langchain4j-azure-cosmos-mongo-vcore</module>

@@ -100,7 +100,7 @@ public class SchemaHelper {
             Schema.Builder schemaBuilder = Schema.newBuilder().setType(Type.OBJECT);
             List<String> propertyNames = new ArrayList<>();
             Stream.concat(Arrays.stream(theClass.getDeclaredFields()), Arrays.stream(theClass.getFields()))
-                    .filter(field -> !field.getName().startsWith("this$"))
+                    .filter(field -> !field.isSynthetic() && !field.getName().startsWith("this$"))
                     .collect(Collectors.toSet())
                     .forEach(field -> {
                         schemaBuilder

@@ -279,3 +279,10 @@ Azure Cosmos Mongo vCore and Azure DocumentDB keep MongoDB Java Driver 5.6.0. Th
 ## Weaviate on Java 8
 
 Weaviate retains client 5.5.0 and tests against server 1.40.5. Native Java 8 passes 10 unit tests and 63 real-server integration tests, including REST, gRPC inserts, legacy vectors, metadata and removal. Local Testcontainers fixtures share a pinned image and can select another via `-Dweaviate.image`. The independent Boot 2.7.18 parent project pins Gson 2.15.0 and verifies that both installed write paths accept, filter, and remove Unicode content.
+
+
+## Vertex AI and Tablestore on Java 8
+
+The compatibility modules retain Google AI Platform 3.100.0, Vertex AI Gemini SDK 1.48.0, the upstream Google libraries BOM 26.90.0 for Vertex AI Anthropic, and Tablestore SDK 5.17.14. Gemini's schema helper excludes compiler-generated fields, preserving enum object schemas in instrumented Java 8 execution.
+
+The Boot 2.7.18 installed project uses `gson.version=2.15.0`, `jackson-bom.version=2.21.4`, `netty.version=4.1.140.Final`, and `okhttp.version=4.12.0`. It initializes the three Vertex models with synthetic credentials and verifies Tablestore's SDK PutRow request mapping at the client boundary. Hosted-model responses and Alibaba Cloud Tablestore still require service acceptance. Vertex AI's base module has upstream cloud ITs and no unit suite.
