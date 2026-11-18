@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>cn.iocoder.langchain4j</groupId>
+        <artifactId>langchain4j-parent</artifactId>
+        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+        <relativePath>../../langchain4j-parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>langchain4j-protostream-schema-compat</artifactId>
+    <name>ProtoStream 6.0.12 schema generation for Java 8</name>
+    <dependencies>
+        <dependency>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-java8-compat</artifactId>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration><release>17</release></configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

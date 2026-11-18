@@ -3,6 +3,7 @@ package dev.langchain4j.store.embedding.infinispan;
 import org.infinispan.protostream.schema.Field;
 import org.infinispan.protostream.schema.Schema;
 import org.infinispan.protostream.schema.Type;
+import org.infinispan.protostream.schema.Syntax;
 
 /**
  * LangchainSchemaCreator for Infinispan
@@ -11,11 +12,16 @@ public final class LangchainSchemaCreator {
     /**
      * Build the Infinispan Schema to marshall embeddings
      *
-     * @param storeConfiguration, the configuration of the store
+     * @param storeConfiguration the configuration of the store
      * @return produced Schema
      */
     public static Schema buildSchema(InfinispanStoreConfiguration storeConfiguration) {
+        return buildSchema(storeConfiguration, Syntax.PROTO3);
+    }
+
+    static Schema buildSchema(InfinispanStoreConfiguration storeConfiguration, Syntax syntax) {
         Field.Builder builder = new Schema.Builder(storeConfiguration.fileName())
+                .syntax(syntax)
                 .packageName(storeConfiguration.packageItem())
                 // Medata Item
                 .addMessage(storeConfiguration.metadataItemName())

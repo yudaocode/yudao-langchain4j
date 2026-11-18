@@ -67,6 +67,8 @@
     <module>compatibility/watsonx-ai</module>
     <module>langchain4j-watsonx</module>
     <module>experimental/langchain4j-experimental-hibernate</module>
+    <module>compatibility/protostream-schema</module>
+    <module>langchain4j-infinispan</module>
     <module>document-parsers/langchain4j-document-parser-docling</module>
     <module>langchain4j-coherence</module>
     <module>langchain4j-elasticsearch</module>

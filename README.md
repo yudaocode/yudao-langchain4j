@@ -254,7 +254,11 @@ module=internal/langchain4j-docu-chatbot-updater
 
 ## Hibernate 实验检索器（JDK 8）
 
-导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-experimental-hibernate`。它使用 Spring Boot 2 管理的 Hibernate ORM 5.6.15.Final，通过 `HibernateContentRetriever.builder().entityManagerFactory(entityManagerFactory).chatModel(chatModel).build()` 接入 Boot 2 的 `javax.persistence.EntityManagerFactory`。结果以 JSON 表示标量、投影及已加载的实体字段，关联以标识表示。检索器通过 HQL 查询结果 API 读取数据。Java 8 默认构建共 113 个模块。
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-experimental-hibernate`。它使用 Spring Boot 2 管理的 Hibernate ORM 5.6.15.Final，通过 `HibernateContentRetriever.builder().entityManagerFactory(entityManagerFactory).chatModel(chatModel).build()` 接入 Boot 2 的 `javax.persistence.EntityManagerFactory`。结果以 JSON 表示标量、投影及已加载的实体字段，关联以标识表示。检索器通过 HQL 查询结果 API 读取数据。Hibernate 实验检索器批次覆盖 113 个默认模块。
+
+## Infinispan（JDK 8）
+
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-infinispan`，使用 `InfinispanEmbeddingStore` 和 `InfinispanChatMemoryStore` 接入服务。Boot 2 项目可设置 `infinispan.version=13.0.22.Final`，对齐 JDK 8 客户端版本。已连接使用 SCRAM-SHA-512 的 Infinispan 16.3.1。单节点经 Docker 端口映射或 NAT 接入且服务端通告地址不可达时，可在传入的客户端配置上设置 `clientIntelligence(ClientIntelligence.BASIC)`。Java 8 默认构建共 115 个模块。
 
 ---
 

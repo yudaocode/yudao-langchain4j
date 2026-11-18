@@ -53,17 +53,17 @@ public record InfinispanStoreConfiguration(
     /**
      * Creates the configuration and sets default values
      *
-     * @param cacheName, mandatory
-     * @param dimension, mandatory
-     * @param distance, defaults to 3
-     * @param similarity, defaults COUSINE
-     * @param cacheConfig, the full cache configuration
-     * @param packageItem, optional the package item
-     * @param fileName, optional file name
-     * @param langchainItemName, optional item name
-     * @param metadataItemName, optional metadata item name
-     * @param createCache, defaults to true. Disables creating the cache on startup
-     * @param registerSchema, defaults to true. Disables registering the schema in the server
+     * @param cacheName mandatory
+     * @param dimension mandatory
+     * @param distance defaults to 3
+     * @param similarity defaults COUSINE
+     * @param cacheConfig the full cache configuration
+     * @param packageItem optional the package item
+     * @param fileName optional file name
+     * @param langchainItemName optional item name
+     * @param metadataItemName optional metadata item name
+     * @param createCache defaults to true. Disables creating the cache on startup
+     * @param registerSchema defaults to true. Disables registering the schema in the server
      */
     public InfinispanStoreConfiguration(
             String cacheName,

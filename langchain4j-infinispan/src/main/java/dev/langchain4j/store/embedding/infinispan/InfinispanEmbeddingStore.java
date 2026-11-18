@@ -28,12 +28,16 @@ import java.util.stream.Collectors;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.commons.api.query.Query;
-import org.infinispan.commons.configuration.StringConfiguration;
+import org.infinispan.client.hotrod.Search;
+import org.infinispan.query.dsl.Query;
+import org.infinispan.commons.configuration.XMLStringConfiguration;
 import org.infinispan.commons.marshall.ProtoStreamMarshaller;
 import org.infinispan.protostream.FileDescriptorSource;
 import org.infinispan.protostream.SerializationContext;
+import org.infinispan.protostream.ProtobufUtil;
+import org.infinispan.protostream.WrappedMessage;
 import org.infinispan.protostream.schema.Schema;
+import org.infinispan.protostream.schema.Syntax;
 
 /**
  * Infinispan Embedding Store
@@ -47,8 +51,8 @@ public class InfinispanEmbeddingStore implements EmbeddingStore<TextSegment> {
      * Creates an Infinispan embedding store from a RemoteCacheManager
      * Assumes marshalling configuration is already provided by the RemoteCacheManager instance.
      *
-     * @param remoteCacheManager, the already configured remote cache manager
-     * @param storeConfiguration, the store configuration
+     * @param remoteCacheManager the already configured remote cache manager
+     * @param storeConfiguration the store configuration
      */
     public InfinispanEmbeddingStore(
             RemoteCacheManager remoteCacheManager, InfinispanStoreConfiguration storeConfiguration) {
@@ -65,7 +69,7 @@ public class InfinispanEmbeddingStore implements EmbeddingStore<TextSegment> {
                     .administration()
                     .getOrCreateCache(
                             storeConfiguration.cacheName(),
-                            new StringConfiguration(computeCacheConfiguration(storeConfiguration)));
+                            new XMLStringConfiguration(computeCacheConfiguration(storeConfiguration)));
         } else {
             this.remoteCache = remoteCacheManager.getCache(storeConfiguration.cacheName());
         }
@@ -90,9 +94,10 @@ public class InfinispanEmbeddingStore implements EmbeddingStore<TextSegment> {
         // Registers the schema on the client
         ProtoStreamMarshaller marshaller = new ProtoStreamMarshaller();
         SerializationContext serializationContext = marshaller.getSerializationContext();
-        String schemaContent = schema.toString();
+        // ProtoStream 4's local parser requires explicit labels. The server schema stays proto3.
+        String localSchema = LangchainSchemaCreator.buildSchema(storeConfiguration, Syntax.PROTO2).getContent();
         FileDescriptorSource fileDescriptorSource =
-                FileDescriptorSource.fromString(storeConfiguration.fileName(), schemaContent);
+                FileDescriptorSource.fromString(storeConfiguration.fileName(), localSchema);
         serializationContext.registerProtoFiles(fileDescriptorSource);
         serializationContext.registerMarshaller(
                 new LangChainItemMarshaller(storeConfiguration.langchainItemFullType()));
@@ -102,12 +107,27 @@ public class InfinispanEmbeddingStore implements EmbeddingStore<TextSegment> {
         // creates the client
         RemoteCacheManager rmc = new RemoteCacheManager(builder.build());
 
-        // Uploads the schema to the server
-        if (storeConfiguration.registerSchema()) {
-            rmc.administration().schemas().createOrUpdate(schema);
-        }
+        try {
+            if (storeConfiguration.registerSchema()) {
+                RemoteCache<String, String> schemaCache = rmc.getCache("___protobuf_metadata");
+                if (schemaCache == null) {
+                    throw new IllegalStateException("Infinispan server did not expose its protobuf schema cache");
+                }
+                schemaCache.put(storeConfiguration.fileName(), schema.getContent());
+                String schemaError = schemaCache.get(storeConfiguration.fileName() + ".errors");
+                if (schemaError != null) {
+                    throw new IllegalArgumentException(schemaError);
+                }
+            }
 
-        this.remoteCache = rmc.getCache(storeConfiguration.cacheName());
+            this.remoteCache = rmc.getCache(storeConfiguration.cacheName());
+            if (remoteCache == null) {
+                throw new IllegalStateException("Infinispan cache '" + storeConfiguration.cacheName() + "' does not exist");
+            }
+        } catch (RuntimeException e) {
+            rmc.stop();
+            throw e;
+        }
     }
 
     /**
@@ -171,8 +191,8 @@ public class InfinispanEmbeddingStore implements EmbeddingStore<TextSegment> {
 
         String deleteQuery = "DELETE FROM " + storeConfiguration.langchainItemFullType() + " i " + filterResult.join
                 + " where " + filterResult.query;
-        Query<LangChainInfinispanItem> query = remoteCache.query(deleteQuery);
-        query.execute();
+        Query<LangChainInfinispanItem> query = Search.getQueryFactory(remoteCache).create(deleteQuery);
+        query.executeStatement();
     }
 
     @Override
@@ -206,13 +226,13 @@ public class InfinispanEmbeddingStore implements EmbeddingStore<TextSegment> {
                 + storeConfiguration.distance()
                 + filteringPart;
 
-        Query<Object[]> query = remoteCache.query(vectorQuery);
+        Query<Object[]> query = Search.getQueryFactory(remoteCache).create(vectorQuery);
         List<Object[]> hits = query.maxResults(request.maxResults()).list();
 
         List<EmbeddingMatch<TextSegment>> matches = hits.stream()
                 .map(obj -> {
-                    LangChainInfinispanItem item = (LangChainInfinispanItem) obj[0];
-                    Float score = (Float) obj[1];
+                    LangChainInfinispanItem item = (LangChainInfinispanItem) unwrapProjection(obj[0]);
+                    Number score = (Number) unwrapProjection(obj[1]);
                     if (score.doubleValue() < request.minScore()) {
                         return null;
                     }
@@ -232,6 +252,23 @@ public class InfinispanEmbeddingStore implements EmbeddingStore<TextSegment> {
                 .collect(toList());
 
         return new EmbeddingSearchResult<>(matches);
+    }
+
+    private Object unwrapProjection(Object projection) {
+        // Hot Rod 13 leaves an additional ProtoStream envelope around projected entities from recent servers.
+        if (!(projection instanceof WrappedMessage)) {
+            return projection;
+        }
+        Object value = ((WrappedMessage) projection).getValue();
+        if (!(value instanceof byte[])) {
+            return value;
+        }
+        ProtoStreamMarshaller marshaller = (ProtoStreamMarshaller) remoteCache.getRemoteCacheManager().getMarshaller();
+        try {
+            return ProtobufUtil.fromWrappedByteArray(marshaller.getSerializationContext(), (byte[]) value);
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException("Unable to decode Infinispan vector query projection", e);
+        }
     }
 
     private void addInternal(String id, Embedding embedding, TextSegment embedded) {

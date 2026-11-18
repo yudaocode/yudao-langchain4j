@@ -17,7 +17,7 @@ public class LangChainItemMarshaller implements MessageMarshaller<LangChainInfin
     /**
      * Constructor for the LangChainItemMarshaller Marshaller
      *
-     * @param typeName,      the full type of the protobuf entity
+     * @param typeName the full type of the protobuf entity
      */
     public LangChainItemMarshaller(String typeName) {
         this.typeName = typeName;

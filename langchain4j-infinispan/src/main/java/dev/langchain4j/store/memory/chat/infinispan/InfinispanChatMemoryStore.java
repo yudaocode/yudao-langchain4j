@@ -9,10 +9,12 @@ import dev.langchain4j.data.message.ChatMessageSerializer;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.commons.configuration.StringConfiguration;
+import org.infinispan.client.hotrod.exceptions.RemoteIllegalLifecycleStateException;
+import org.infinispan.commons.configuration.XMLStringConfiguration;
 
 /**
  * A {@link ChatMemoryStore} backed by an Infinispan cache.
@@ -48,13 +50,7 @@ public class InfinispanChatMemoryStore implements ChatMemoryStore {
         ensureNotNull(remoteCacheManager, "remoteCacheManager");
         ensureNotBlank(cacheName, "cacheName");
 
-        if (createCache) {
-            String config = cacheConfig != null ? cacheConfig : DEFAULT_CACHE_CONFIG.replace("CACHE_NAME", cacheName);
-            this.remoteCache =
-                    remoteCacheManager.administration().getOrCreateCache(cacheName, new StringConfiguration(config));
-        } else {
-            this.remoteCache = getExistingCache(remoteCacheManager, cacheName);
-        }
+        this.remoteCache = initializeCache(remoteCacheManager, cacheName, createCache, cacheConfig);
     }
 
     /**
@@ -71,13 +67,43 @@ public class InfinispanChatMemoryStore implements ChatMemoryStore {
         ensureNotNull(builder, "builder");
         ensureNotBlank(cacheName, "cacheName");
 
+        RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
+        try {
+            this.remoteCache = initializeCache(remoteCacheManager, cacheName, createCache, cacheConfig);
+        } catch (RuntimeException e) {
+            remoteCacheManager.stop();
+            throw e;
+        }
+    }
+
+    private static RemoteCache<String, String> initializeCache(
+            RemoteCacheManager manager, String cacheName, boolean createCache, String cacheConfig) {
         if (createCache) {
             String config = cacheConfig != null ? cacheConfig : DEFAULT_CACHE_CONFIG.replace("CACHE_NAME", cacheName);
-            builder.remoteCache(cacheName).configuration(config);
+            return createCacheWhenReady(manager, cacheName, new XMLStringConfiguration(config));
         }
+        return getExistingCache(manager, cacheName);
+    }
 
-        RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
-        this.remoteCache = getExistingCache(remoteCacheManager, cacheName);
+    private static RemoteCache<String, String> createCacheWhenReady(
+            RemoteCacheManager manager, String cacheName, XMLStringConfiguration config) {
+        // Hot Rod 13 can receive CACHE_NOT_READY while a recent server initializes a newly created cache.
+        long start = System.nanoTime();
+        while (true) {
+            try {
+                return manager.administration().getOrCreateCache(cacheName, config);
+            } catch (RemoteIllegalLifecycleStateException e) {
+                if (!e.getMessage().contains("ISPN005066") || System.nanoTime() - start >= TimeUnit.SECONDS.toNanos(5)) {
+                    throw e;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted waiting for Infinispan cache " + cacheName, e);
+                }
+            }
+        }
     }
 
     private static RemoteCache<String, String> getExistingCache(

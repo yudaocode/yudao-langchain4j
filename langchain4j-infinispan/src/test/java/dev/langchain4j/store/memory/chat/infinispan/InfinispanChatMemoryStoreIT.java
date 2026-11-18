@@ -2,7 +2,6 @@ package dev.langchain4j.store.memory.chat.infinispan;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.infinispan.testcontainers.InfinispanContainer.IMAGE_BASENAME;
 
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
@@ -17,35 +16,34 @@ import java.util.List;
 import java.util.Map;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.commons.util.Version;
-import org.infinispan.testcontainers.InfinispanContainer;
+import dev.langchain4j.store.infinispan.InfinispanServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class InfinispanChatMemoryStoreIT {
 
-    static InfinispanContainer infinispan = new InfinispanContainer(IMAGE_BASENAME + ":" + Version.getVersion());
-    InfinispanChatMemoryStore chatMemoryStore;
+    static InfinispanServer infinispan = new InfinispanServer();
+    static RemoteCacheManager manager;
+    static InfinispanChatMemoryStore chatMemoryStore;
 
     @BeforeAll
     static void beforeAll() {
         infinispan.start();
+        ConfigurationBuilder builder = new ConfigurationBuilder();
+        infinispan.configure(builder);
+        manager = new RemoteCacheManager(builder.build());
+        chatMemoryStore = InfinispanChatMemoryStore.builder()
+                .remoteCacheManager(manager)
+                .build();
     }
 
     @AfterAll
     static void afterAll() {
+        if (manager != null) {
+            manager.stop();
+        }
         infinispan.stop();
-    }
-
-    @BeforeEach
-    void setUp() {
-        ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
-        chatMemoryStore = InfinispanChatMemoryStore.builder()
-                .infinispanConfigBuilder(builder)
-                .build();
     }
 
     @Test
@@ -169,7 +167,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_work_with_remote_cache_manager() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        infinispan.configure(builder);
         RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
         InfinispanChatMemoryStore store = InfinispanChatMemoryStore.builder()
@@ -192,7 +190,7 @@ class InfinispanChatMemoryStoreIT {
                 + "</distributed-cache>";
 
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        infinispan.configure(builder);
         InfinispanChatMemoryStore store = InfinispanChatMemoryStore.builder()
                 .infinispanConfigBuilder(builder)
                 .cacheName("custom-chat-memory")
@@ -207,7 +205,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_not_create_cache_when_disabled() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        infinispan.configure(builder);
         RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
         assertThatThrownBy(() -> InfinispanChatMemoryStore.builder()
@@ -224,7 +222,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_fail_when_cache_does_not_exist_and_creation_is_disabled_with_configuration_builder() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        infinispan.configure(builder);
 
         assertThatThrownBy(() -> InfinispanChatMemoryStore.builder()
                         .infinispanConfigBuilder(builder)
@@ -238,7 +236,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_create_cache_by_default() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        infinispan.configure(builder);
         RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
         InfinispanChatMemoryStore.builder()

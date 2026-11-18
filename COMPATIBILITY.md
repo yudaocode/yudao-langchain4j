@@ -348,3 +348,8 @@ The adapter uses the backported Watsonx SDK, core and Jackson 2 binding pinned t
 ## Experimental Hibernate retriever on Java 8
 
 The Java 8 artifact uses Hibernate ORM 5.6.15.Final and the Boot 2 javax.persistence API. It derives the prompt's schema from the Java Persistence metamodel and renders HQL query results without loading lazy associations. An installed Boot 2 application verifies its real EntityManagerFactory against PostgreSQL 17 with a deterministic chat model, while the H2 unit suite checks read projections, entity results and rejected mutation queries.
+
+
+## Infinispan on Java 8
+
+The Java 8 artifact runs Hot Rod 13.0.22.Final with ProtoStream 4.4.4.Final. It preserves the public schema builder API using the separately packaged ProtoStream 6.0.12.Final schema sources. The client parser uses a proto2 schema and the server receives a proto3 schema. Native Java 8 runs 68 unit tests and the Infinispan 16.3.1 integration suite (131 passed, two filter cases skipped by the inherited capability gates). Two independent Boot 2 installed-artifact tests cover authenticated vector search, metadata filtering, deletion, and Unicode chat memory on a single server. The mapped-port fixture uses BASIC Hot Rod client intelligence. Cluster discovery across multiple nodes remains outside this test setup.

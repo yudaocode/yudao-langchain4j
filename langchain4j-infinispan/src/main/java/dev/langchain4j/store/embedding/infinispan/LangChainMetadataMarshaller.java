@@ -12,7 +12,7 @@ public class LangChainMetadataMarshaller implements MessageMarshaller<LangChainM
 
     /**
      * Constructor for the LangChainMetadata Marshaller
-     * @param typeName, the full type of the protobuf entity
+     * @param typeName the full type of the protobuf entity
      */
     public LangChainMetadataMarshaller(String typeName) {
         this.typeName = typeName;
