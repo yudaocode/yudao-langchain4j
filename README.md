@@ -282,7 +282,23 @@ private float[] embedding;
 
 半精度列使用 `@Parameter(name = "storage", value = "halfvec")` 作为 `@Type` 的 `parameters` 属性，并配置 `@Column(columnDefinition = "halfvec(3)")`。查询会根据实体映射使用对应的 PostgreSQL 运算符和类型，可对接已有的 halfvec 向量索引。
 
-在应用的 JPA 上下文调用 `new HibernatePgVectorSearch<>(Document.class, "embedding").search(entityManager, vector, Metric.COSINE, 0.8, 10, restriction)`。其中 `vector` 是 LangChain4j 的 `Embedding`，`restriction` 可传 JPA Criteria 条件或 `null`。实体写入与更新继续使用 JPA。支持余弦、L2、平方 L2、L1 和内积。Boot 2 项目可以设置 `postgresql.version=42.7.14` 对齐已经通过验证的 JDBC 驱动。原 Hibernate 通用向量存储及 Milvus 方言仍在适配。
+在应用的 JPA 上下文调用 `new HibernatePgVectorSearch<>(Document.class, "embedding").search(entityManager, vector, Metric.COSINE, 0.8, 10, restriction)`。其中 `vector` 是 LangChain4j 的 `Embedding`，`restriction` 可传 JPA Criteria 条件或 `null`。实体写入与更新继续使用 JPA。支持余弦、L2、平方 L2、L1 和内积。Boot 2 项目可以设置 `postgresql.version=42.7.14` 对齐已经通过验证的 JDBC 驱动。
+
+## HibernateEmbeddingStore 的 PostgreSQL 路线（JDK 8）
+
+导入兼容 BOM 后添加原组件坐标 `cn.iocoder.langchain4j:langchain4j-hibernate`。使用 Spring Boot 2 的 `DataSource` 或 PostgreSQL JDBC URL 建立动态存储，建表和索引由指定的选项控制。
+
+```java
+HibernateEmbeddingStore<EmbeddingEntity> store = HibernateEmbeddingStore.dynamicDatasourceBuilder()
+        .dataSource(dataSource)
+        .databaseKind(DatabaseKind.POSTGRESQL)
+        .table("document_vectors").dimension(384).createTable(true)
+        .createIndex(true).indexType("hnsw").build();
+```
+
+用标准 `EmbeddingStore<TextSegment>` 接口批量写入并按元数据和最低分检索或删除。动态表支持 UUID、JSONB 元数据与 float32 向量。应用退出时关闭动态创建的存储。
+
+已有 Hibernate 5 实体可以用 `HibernateEmbeddingStore.builder(Document.class).sessionFactory(sessionFactory).build()`。按上节配置 `PgVectorFunctions` 与 `PgVectorType`，用 `@EmbeddingVector` 标明向量，`@EmbeddedText` 标明文本，`@UnmappedMetadata` 标明通用元数据；JSON 字符串字段可用 `@Type(type = "dev.langchain4j.store.embedding.hibernate.JsonbMetadataType")`。标注 `@MetadataAttribute` 的标量字段也可以参与过滤。类型化路线支持 halfvec，调用方负责自己提供的 SessionFactory 生命周期。JDK 8 制品支持 PostgreSQL，其他数据库方言和 Hibernate NoSQL 的 HQL 兼容仍在适配。默认构建共 117 个模块。
 
 ---
 

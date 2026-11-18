@@ -2,11 +2,14 @@ package dev.langchain4j.store.embedding.hibernate.pgvector;
 
 import dev.langchain4j.data.embedding.Embedding;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -57,6 +60,29 @@ public final class HibernatePgVectorSearch<E> {
             double minScore,
             int limit,
             BiFunction<Root<E>, CriteriaBuilder, Predicate> restriction) {
+        return search(entityManager, reference, metric, minScore, limit, restriction, Collections.emptyMap());
+    }
+
+    /**
+     * Searches with additional JPA query hints.
+     *
+     * @param entityManager the caller's open entity manager
+     * @param reference the query embedding
+     * @param metric the distance metric
+     * @param minScore inclusive lower score bound
+     * @param limit maximum number of results
+     * @param restriction optional JPA Criteria restriction
+     * @param hints JPA query hints
+     * @return matches in order of increasing distance
+     */
+    public List<Match<E>> search(
+            EntityManager entityManager,
+            Embedding reference,
+            Metric metric,
+            double minScore,
+            int limit,
+            BiFunction<Root<E>, CriteriaBuilder, Predicate> restriction,
+            Map<String, Object> hints) {
         Objects.requireNonNull(entityManager, "entityManager");
         Objects.requireNonNull(metric, "metric");
         float[] vector = Objects.requireNonNull(reference, "reference").vector();
@@ -100,10 +126,11 @@ public final class HibernatePgVectorSearch<E> {
         query.multiselect(root, distance)
                 .where(predicates.toArray(new Predicate[0]))
                 .orderBy(criteria.asc(distance));
-        List<Tuple> rows = entityManager.createQuery(query)
+        TypedQuery<Tuple> selection = entityManager.createQuery(query)
                 .setParameter(vectorParameter, storage.bind(vector).getValue())
-                .setMaxResults(limit)
-                .getResultList();
+                .setMaxResults(limit);
+        hints.forEach(selection::setHint);
+        List<Tuple> rows = selection.getResultList();
         List<Match<E>> matches = new ArrayList<>(rows.size());
         for (Tuple row : rows) {
             matches.add(new Match<>(row.get(0, entityClass), metric.score(row.get(1, Double.class))));

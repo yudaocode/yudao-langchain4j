@@ -370,3 +370,8 @@ Javadoc reads the generated sources with JDK 17 syntax support. Main Java compil
 The `langchain4j-hibernate-pgvector` artifact maps dense float vectors through a Hibernate 5 UserType and registers five distance modes for typed JPA Criteria searches. It uses the caller's persistence context for managed results, database-side filtering and result limits. Java 8 tests verify PostgreSQL 17.12 with pgvector 0.8.7 and the Boot 2.7.18 JPA stack. The upstream general Hibernate embedding store and the Milvus provider remain separate work.
 
 The same UserType maps half-precision vectors with the `storage=halfvec` parameter. The JPA metamodel retains the mapping for each property; the SQL casts the reference to the mapped type so PostgreSQL can use the matching vector operators. An integration test creates a halfvec HNSW index and checks the emitted SQL, score and result order.
+
+
+## HibernateEmbeddingStore on PostgreSQL
+
+Java 8 consumers can use the original artifact and builder entry points with a PostgreSQL datasource, JDBC URL or a Hibernate 5 typed factory. The Java 8 source set connects the JPA vector engine to managed typed writes and PostgreSQL atomic upserts, JSONB/scalar predicates and bulk removal. DDL and vectors execute against PostgreSQL 17.12 with pgvector 0.8.7. Advanced Hibernate 7 Restriction overloads use the Java 8 JPA Criteria callback on this branch. Other original database dialects and nested associations remain outside the verified Java 8 scope.

@@ -68,6 +68,7 @@
     <module>langchain4j-watsonx</module>
     <module>experimental/langchain4j-experimental-hibernate</module>
     <module>langchain4j-hibernate/compatibility-pgvector</module>
+    <module>langchain4j-hibernate</module>
     <module>compatibility/protostream-schema</module>
     <module>langchain4j-infinispan</module>
     <module>document-parsers/langchain4j-document-parser-docling</module>
