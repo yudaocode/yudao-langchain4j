@@ -314,3 +314,10 @@ The independent Boot 2.7.18 project verifies a real Elasticsearch 8.5.3 server t
 The adapter reuses the Spring AI Java 8 build of Oracle vector capabilities 24.09 and the Coherence 14.1.1-0-29 runtime. Both stores use the Java 8 NamedCache API. Applications may pass an explicit Coherence Session. Named Session lookup from the current SDK is unavailable on Coherence 14.1. Configure POF with `langchain4j-coherence-java8-pof-config.xml` and use `jakarta-json-bind.version=2.0.0` with Boot 2.7.18.
 
 Java 8 passes 21 unit tests and 128 single-member Coherence integrations. Two existing contains-filter conditions skip. The independent installed project verifies Unicode vector and chat storage, UUID metadata filtering through POF, and the named-session compatibility boundary.
+
+
+## Docling Serve on Java 8
+
+The document parser consumes the backported Docling Java 0.7.1 API and optional reference HTTP client managed by the compatibility BOM. The reference client uses Jackson 2 and the Spring AI Java 8 HTTP compatibility artifact. The packaged SPI covers asynchronous conversion, status polling and result retrieval. The upstream Docker integration still targets Docling Serve v1.35.0, and supports a local image override through `docling.serve.image`.
+
+All 32 parser unit cases passed on Java 8. The independent Boot 2 project used the installed client, SPI provider and parser against a loopback HTTP service. The full Docling Serve inference container was not included in the completed run.

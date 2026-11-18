@@ -4,27 +4,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import ai.docling.serve.api.DoclingServeApi;
 import ai.docling.serve.api.chunk.request.HierarchicalChunkDocumentRequest;
-import ai.docling.testcontainers.serve.DoclingServeContainer;
-import ai.docling.testcontainers.serve.config.DoclingServeContainerConfig;
 import dev.langchain4j.data.document.Document;
 import java.io.InputStream;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
 class DoclingDocumentParserIT {
 
+    private static final int PORT = 5001;
+
     @Container
-    private static final DoclingServeContainer doclingContainer =
-            new DoclingServeContainer(DoclingServeContainerConfig.builder()
-                    .image(DoclingServeContainerConfig.DOCLING_IMAGE)
-                    .enableUi(false)
-                    .build());
+    private static final GenericContainer<?> doclingContainer = new GenericContainer<>(
+                    DockerImageName.parse(System.getProperty(
+                            "docling.serve.image", "ghcr.io/docling-project/docling-serve:v1.35.0")))
+            .withExposedPorts(PORT)
+            .withStartupTimeout(Duration.ofMinutes(5))
+            .waitingFor(Wait.forHttp("/health"));
 
     private final DoclingServeApi client = DoclingServeApi.builder()
-            .baseUrl(doclingContainer.getApiUrl())
+            .baseUrl("http://" + doclingContainer.getHost() + ":" + doclingContainer.getMappedPort(PORT))
             .logRequests()
             .logResponses()
             .prettyPrint()

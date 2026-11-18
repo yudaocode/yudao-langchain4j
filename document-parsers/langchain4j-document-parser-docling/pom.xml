@@ -3,50 +3,34 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>dev.langchain4j</groupId>
+        <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-SNAPSHOT</version>
+        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         <relativePath>../../langchain4j-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>langchain4j-document-parser-docling</artifactId>
     <name>LangChain4j :: Document Parser :: Docling</name>
 
-    <properties>
-        <docling.version>0.7.1</docling.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers-bom</artifactId>
-                <version>2.0.5</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
 
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-SNAPSHOT</version>
+            <version>1.24.0-jdk8-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>ai.docling</groupId>
-            <artifactId>docling-serve-api</artifactId>
-            <version>${docling.version}</version>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-docling-serve-api-compat</artifactId>
+            <version>${langchain4j.beta.version}</version>
         </dependency>
 
         <!-- Docling reference client - optional; frameworks like Spring/Quarkus provide their own impl -->
         <dependency>
-            <groupId>ai.docling</groupId>
-            <artifactId>docling-serve-client</artifactId>
-            <version>${docling.version}</version>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-docling-serve-client-compat</artifactId>
+            <version>${langchain4j.beta.version}</version>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
@@ -54,15 +38,14 @@
         <!-- Testing -->
 
         <dependency>
-            <groupId>ai.docling</groupId>
-            <artifactId>docling-testcontainers</artifactId>
-            <version>${docling.version}</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers-junit-jupiter</artifactId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -76,6 +59,13 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.honton.chas</groupId>
                 <artifactId>license-maven-plugin</artifactId>

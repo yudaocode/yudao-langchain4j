@@ -207,7 +207,23 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 ## Oracle Coherence（JDK 8）
 
-导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-coherence`。先安装 [Spring AI Java 8 Coherence 兼容包](https://github.com/yudaocode/yudao-spring-ai/tree/main-jdk8/compatibility/coherence-ai) `cn.iocoder.spring-ai:spring-ai-coherence-ai-compat:2.1.0-jdk8-SNAPSHOT`。构造 `CoherenceEmbeddingStore` 或 `CoherenceChatMemoryStore` 时可以传入 Java 8 的 `Session.create()` 结果，也可以使用默认缓存工厂。字符串命名 Session 属于现代版本路线。POF 应用使用 `coherence.pof.config=langchain4j-coherence-java8-pof-config.xml` 或在自己的 POF 配置中包含它。Java 8 默认构建共 103 个模块。
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-coherence`。先安装 [Spring AI Java 8 Coherence 兼容包](https://github.com/yudaocode/yudao-spring-ai/tree/main-jdk8/compatibility/coherence-ai) `cn.iocoder.spring-ai:spring-ai-coherence-ai-compat:2.1.0-jdk8-SNAPSHOT`。构造 `CoherenceEmbeddingStore` 或 `CoherenceChatMemoryStore` 时可以传入 Java 8 的 `Session.create()` 结果，也可以使用默认缓存工厂。字符串命名 Session 属于现代版本路线。POF 应用使用 `coherence.pof.config=langchain4j-coherence-java8-pof-config.xml` 或在自己的 POF 配置中包含它。Coherence 批次覆盖 103 个默认模块。
+
+## Docling 文档解析（JDK 8）
+
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-document-parser-docling` 和参考 HTTP 实现 `cn.iocoder.langchain4j:langchain4j-docling-serve-client-compat`。Java 8 路线沿用 Docling Java SDK 0.7.1 的类型与 SPI，使用 Jackson 2。Spring Boot 2.7.18 消费项目使用前文的 Jackson 2 和 HttpComponents 5 版本覆盖。
+
+```java
+DoclingServeApi api = DoclingServeApi.builder()
+        .baseUrl(URI.create("http://localhost:5001"))
+        .build();
+DoclingDocumentParser parser = DoclingDocumentParser.builder()
+        .doclingClient(api)
+        .build();
+Document document = parser.parse(inputStream);
+```
+
+`DoclingServeApi` 位于 `ai.docling.serve.api`，`DoclingDocumentParser` 位于 `dev.langchain4j.data.document.parser.docling`。解析器连接独立运行的 Docling Serve。Java 8 默认构建共 106 个模块。
 
 ---
 
