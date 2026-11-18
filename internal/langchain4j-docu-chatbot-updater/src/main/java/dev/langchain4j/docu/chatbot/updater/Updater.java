@@ -32,30 +32,43 @@ public class Updater {
 
     public static void main(String[] args) {
 
-        MilvusServiceClient milvusServiceClient = new MilvusServiceClient(ConnectParam.newBuilder()
-                .withUri(System.getenv("MILVUS_URI"))
-                .withToken(System.getenv("MILVUS_API_KEY"))
-                .build());
-
-        Path currentPath = Paths.get("").toAbsolutePath();
-        log.info("current path: " + currentPath.toString());
-        Path docsPath = currentPath.resolve("docs/docs");
-        log.info("docs path: " + docsPath.toString());
-
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**.{md,mdx}");
-        List<Document> documents = FileSystemDocumentLoader.loadDocumentsRecursively(docsPath, pathMatcher);
-
-        DocumentSplitter documentSplitter = DocumentSplitters.recursive(
-                600,
-                150,
-                new OpenAiTokenCountEstimator("gpt-5")
-        );
-
+        Path docsPath = Paths.get("").toAbsolutePath().resolve("docs/docs");
         EmbeddingModel embeddingModel = GoogleAiEmbeddingModel.builder()
                 .apiKey(System.getenv("GOOGLE_AI_GEMINI_API_KEY"))
                 .modelName("gemini-embedding-001") // chatbot app expects this embedding model
                 .build();
 
+        update(docsPath, System.getenv("MILVUS_URI"), System.getenv("MILVUS_API_KEY"), embeddingModel);
+    }
+
+    static List<Document> loadDocuments(Path docsPath) {
+        PathMatcher markdown = FileSystems.getDefault().getPathMatcher("glob:**.{md,mdx}");
+        return FileSystemDocumentLoader.loadDocumentsRecursively(docsPath, markdown);
+    }
+
+    static void update(Path docsPath, String milvusUri, String milvusToken, EmbeddingModel embeddingModel) {
+        List<Document> documents = loadDocuments(docsPath);
+        DocumentSplitter documentSplitter = DocumentSplitters.recursive(
+                600, 150, new OpenAiTokenCountEstimator("gpt-5"));
+
+        MilvusServiceClient milvusServiceClient = new MilvusServiceClient(ConnectParam.newBuilder()
+                .withUri(milvusUri)
+                .withToken(milvusToken)
+                .build());
+        try {
+            updateCollection(docsPath, documents, documentSplitter, embeddingModel, milvusServiceClient);
+        } finally {
+            milvusServiceClient.close();
+        }
+    }
+
+    private static void updateCollection(
+            Path docsPath,
+            List<Document> documents,
+            DocumentSplitter documentSplitter,
+            EmbeddingModel embeddingModel,
+            MilvusServiceClient milvusServiceClient) {
+        log.info("docs path: {}", docsPath);
         log.info("about to rename collection '" + COLLECTION_NAME + "' into '" + COLLECTION_NAME_OLD + "'");
         milvusServiceClient.renameCollection(RenameCollectionParam.newBuilder()
                 .withOldCollectionName(COLLECTION_NAME)
@@ -64,17 +77,17 @@ public class Updater {
         log.info("renamed collection '" + COLLECTION_NAME + "' into '" + COLLECTION_NAME_OLD + "'");
 
         EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
-                .uri(System.getenv("MILVUS_URI"))
-                .token(System.getenv("MILVUS_API_KEY"))
+                .milvusClient(milvusServiceClient)
                 .collectionName(COLLECTION_NAME)
                 .dimension(embeddingModel.dimension())
                 .build();
 
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
                 .documentTransformer(document -> {
-                    String absoluteDirectoryPath = document.metadata().getString("absolute_directory_path");
-                    String relativeDirectoryPath = absoluteDirectoryPath.replaceFirst(".*?docs[\\\\/]docs[\\\\/]?", "");
-                    document.metadata().put("relative_directory_path", relativeDirectoryPath);
+                    String absoluteDirectory = document.metadata().getString("absolute_directory_path");
+                    Path relativeDirectory = docsPath.toAbsolutePath().normalize()
+                            .relativize(Paths.get(absoluteDirectory).toAbsolutePath().normalize());
+                    document.metadata().put("relative_directory_path", relativeDirectory.toString());
                     document.metadata().remove("absolute_directory_path");
                     return document;
                 })

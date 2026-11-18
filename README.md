@@ -223,7 +223,20 @@ DoclingDocumentParser parser = DoclingDocumentParser.builder()
 Document document = parser.parse(inputStream);
 ```
 
-`DoclingServeApi` 位于 `ai.docling.serve.api`，`DoclingDocumentParser` 位于 `dev.langchain4j.data.document.parser.docling`。解析器连接独立运行的 Docling Serve。Java 8 默认构建共 106 个模块。
+`DoclingServeApi` 位于 `ai.docling.serve.api`，`DoclingDocumentParser` 位于 `dev.langchain4j.data.document.parser.docling`。解析器连接独立运行的 Docling Serve。Docling 批次覆盖 106 个默认模块。
+
+## 文档聊天索引更新器（JDK 8）
+
+`internal/langchain4j-docu-chatbot-updater` 是维护文档搜索索引的命令行应用，默认构建会安装本地制品。按前文准备兼容分支依赖后，使用构建 JDK 运行以下 Maven 命令，再用 Java 8 启动。
+
+```bash
+mvn -pl internal/langchain4j-docu-chatbot-updater -am -DskipTests -DskipITs install
+mvn -pl internal/langchain4j-docu-chatbot-updater dependency:build-classpath -Dmdep.outputFile=target/runtime-classpath.txt
+module=internal/langchain4j-docu-chatbot-updater
+"$JAVA8_HOME/bin/java" -cp "$module/target/classes:$(cat "$module/target/runtime-classpath.txt")" dev.langchain4j.docu.chatbot.updater.Updater
+```
+
+从包含 `docs/docs` 的工作目录启动。应用读取 `GOOGLE_AI_GEMINI_API_KEY`、`MILVUS_URI` 和 `MILVUS_API_KEY`，更新指定 Milvus 实例已有的 `docu` 集合。Java 8 默认构建共 107 个模块。
 
 ---
 

@@ -321,3 +321,8 @@ Java 8 passes 21 unit tests and 128 single-member Coherence integrations. Two ex
 The document parser consumes the backported Docling Java 0.7.1 API and optional reference HTTP client managed by the compatibility BOM. The reference client uses Jackson 2 and the Spring AI Java 8 HTTP compatibility artifact. The packaged SPI covers asynchronous conversion, status polling and result retrieval. The upstream Docker integration still targets Docling Serve v1.35.0, and supports a local image override through `docling.serve.image`.
 
 All 32 parser unit cases passed on Java 8. The independent Boot 2 project used the installed client, SPI provider and parser against a loopback HTTP service. The full Docling Serve inference container was not included in the completed run.
+
+
+## Documentation chatbot updater on Java 8
+
+The internal CLI is in the default source reactor and uses the compatibility branch's Gemini, OpenAI token estimation and Milvus modules. It installs locally, with Maven deployment disabled for this internal application. The unit test verifies UTF-8 Markdown/MDX discovery. The installed-artifact fixture runs the index replacement against Milvus 2.6.27 using deterministic embeddings.
