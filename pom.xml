@@ -58,6 +58,7 @@
         <module>langchain4j-mcp-docker</module>
         <module>langchain4j-kotlin</module>
         <module>experimental/langchain4j-experimental-sql</module>
+    <module>langchain4j-elasticsearch</module>
     <module>code-execution-engines/langchain4j-code-execution-engine-azure-acads</module>
     <module>langchain4j-azure-cosmos-nosql</module>
     <module>langchain4j-couchbase</module>

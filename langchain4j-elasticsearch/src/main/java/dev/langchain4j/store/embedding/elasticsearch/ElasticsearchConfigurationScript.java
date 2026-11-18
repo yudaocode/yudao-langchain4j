@@ -97,8 +97,7 @@ public class ElasticsearchConfigurationScript implements ElasticsearchConfigurat
         }
         return ScriptScoreQuery.of(q -> q.minScore(minScore)
                 .query(query)
-                .script(s -> s.source(
-                                sb -> sb.scriptString("(cosineSimilarity(params.query_vector, 'vector') + 1.0) / 2"))
+                .script(s -> s.source("(cosineSimilarity(params.query_vector, 'vector') + 1.0) / 2")
                         .params("query_vector", queryVector)));
     }
 

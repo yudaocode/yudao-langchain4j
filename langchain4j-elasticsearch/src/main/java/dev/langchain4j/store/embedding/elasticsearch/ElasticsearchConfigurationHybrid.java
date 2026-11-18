@@ -3,7 +3,7 @@ package dev.langchain4j.store.embedding.elasticsearch;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.KnnRetriever;
-import co.elastic.clients.elasticsearch._types.RRFRetrieverEntry;
+import co.elastic.clients.elasticsearch._types.Retriever;
 import co.elastic.clients.elasticsearch._types.StandardRetriever;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -128,8 +128,8 @@ public class ElasticsearchConfigurationHybrid implements ElasticsearchConfigurat
                         })
                         .index(indexName)
                         .retriever(r -> r.rrf(rf -> rf.retrievers(List.of(
-                                RRFRetrieverEntry.of(rre -> rre.retriever(rt -> rt.standard(standard))),
-                                RRFRetrieverEntry.of(rre -> rre.retriever(rt -> rt.knn(knn)))))))
+                                Retriever.of(rt -> rt.standard(standard)),
+                                Retriever.of(rt -> rt.knn(knn))))))
                         .size(embeddingSearchRequest.maxResults())
                         .minScore(embeddingSearchRequest.minScore()),
                 Document.class);

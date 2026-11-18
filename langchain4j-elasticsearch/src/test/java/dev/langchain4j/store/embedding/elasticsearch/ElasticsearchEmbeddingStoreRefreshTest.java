@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_SELF;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,19 +12,18 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
+import com.sun.net.httpserver.HttpServer;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.rag.content.retriever.elasticsearch.ElasticsearchContentRetriever;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpVersion;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicStatusLine;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -70,35 +68,34 @@ class ElasticsearchEmbeddingStoreRefreshTest {
     @ParameterizedTest
     @EnumSource(Refresh.class)
     void should_apply_refresh_with_rest_client(Refresh refresh) throws IOException {
-        RestClient restClient = mockRestClient();
-        ElasticsearchEmbeddingStore store = ElasticsearchEmbeddingStore.builder()
-                .restClient(restClient)
-                .indexName("refresh-test")
-                .refresh(refresh)
-                .build();
-
-        writeVectorsAndText(store);
-
-        assertRestRequests(restClient, refresh);
-    }
-
-    @ParameterizedTest
-    @EnumSource(Refresh.class)
-    void should_apply_refresh_with_server_url(Refresh refresh) throws IOException {
-        RestClient restClient = mockRestClient();
-        RestClientBuilder restClientBuilder = mock(RestClientBuilder.class, RETURNS_SELF);
-        when(restClientBuilder.build()).thenReturn(restClient);
-        try (var factory = mockStatic(RestClient.class)) {
-            factory.when(() -> RestClient.builder(any(HttpHost.class))).thenReturn(restClientBuilder);
+        try (BulkFixture fixture = new BulkFixture();
+                RestClient restClient = RestClient.builder(HttpHost.create(fixture.address())).build()) {
             ElasticsearchEmbeddingStore store = ElasticsearchEmbeddingStore.builder()
-                    .serverUrl("http://localhost:9200")
+                    .restClient(restClient)
                     .indexName("refresh-test")
                     .refresh(refresh)
                     .build();
 
             writeVectorsAndText(store);
+            fixture.assertRefresh(refresh);
+        }
+    }
 
-            assertRestRequests(restClient, refresh);
+    @ParameterizedTest
+    @EnumSource(Refresh.class)
+    void should_apply_refresh_with_server_url(Refresh refresh) throws IOException {
+        try (BulkFixture fixture = new BulkFixture()) {
+            ElasticsearchEmbeddingStore store = ElasticsearchEmbeddingStore.builder()
+                    .serverUrl(fixture.address())
+                    .indexName("refresh-test")
+                    .refresh(refresh)
+                    .build();
+            try {
+                writeVectorsAndText(store);
+                fixture.assertRefresh(refresh);
+            } finally {
+                store.client.close();
+            }
         }
     }
 
@@ -159,18 +156,6 @@ class ElasticsearchEmbeddingStoreRefreshTest {
         return client;
     }
 
-    private static RestClient mockRestClient() throws IOException {
-        RestClient restClient = mock(RestClient.class);
-        Response response = mock(Response.class);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
-        when(response.getHeader("X-Elastic-Product")).thenReturn("Elasticsearch");
-        when(response.getEntity())
-                .thenAnswer(ignored ->
-                        new StringEntity("{\"took\":0,\"errors\":false,\"items\":[]}", ContentType.APPLICATION_JSON));
-        when(restClient.performRequest(any(Request.class))).thenReturn(response);
-        return restClient;
-    }
-
     private static void writeVectorsAndText(AbstractElasticsearchEmbeddingStore store) {
         store.addAll(List.of(Embedding.from(new float[] {1, 0}), Embedding.from(new float[] {0, 1})));
         store.addAllText(List.of("first chunk", "second chunk"));
@@ -188,12 +173,49 @@ class ElasticsearchEmbeddingStoreRefreshTest {
         });
     }
 
-    private static void assertRestRequests(RestClient restClient, Refresh refresh) throws IOException {
-        ArgumentCaptor<Request> requests = ArgumentCaptor.forClass(Request.class);
-        verify(restClient, times(2)).performRequest(requests.capture());
-        assertThat(requests.getAllValues()).allSatisfy(request -> {
-            assertThat(request.getEndpoint()).isEqualTo("/_bulk");
-            assertThat(request.getParameters()).containsEntry("refresh", refresh.jsonValue());
-        });
+    /**
+     * Responds to bulk requests through the installed Elasticsearch REST client.
+     *
+     * @author 芋道源码
+     */
+    private static final class BulkFixture implements AutoCloseable {
+
+        private final HttpServer server;
+        private final List<URI> requests = new CopyOnWriteArrayList<>();
+
+        BulkFixture() throws IOException {
+            server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.createContext("/_bulk", exchange -> {
+                try {
+                    requests.add(exchange.getRequestURI());
+                    IOUtils.consume(exchange.getRequestBody());
+                    byte[] response = "{\"took\":0,\"errors\":false,\"items\":[]}"
+                            .getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("X-Elastic-Product", "Elasticsearch");
+                    exchange.getResponseHeaders().set("Content-Type", "application/json");
+                    exchange.sendResponseHeaders(200, response.length);
+                    exchange.getResponseBody().write(response);
+                } finally {
+                    exchange.close();
+                }
+            });
+            server.start();
+        }
+
+        String address() {
+            return "http://127.0.0.1:" + server.getAddress().getPort();
+        }
+
+        void assertRefresh(Refresh refresh) {
+            assertThat(requests).hasSize(2).allSatisfy(uri -> {
+                assertThat(uri.getPath()).isEqualTo("/_bulk");
+                assertThat(uri.getQuery()).contains("refresh=" + refresh.jsonValue());
+            });
+        }
+
+        @Override
+        public void close() {
+            server.stop(0);
+        }
     }
 }

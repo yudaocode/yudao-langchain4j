@@ -6,6 +6,15 @@ import static dev.langchain4j.store.embedding.elasticsearch.SSLUtils.createTrust
 import static java.time.Duration.ofSeconds;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.InfoResponse;
 import co.elastic.clients.elasticsearch.license.GetLicenseResponse;
@@ -104,20 +113,23 @@ public class ElasticsearchClientHelper {
                 certificate == null ? "with no ssl checks" : "using the provided SSL certificate");
 
         // Create the API client
-        client = ElasticsearchClient.of(builder -> {
-            builder.host(address);
-            if (!isNullOrBlank(cloudApiKey)) {
-                builder.apiKey(cloudApiKey);
-            } else {
-                builder.usernameAndPassword("elastic", password);
-                if (certificate != null) {
-                    builder.sslContext(createContextFromCaCert(certificate));
-                } else {
-                    builder.sslContext(createTrustAllCertsContext());
+        RestClientBuilder builder = RestClient.builder(HttpHost.create(address));
+        if (!isNullOrBlank(cloudApiKey)) {
+            builder.setDefaultHeaders(new BasicHeader[] {new BasicHeader("Authorization", "ApiKey " + cloudApiKey)});
+        } else {
+            builder.setHttpClientConfigCallback(http -> {
+                if (!isNullOrBlank(password)) {
+                    BasicCredentialsProvider credentials = new BasicCredentialsProvider();
+                    credentials.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("elastic", password));
+                    http.setDefaultCredentialsProvider(credentials);
                 }
-            }
-            return builder;
-        });
+                http.setSSLContext(certificate == null
+                        ? createTrustAllCertsContext()
+                        : createContextFromCaCert(certificate));
+                return http;
+            });
+        }
+        client = new ElasticsearchClient(new RestClientTransport(builder.build(), new JacksonJsonpMapper()));
 
         // The cluster can still refuse connections for a while after the container reports being started
         await("Elasticsearch cluster to be reachable")

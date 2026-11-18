@@ -300,3 +300,10 @@ Installed-package tests verify Cosmos bulk operation mapping, Couchbase's SDK JS
 ## Azure Container Apps Dynamic Sessions on Java 8
 
 All five upstream unit tests pass. The Boot 2.7.18 installed-artifact test pins the HTTP Client 5/Core 5 pair to 5.6.5/5.4.4 and verifies an arithmetic request and parsed response through the native Java 8 HTTP client, a loopback service, and a synthetic Azure credential. Azure-hosted execution requires a configured session pool and its own service acceptance.
+
+
+## Elasticsearch on Java 8
+
+The Java 8 route uses the 8.19.25 Java and low-level REST clients. The adapter uses the 8.x RRF retriever and script builders. The REST client retains the required Commons Logging API. Jackson 3 is excluded from this artifact's runtime dependencies. Native Java 8 passes 45 tests, including the refresh query parameter over actual loopback HTTP for both REST construction paths.
+
+The independent Boot 2.7.18 project verifies a real Elasticsearch 8.5.3 server through script scoring, showing vector insertion, non-ASCII metadata filtering, retrieval and removal. Hybrid request construction is unit-tested. Hybrid features and source vector options on newer servers need the corresponding server-side support.

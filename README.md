@@ -199,7 +199,11 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 ## Azure Container Apps Dynamic Sessions（JDK 8）
 
-导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-code-execution-engine-azure-acads`，使用 `SessionsREPLTool(poolManagementEndpoint)` 连接已配置的 Azure 会话池。适配器沿用 Azure 默认凭据与 Java 8 HTTP 传输。Java 8 默认构建共 101 个模块。
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-code-execution-engine-azure-acads`，使用 `SessionsREPLTool(poolManagementEndpoint)` 连接已配置的 Azure 会话池。适配器沿用 Azure 默认凭据与 Java 8 HTTP 传输。Dynamic Sessions 批次覆盖 101 个默认模块。
+
+## Elasticsearch（JDK 8）
+
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-elasticsearch`，使用 `ElasticsearchEmbeddingStore.builder()` 配置客户端及索引。Java 8 路线使用 Elasticsearch Java 与 REST 客户端 `8.19.25`，Spring Boot 2.7.18 中对应 `elasticsearch.version=8.19.25`、`jakarta-json.version=2.1.3` 和 `jackson-bom.version=2.21.4`。使用 RRF 混合检索和返回向量时，服务端还需支持对应 API。Java 8 默认构建共 102 个模块。
 
 ---
 

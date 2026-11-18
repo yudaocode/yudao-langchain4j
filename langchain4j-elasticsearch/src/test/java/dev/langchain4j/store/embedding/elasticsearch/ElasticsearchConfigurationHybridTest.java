@@ -45,7 +45,6 @@ class ElasticsearchConfigurationHybridTest {
                 .rrf()
                 .retrievers()
                 .get(0)
-                .retriever()
                 .standard();
         assertThat(standardRetriever.query().match().field()).isEqualTo(ElasticsearchConfiguration.TEXT_FIELD);
         assertThat(standardRetriever.query().match().query().stringValue()).isEqualTo("movies about space battles");
@@ -57,7 +56,6 @@ class ElasticsearchConfigurationHybridTest {
                 .rrf()
                 .retrievers()
                 .get(1)
-                .retriever()
                 .knn();
         assertThat(knnRetriever.filter()).hasSize(1);
         assertThat(knnRetriever.filter().get(0))
