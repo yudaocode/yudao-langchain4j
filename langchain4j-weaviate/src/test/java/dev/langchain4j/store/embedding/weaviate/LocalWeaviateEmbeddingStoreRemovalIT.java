@@ -20,10 +20,7 @@ import static java.util.Collections.singletonList;
 class LocalWeaviateEmbeddingStoreRemovalIT extends EmbeddingStoreWithRemovalIT {
 
     @Container
-    static WeaviateContainer weaviate = new WeaviateContainer("semitechnologies/weaviate:latest")
-            .withEnv("QUERY_DEFAULTS_LIMIT", "25")
-            .withEnv("DEFAULT_VECTORIZER_MODULE", "none")
-            .withEnv("CLUSTER_HOSTNAME", "node1");
+    static WeaviateContainer weaviate = LocalWeaviateEmbeddingStoreIT.weaviateContainer();
 
     EmbeddingStore<TextSegment> embeddingStore = WeaviateEmbeddingStore.builder()
             .scheme("http")

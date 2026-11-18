@@ -16,7 +16,7 @@ import dev.langchain4j.store.embedding.EmbeddingStoreWithoutMetadataIT;
 class LocalWeaviateNoMetadataEmbeddingStoreIT extends EmbeddingStoreWithoutMetadataIT {
 
     @Container
-    static WeaviateContainer weaviate = new WeaviateContainer("semitechnologies/weaviate:latest")
+    static WeaviateContainer weaviate = LocalWeaviateEmbeddingStoreIT.weaviateContainer()
             .withEnv("QUERY_DEFAULTS_LIMIT", "25")
             .withEnv("DEFAULT_VECTORIZER_MODULE", "none")
             .withEnv("CLUSTER_HOSTNAME", "node-nometadata");

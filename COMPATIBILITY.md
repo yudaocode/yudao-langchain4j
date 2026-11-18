@@ -274,3 +274,8 @@ Native Java 8 runs 762 of 770 unit tests with zero failures and eight conditiona
 Oracle retains JDBC 23.26.4.0.0. Boot 2.7.18 dependency management needs this version to expose the JDBC vector types. Exact and approximate search tests run on Oracle Free 23.7 with Java 8. The installed artifact also writes, filters, reads, and deletes Chinese text and its vector.
 
 Azure Cosmos Mongo vCore and Azure DocumentDB keep MongoDB Java Driver 5.6.0. Their Java 8 dependency graphs exclude the optional Java 17 record codec. The installed artifacts write Chinese text and metadata using real MongoDB Community 7.0. MongoDB Community only verifies the shared driver and BSON storage. Azure index creation and vector search need the corresponding Azure service. The store-level remove-by-ID operation remains unsupported on these two upstream adapters.
+
+
+## Weaviate on Java 8
+
+Weaviate retains client 5.5.0 and tests against server 1.40.5. Native Java 8 passes 10 unit tests and 63 real-server integration tests, including REST, gRPC inserts, legacy vectors, metadata and removal. Local Testcontainers fixtures share a pinned image and can select another via `-Dweaviate.image`. The independent Boot 2.7.18 parent project pins Gson 2.15.0 and verifies that both installed write paths accept, filter, and remove Unicode content.

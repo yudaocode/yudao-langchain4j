@@ -21,10 +21,7 @@ import org.testcontainers.weaviate.WeaviateContainer;
 class LocalWeaviateLegacyVectorEmbeddingStoreIT extends EmbeddingStoreWithoutMetadataIT {
 
     @Container
-    static WeaviateContainer weaviate = new WeaviateContainer("semitechnologies/weaviate:latest")
-            .withEnv("QUERY_DEFAULTS_LIMIT", "25")
-            .withEnv("DEFAULT_VECTORIZER_MODULE", "none")
-            .withEnv("CLUSTER_HOSTNAME", "node1");
+    static WeaviateContainer weaviate = LocalWeaviateEmbeddingStoreIT.weaviateContainer();
 
     private final String objectClass = "Test" + randomUUID().replace("-", "");
 

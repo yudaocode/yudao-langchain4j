@@ -183,7 +183,11 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 导入兼容 BOM 后按需引入 `cn.iocoder.langchain4j` 的 `langchain4j-oracle`、`langchain4j-azure-cosmos-mongo-vcore` 或 `langchain4j-azure-documentdb`。Oracle 通过 `OracleEmbeddingStore.builder().dataSource(source)` 配置数据源和表。Azure 适配通过对应 builder 配置 Mongo 客户端、数据库、集合和向量索引类型。
 
-保留 Oracle JDBC `23.26.4.0.0` 和 MongoDB Java Driver `5.6.0`。Spring Boot 2.7.18 应用使用 `oracle-database.version=23.26.4.0.0` 和 `mongodb.version=5.6.0` 对齐实际使用的驱动。Java 8 默认构建共 91 个模块。
+保留 Oracle JDBC `23.26.4.0.0` 和 MongoDB Java Driver `5.6.0`。Spring Boot 2.7.18 应用使用 `oracle-database.version=23.26.4.0.0` 和 `mongodb.version=5.6.0` 对齐实际使用的驱动。Oracle 和 Azure Mongo 批次覆盖 91 个默认模块。
+
+## Weaviate（JDK 8）
+
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-weaviate`，在 `WeaviateEmbeddingStore.builder()` 中填写服务地址、对象类名与元数据字段。可按需开启 gRPC 写入并配置 gRPC 端口。保留上游 Java 客户端 `5.5.0`，实测 Weaviate 服务端 `1.40.5`。Spring Boot 2.7.18 应用使用 `gson.version=2.15.0` 与客户端调用对齐。Java 8 默认构建共 92 个模块。
 
 ---
 

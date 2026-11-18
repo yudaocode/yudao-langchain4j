@@ -15,10 +15,7 @@ import static dev.langchain4j.internal.Utils.randomUUID;
 class LocalGRPCWeaviateEmbeddingStoreIT extends EmbeddingStoreIT {
 
     @Container
-    static WeaviateContainer weaviate = new WeaviateContainer("semitechnologies/weaviate:latest")
-            .withEnv("QUERY_DEFAULTS_LIMIT", "25")
-            .withEnv("DEFAULT_VECTORIZER_MODULE", "none")
-            .withEnv("CLUSTER_HOSTNAME", "node1");
+    static WeaviateContainer weaviate = LocalWeaviateEmbeddingStoreIT.weaviateContainer();
 
     private final EmbeddingStore<TextSegment> embeddingStore = WeaviateEmbeddingStore.builder()
             .scheme("http")

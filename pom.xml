@@ -58,6 +58,7 @@
         <module>langchain4j-mcp-docker</module>
         <module>langchain4j-kotlin</module>
         <module>experimental/langchain4j-experimental-sql</module>
+    <module>langchain4j-weaviate</module>
     <module>langchain4j-oracle</module>
     <module>langchain4j-azure-cosmos-mongo-vcore</module>
     <module>langchain4j-azure-documentdb</module>

@@ -7,6 +7,7 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIT;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.weaviate.WeaviateContainer;
 
 import java.util.Arrays;
@@ -17,11 +18,19 @@ import static dev.langchain4j.internal.Utils.randomUUID;
 @Testcontainers
 class LocalWeaviateEmbeddingStoreIT extends EmbeddingStoreIT {
 
+    static WeaviateContainer weaviateContainer() {
+        String image = System.getProperty("weaviate.image", "cr.weaviate.io/semitechnologies/weaviate:1.40.5");
+        return new WeaviateContainer(DockerImageName.parse(image).asCompatibleSubstituteFor("semitechnologies/weaviate"))
+                .withEnv("QUERY_DEFAULTS_LIMIT", "25")
+                .withEnv("DEFAULT_VECTORIZER_MODULE", "none")
+                .withEnv("CLUSTER_HOSTNAME", "node1")
+                .withEnv("AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED", "true")
+                .withEnv("PERSISTENCE_DATA_PATH", "/var/lib/weaviate")
+                .withTmpFs(java.util.Collections.singletonMap("/var/lib/weaviate", "rw,size=512m"));
+    }
+
     @Container
-    static WeaviateContainer weaviate = new WeaviateContainer("semitechnologies/weaviate:latest")
-            .withEnv("QUERY_DEFAULTS_LIMIT", "25")
-            .withEnv("DEFAULT_VECTORIZER_MODULE", "none")
-            .withEnv("CLUSTER_HOSTNAME", "node1");
+    static WeaviateContainer weaviate = weaviateContainer();
 
     static final List<String> METADATA_KEYS = Arrays.asList(
             "string_empty",
