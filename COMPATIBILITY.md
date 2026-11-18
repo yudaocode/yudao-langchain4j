@@ -326,3 +326,10 @@ All 32 parser unit cases passed on Java 8. The independent Boot 2 project used t
 ## Documentation chatbot updater on Java 8
 
 The internal CLI is in the default source reactor and uses the compatibility branch's Gemini, OpenAI token estimation and Milvus modules. It installs locally, with Maven deployment disabled for this internal application. The unit test verifies UTF-8 Markdown/MDX discovery. The installed-artifact fixture runs the index replacement against Milvus 2.6.27 using deterministic embeddings.
+
+
+## Cassandra 5 and Astra DB on Java 8
+
+The Cassandra adapter preserves its native Cassandra and Astra entry points and uses Apache Cassandra Java driver 4.19.0. The compatibility artifact backports the Astra data client 1.2.4 and Stargate 2.3.4 data/commons source. The original Java 8 Astra DevOps 1.2.4 binary still serves the CQL secure-connect-bundle flow. Java 8 deployments use SLF4J 1.7 and Reactive Streams 1.0.4.
+
+All 14 unit cases and 15 real Cassandra 5.0 Docker integration cases passed on Java 8. The installed Boot 2 consumer exercised Cassandra vector search/chat memory and a loopback Astra Data API. Hosted Astra acceptance remains separate.

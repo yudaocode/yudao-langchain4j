@@ -236,7 +236,13 @@ module=internal/langchain4j-docu-chatbot-updater
 "$JAVA8_HOME/bin/java" -cp "$module/target/classes:$(cat "$module/target/runtime-classpath.txt")" dev.langchain4j.docu.chatbot.updater.Updater
 ```
 
-从包含 `docs/docs` 的工作目录启动。应用读取 `GOOGLE_AI_GEMINI_API_KEY`、`MILVUS_URI` 和 `MILVUS_API_KEY`，更新指定 Milvus 实例已有的 `docu` 集合。Java 8 默认构建共 107 个模块。
+从包含 `docs/docs` 的工作目录启动。应用读取 `GOOGLE_AI_GEMINI_API_KEY`、`MILVUS_URI` 和 `MILVUS_API_KEY`，更新指定 Milvus 实例已有的 `docu` 集合。更新器批次覆盖 107 个默认模块。
+
+## Cassandra 和 Astra DB（JDK 8）
+
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-cassandra`，它会传递引入 Astra DB Java SDK 1.2.4 / Stargate SDK 2.3.4 的兼容包。Cassandra 的向量检索使用 Cassandra 5.0 和 Apache Cassandra Java Driver 4.19.0。Spring Boot 2.7.18 项目使用前文的 Jackson 2、HttpComponents 5 及 Reactor 版本覆盖。
+
+使用 `CassandraEmbeddingStore` 与 `CassandraChatMemoryStore` 时可传入含 keyspace 的 `CqlSession`。Astra CQL 可沿用 `builderAstra()`，或按官方文档构建带 Secure Connect Bundle 的会话。Astra Data API 则将 `new AstraDB(token, endpoint, keyspace).collection(collection)` 传入 `AstraDbEmbeddingStore`。Java 8 默认构建共 109 个模块。[Astra Java Driver 文档](https://docs.datastax.com/en/astra-db-serverless/drivers/java-driver.html)
 
 ---
 

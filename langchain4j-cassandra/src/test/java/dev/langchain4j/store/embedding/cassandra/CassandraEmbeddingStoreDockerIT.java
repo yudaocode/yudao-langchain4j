@@ -6,7 +6,8 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.cassandra.CassandraContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
@@ -24,7 +25,7 @@ class CassandraEmbeddingStoreDockerIT extends CassandraEmbeddingStoreIT {
     static final String CASSANDRA_IMAGE = "cassandra:5.0";
     static final String DATACENTER = "datacenter1";
     static final String CLUSTER = "langchain4j";
-    static CassandraContainer cassandraContainer;
+    static GenericContainer<?> cassandraContainer;
 
     /**
      * Check Docker is installed and running on host
@@ -33,14 +34,19 @@ class CassandraEmbeddingStoreDockerIT extends CassandraEmbeddingStoreIT {
     static void ensureDockerIsRunning() {
         DockerClientFactory.instance().client();
         if (cassandraContainer == null) {
-            cassandraContainer = new CassandraContainer(
+            cassandraContainer = new GenericContainer<>(
                     DockerImageName.parse(CASSANDRA_IMAGE))
-                    .withEnv("CLUSTER_NAME", CLUSTER)
-                    .withEnv("DC", DATACENTER);
+                    .withEnv("CASSANDRA_CLUSTER_NAME", CLUSTER)
+                    .withEnv("CASSANDRA_DC", DATACENTER)
+                    .withEnv("MAX_HEAP_SIZE", "768M")
+                    .withEnv("HEAP_NEWSIZE", "128M")
+                    .withExposedPorts(9042)
+                    .waitingFor(Wait.forLogMessage(".*Starting listening for CQL clients.*\n", 1)
+                            .withStartupTimeout(java.time.Duration.ofMinutes(3)));
             cassandraContainer.start();
 
             // Part of Database Creation, creating keyspace
-            final InetSocketAddress contactPoint = cassandraContainer.getContactPoint();
+            final InetSocketAddress contactPoint = new InetSocketAddress(cassandraContainer.getHost(), cassandraContainer.getMappedPort(9042));
             CqlSession.builder()
                     .addContactPoint(contactPoint)
                     .withLocalDatacenter(DATACENTER)
@@ -60,7 +66,7 @@ class CassandraEmbeddingStoreDockerIT extends CassandraEmbeddingStoreIT {
 
     @Override
     protected EmbeddingStore<TextSegment> embeddingStore() {
-        final InetSocketAddress contactPoint = cassandraContainer.getContactPoint();
+        final InetSocketAddress contactPoint = new InetSocketAddress(cassandraContainer.getHost(), cassandraContainer.getMappedPort(9042));
         if (embeddingStore == null) {
             embeddingStore = CassandraEmbeddingStore.builder()
                     .contactPoints(Collections.singletonList(contactPoint.getHostName()))
