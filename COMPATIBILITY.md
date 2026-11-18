@@ -253,3 +253,8 @@ All 90 Agentic A2A unit tests pass on a native Java 8 VM, including cancellation
 ## Experimental SQL retriever on Java 8
 
 The module retains JSqlParser 4.9 and passes all 12 upstream unit tests on Java 8. An independent consumer resolves the installed module from the compatibility BOM with Boot 2.7.18 dependency management, uses a deterministic ChatModel response, and reads a Unicode row from PostgreSQL 17 via JDBC 42.7.14 on Java 8. The upstream integration run has 9 tests gated on live model credentials.
+
+
+## Milvus and Milvus V2 on Java 8
+
+Both modules keep Java SDK 2.6.27 and verify against the stock 2.6.27 server image with embedded etcd and local storage. All 154 unit tests pass on Java 8. Of 329 integration tests, 295 pass and 34 are conditionally skipped (32 cloud credentials and two inherited conditions). Real server tests cover filters, special characters, deletion, dense/sparse/hybrid search and BM25. A separate Boot 2.7.18 parent project resolves both installed artifacts from the Java 8 BOM and passes write, metadata search, and deletion against the real server.

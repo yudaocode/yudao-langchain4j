@@ -58,6 +58,8 @@
         <module>langchain4j-mcp-docker</module>
         <module>langchain4j-kotlin</module>
         <module>experimental/langchain4j-experimental-sql</module>
+    <module>langchain4j-milvus</module>
+    <module>langchain4j-milvus-v2</module>
     <module>langchain4j-agentic-a2a</module>
     </modules>
     <properties>

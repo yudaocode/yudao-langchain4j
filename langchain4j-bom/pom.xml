@@ -20,6 +20,16 @@
         <dependencies>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-milvus</artifactId>
+                <version>${langchain4j.beta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-milvus-v2</artifactId>
+                <version>${langchain4j.beta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-experimental-sql</artifactId>
                 <version>${langchain4j.beta.version}</version>
             </dependency>

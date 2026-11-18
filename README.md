@@ -167,7 +167,11 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 ## 实验性 SQL 检索（JDK 8）
 
-导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-experimental-sql`，使用 `SqlDatabaseContentRetriever.builder().dataSource(source).chatModel(model).build()`；数据库驱动根据实际数据库添加，数据源账号授予所需表的只读权限。保留上游 JSqlParser `4.9`。本批后默认构建共 83 个模块。
+导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-experimental-sql`，使用 `SqlDatabaseContentRetriever.builder().dataSource(source).chatModel(model).build()`；数据库驱动根据实际数据库添加，数据源账号授予所需表的只读权限。保留上游 JSqlParser `4.9`。SQL 批次覆盖 83 个默认模块。
+
+## Milvus V1 与 V2（JDK 8）
+
+导入兼容 BOM 后按既有 API 选择 `cn.iocoder.langchain4j:langchain4j-milvus` 或 `cn.iocoder.langchain4j:langchain4j-milvus-v2`，通过 `MilvusEmbeddingStore.builder()` 或 `MilvusV2EmbeddingStore.builder()` 配置服务地址、集合与向量维度。两者均保留 Milvus Java SDK `2.6.27`，实测服务端 `2.6.27`。V2 的 BM25、稀疏向量和混合检索按原有 API 使用。Java 8 默认构建共 85 个模块。
 
 ---
 
