@@ -383,7 +383,7 @@ The Java 8 artifact `langchain4j-hibernate-milvus` uses the Hibernate 5.6 entity
 for flat scalar and dense vector mappings and Milvus SDK 2.6.27 for collection and index lifecycle,
 upserts, filtered scalar queries, cosine searches and deletes. Existing collections are validated
 before schema initialization can proceed. The SDK runs outside Hibernate transactions and hydrates
-detached results. The Hibernate NoSQL Alpha4 JDBC driver, HQL rewriting and managed transactions
-remain pending. The Java 8 integration gate uses Milvus Lite 3.2.2, including an independent
-Spring Boot 2.7.18 application consuming the installed JAR. Standalone server coverage for this
-adapter is pending.
+detached results. The Hibernate NoSQL JDBC driver, HQL rewriting and managed transactions require
+the modern Hibernate line. Java 8 integration tests ran against Milvus Lite 3.2.2 and Milvus
+Standalone 2.6.27. An independent Spring Boot 2.7.18 application consumed the installed JAR and
+invoked the default `initializeSchema()` path against Standalone.

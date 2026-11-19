@@ -316,7 +316,7 @@ EmbeddingSearchResult<Document> result = store.search(EmbeddingSearchRequest.bui
 
 实体使用 `javax.persistence`，应用指定 String、UUID 或 Long 主键。每个属性映射到单列，字段名沿用 Hibernate 的列名，过滤键使用 Java 属性名。用 `@Type(type = "dev.langchain4j.store.embedding.hibernate.pgvector.PgVectorType")` 将向量属性映射为 `float[]`。支持 String、UUID、Long、Integer、Float、Double 和 Boolean 标量列，写入字段值不能为空；String 主键最长 512 UTF-8 字节，其他 String 字段最长 65,535 字节。标量过滤支持比较、集合成员及逻辑组合。
 
-`initializeSchema()` 会创建或校验集合、创建缺失的 FLAT / COSINE 索引并加载集合。已有 schema 或相似度配置不匹配时会报错，保留已有数据。Milvus Lite 测试使用 `initializeSchema(false)`，由服务处理索引和加载请求。查询返回脱管实体，写入和删除使用 Milvus SDK，调用方管理 client 和 factory 的生命周期。Hibernate 7 / NoSQL 的 JDBC 驱动、HQL 与托管事务仍待兼容。默认构建共 118 个模块。
+`initializeSchema()` 会创建或校验集合、创建缺失的 FLAT / COSINE 索引并加载集合。已有 schema 或相似度配置不匹配时会报错，保留已有数据。Milvus Lite 测试使用 `initializeSchema(false)`，由服务处理索引和加载请求。查询返回脱管实体，写入和删除使用 Milvus SDK，调用方管理 client 和 factory 的生命周期。原生 JDK 8 已验证 Milvus Lite 3.2.2 和 Milvus Standalone 2.6.27，包括独立 Boot 2.7.18 应用从安装包调用默认的 `initializeSchema()`。Hibernate 7 / NoSQL 的 JDBC、HQL 和托管事务使用现代 JDK 路线。默认构建共 118 个模块。
 
 ---
 
