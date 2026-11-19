@@ -46,7 +46,8 @@ class CouchbaseTestUtils {
 
     @Container
     static final CouchbaseContainer couchbaseContainer =
-            new CouchbaseContainer(DockerImageName.parse("couchbase:enterprise").asCompatibleSubstituteFor("couchbase/server"))
+            new CouchbaseContainer(DockerImageName.parse(System.getProperty("couchbase.image", "couchbase:enterprise"))
+                    .asCompatibleSubstituteFor("couchbase/server"))
                     .withCredentials("Administrator", "password")
                     .withBucket(testBucketDefinition)
                     .withStartupTimeout(Duration.ofMinutes(1));
