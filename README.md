@@ -199,6 +199,8 @@ Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode
 
 Couchbase 保留 Java SDK `3.13.1`。原生 JDK 8 在 Docker 中连接 Couchbase Server Enterprise `8.0.3`，通过 9 项真实集成测试和 9 项契约测试，均零跳过。真库用例覆盖批量写入、文本与元数据回读、向量检索和得分阈值。独立 Spring Boot 2.7.18 / JDK 8 应用使用本地安装的 JAR 通过写入、检索与删除验证。可用 `-Dcouchbase.image` 指定测试镜像，见[复验命令](COMPATIBILITY.md#additional-vector-sdk-adapters-on-java-8)。
 
+MongoDB Atlas Local 7.0.9 在 ARM64 Docker 和原生 JDK 8 下通过 130 项真库集成测试与 14 项单测，覆盖向量写入、过滤、更新、删除和旧索引。1 项专门测试不支持 contains 的公共用例按能力条件跳过，该适配器支持 contains。独立 Boot 2.7.18 项目使用 `mongodb.version=5.6.0`，用本地安装的 JAR 通过建索引、写入、检索和删除验证。复验命令见[兼容说明](COMPATIBILITY.md#additional-vector-sdk-adapters-on-java-8)。
+
 ## Azure Container Apps Dynamic Sessions（JDK 8）
 
 导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-code-execution-engine-azure-acads`，使用 `SessionsREPLTool(poolManagementEndpoint)` 连接已配置的 Azure 会话池。适配器沿用 Azure 默认凭据与 Java 8 HTTP 传输。Dynamic Sessions 批次覆盖 101 个默认模块。

@@ -319,6 +319,19 @@ mvn -pl :langchain4j-couchbase -am \
 ```
 
 
+Atlas Local 7.0.9 on ARM64 Docker passes 130 integration tests with Corretto 8u472, including legacy search indexes, writes, filter search and deletion. The suite skips the inherited test for stores that lack `contains` support because the Atlas adapter supports it. The module also passes 14 unit and contract tests. A separate Boot 2.7.18 application sets `mongodb.version=5.6.0`, loads the installed Java 8 JAR, and verifies index creation, write, search and deletion against the same Atlas Local version. Clear the Atlas test fixture's remote connection variables to select the local Docker container.
+
+```sh
+(
+  unset MONGODB_USERNAME MONGODB_PASSWORD MONGODB_HOST MONGODB_CONNECTION_STRING
+  mvn -pl :langchain4j-mongodb-atlas -am \
+    -Dcompat.test.jvm="$JDK8_JAVA" -Djvm="$JDK8_JAVA" \
+    -Dit.test=MongoDbEmbeddingStoreIT,MongoDbEmbeddingStoreWithRemovalIT,MongoDbEmbeddingStoreLegacyIndexesIT,MongoDbEmbeddingStoreMiscIT \
+    -Dfailsafe.failIfNoSpecifiedTests=false verify
+)
+```
+
+
 ## Azure Container Apps Dynamic Sessions on Java 8
 
 All five upstream unit tests pass. The Boot 2.7.18 installed-artifact test pins the HTTP Client 5/Core 5 pair to 5.6.5/5.4.4 and verifies an arithmetic request and parsed response through the native Java 8 HTTP client, a loopback service, and a synthetic Azure credential. Azure-hosted execution requires a configured session pool and its own service acceptance.
