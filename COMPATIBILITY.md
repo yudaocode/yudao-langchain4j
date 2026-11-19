@@ -341,7 +341,22 @@ All five upstream unit tests pass. The Boot 2.7.18 installed-artifact test pins 
 
 The Java 8 route uses the 8.19.25 Java and low-level REST clients. The adapter uses the 8.x RRF retriever and script builders. The REST client retains the required Commons Logging API. Jackson 3 is excluded from this artifact's runtime dependencies. Native Java 8 passes 45 tests, including the refresh query parameter over actual loopback HTTP for both REST construction paths.
 
-The independent Boot 2.7.18 project verifies a real Elasticsearch 8.5.3 server through script scoring, showing vector insertion, non-ASCII metadata filtering, retrieval and removal. Hybrid request construction is unit-tested. Hybrid features and source vector options on newer servers need the corresponding server-side support.
+Elasticsearch 8.19.25 in Docker passes 346 native Java 8 integration tests on a loopback trial node, including RRF hybrid retrieval. Six conditional `contains` filter tests skip because the adapter lacks that filter. The installed-artifact Boot 2.7.18 smoke passes two tests covering script scoring and RRF against the same node. On 8.19.25, leave source-vector response options disabled for hybrid retrieval.
+
+Set `ELASTICSEARCH_TEST_URL` to a disposable local Elasticsearch 8.19.25 trial node. Target the RRF test with Maven running on JDK 17 and the fork using JDK 8.
+
+```sh
+mvn -pl :langchain4j-elasticsearch -am \
+  -Dcompat.test.jvm="$JDK8_JAVA" -Djvm="$JDK8_JAVA" \
+  -DELASTICSEARCH_LOCAL_URL="$ELASTICSEARCH_TEST_URL" \
+  -DELASTICSEARCH_LOCAL_PASSWORD= -DELASTICSEARCH_CLOUD_URL= -DELASTICSEARCH_CLOUD_API_KEY= \
+  -Dit.test=ElasticsearchContentRetrieverIT#addEmbeddingsAndRetrieveRelevantWithHybrid \
+  -Dfailsafe.failIfNoSpecifiedTests=false verify
+```
+
+## Amazon S3 document loader on Java 8
+
+LocalStack 3.1.0 in Docker passes four integration tests on native Java 8, covering object retrieval, object listing and prefix filtering through the S3 API. The module also passes three unit tests. Use `-Dit.test=AmazonS3DocumentLoaderIT` for the LocalStack suite.
 
 
 ## Coherence on Java 8
