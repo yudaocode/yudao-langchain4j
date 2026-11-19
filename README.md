@@ -318,6 +318,12 @@ EmbeddingSearchResult<Document> result = store.search(EmbeddingSearchRequest.bui
 
 `initializeSchema()` 会创建或校验集合、创建缺失的 FLAT / COSINE 索引并加载集合。已有 schema 或相似度配置不匹配时会报错，保留已有数据。Milvus Lite 测试使用 `initializeSchema(false)`，由服务处理索引和加载请求。查询返回脱管实体，写入和删除使用 Milvus SDK，调用方管理 client 和 factory 的生命周期。原生 JDK 8 已验证 Milvus Lite 3.2.2 和 Milvus Standalone 2.6.27，包括独立 Boot 2.7.18 应用从安装包调用默认的 `initializeSchema()`。Hibernate 7 / NoSQL 的 JDBC、HQL 和托管事务使用现代 JDK 路线。默认构建共 118 个模块。
 
+2026-11-19 从干净检出通过 118 个模块的 `clean install`。单测报告共 11,114 项，零失败、零错误，118 项按条件跳过。实际通过的 10,996 项中，9,844 项使用原生 JDK 8，1,152 项使用 JDK 17 的上游模拟服务。外部服务集成按组件执行。完整构建所需的 Spring AI 与 AgentScope 前置依赖见 [构建说明](COMPATIBILITY.md#build-and-consume)。
+
+Docling 通过 32 项原生 JDK 8 单测及独立 Boot 2.7.18 安装包测试。使用同一组安装包连接真实 Docling Serve v1.35.0，本地 5 项集成用例全部通过，覆盖 PDF、DOCX、自定义提取、异步转换与分块。
+
+Shell 模块补齐 Windows / Java 8 的子进程超时清理。Windows Server 2022 与 Corretto 8u514 上的 17 项 Windows 专属测试全部通过，包含超时、部分输出和工作目录。另用独立 Boot 2.7.18 应用验证已安装的 Shell 模块与 JNA 依赖。[Windows CI](https://github.com/yudaocode/yudao-langchain4j/actions/runs/44442408658)
+
 ---
 
 # LangChain4j: idiomatic, open-source Java library for building LLM-powered applications on the JVM

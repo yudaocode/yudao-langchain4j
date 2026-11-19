@@ -9,17 +9,25 @@
 
 ## Supported build scope
 
-The default reactor and BOM select core/AI Services, OpenAI, Anthropic, Google AI Gemini, Ollama, Mistral, Cohere, LocalAI, Hugging Face, Workers AI, Voyage AI, MCP, Skills, Shell Skills, reactive streaming, three HTTP clients, Apache Tika, embeddings/MiniLM quantized, compatibility helpers and two Boot 2 starters. Other upstream module sources remain for subsequent ports; **the default BOM does not promise those modules**. Jackson 3, official Boot 3/4 starters, provider/Docker integration tests and unlisted vendor SDK modules are not covered by this initial Java 8 build.
+The default Java 8 reactor builds 118 modules. The root POM lists the build modules, and the compatibility BOM lists the dependencies applications can import. For Spring Boot 3 and 4, use the corresponding official LangChain4j starters. External provider integration tests run separately from the default unit-test gate.
 
 Build tools run on **JDK 17**, emitted classes target **Java 8**, and tests can fork an actual JDK 8 VM. The source generator lowers records, sealed types and newer platform APIs into `target/`; original modern sources remain mergeable. Kotlin targets 1.8. The generator and metadata tooling are build-only dependencies.
 
 ## Build and consume
 
-Two small artifacts from `yudao-spring-ai`'s `main-jdk8` branch must first be installed into the same local Maven repository: `cn.iocoder.spring-ai:spring-ai-jspecify-compat:2.1.0-jdk8-SNAPSHOT` and `cn.iocoder.spring-ai:spring-ai-jdk-http-compat:2.1.0-jdk8-SNAPSHOT`. The HTTP bridge source must include commit `7d6683ae81a37a1bee081131e1e3817e97477ee5` or later. Neither Spring AI core nor a Spring Boot 3/4 starter is required by standalone LangChain4j.
+`main-jdk8` builds use five companion artifacts at `2.1.0-jdk8-SNAPSHOT`. Install them into the same local Maven repository before building all 118 modules. The commands below use Maven 3.9.16 and JDK 17.0.19 or later.
 
 ```sh
-# JAVA_HOME points to JDK 17. JAVA8_HOME points to an actual JDK 8 installation.
-./mvnw -B -ntp install -DskipITs \
+# In yudao-spring-ai, main-jdk8 at 749b1d819 or later
+mvn -B -ntp -pl :spring-ai-jspecify-compat,:spring-ai-jdk-http-compat,:spring-ai-opensearch-client-compat,:spring-ai-coherence-ai-compat \
+  -am -DskipTests -DskipITs -Dmaven.javadoc.skip=true -Dmaven.source.skip=true clean install
+
+# In yudao-agentscope-java, main-jdk8 at efd060dda or later
+mvn -B -ntp -pl :agentscope-a2a-sdk-java8 \
+  -am -DskipTests -DskipITs -Dmaven.javadoc.skip=true -Dmaven.source.skip=true clean install
+
+# In yudao-langchain4j, main-jdk8. JAVA8_HOME points to a JDK 8 installation.
+mvn -B -ntp clean install -DskipITs \
   -Dcompat.test.jvm="$JAVA8_HOME/bin/java" \
   -Dmaven.javadoc.skip=true
 
@@ -27,7 +35,7 @@ Two small artifacts from `yudao-spring-ai`'s `main-jdk8` branch must first be in
   -Dcompat.test.jvm="$JAVA8_HOME/bin/java"
 ```
 
-Keep the same `-Dmaven.repo.local=...` on both commands when using a private cache. Default unit tests include local model/network fixtures; first execution may download DJL tokenizer native libraries. Set `DJL_CACHE_DIR` to a dedicated cache if concurrent builds exist. No external LLM credentials are needed for the local acceptance tests. Full provider `*IT` tests require their documented external services and are not asserted by `-DskipITs`.
+Keep the same `-Dmaven.repo.local=...` for all commands when using a private cache. Default unit tests include local model/network fixtures; first execution may download DJL tokenizer native libraries. Set `DJL_CACHE_DIR` to a dedicated cache if concurrent builds exist. No external LLM credentials are needed for the local acceptance tests. Full provider `*IT` tests require their documented external services and are not asserted by `-DskipITs`.
 
 OpenAI, Anthropic and Gemini's upstream mock suites use the build JDK 17 (`compat.fixture.test.jvm`) because Mokksy itself requires Java 17. Those results are kept separate from native Java 8 results. The independent `compatibility-tests/java8-provider-runtime` and standalone Boot 2 consumer execute on the target VM and cover actual local HTTP/SSE, tools, RAG and real local embedding execution. They do not assert successful calls to real model vendors.
 
@@ -43,10 +51,12 @@ OpenAI, Anthropic and Gemini's upstream mock suites use the build JDK 17 (`compa
 
 - The HTTP bridge supports HTTP/2 preference and HTTPS negotiation. Plain HTTP does not implement the native JDK h2c Upgrade; it uses HTTP/1.1. MCP explicitly preserves its upstream HTTP/2 preference. The bridge's own default remains HTTP/1.1.
 - The MCP WebSocket bridge is a narrow adapter used by MCP, not a full `java.net.http.WebSocket` replacement. Complete-message `sendText` futures acknowledge queue acceptance, not completed socket flush; listener errors report later transport failures. Message/frame sizes are bounded, demand is tracked and retired connections are closed.
-- Shell descendant cleanup is tested on Unix. Java 8 Windows PID access differs by VM; complete Windows process-tree cleanup is not verified. Existing Windows-only unit tests remain conditional and their skips are reported.
+- Shell descendant cleanup is tested on Unix and on Windows Server 2022 with Corretto 8u514. Windows Java 8 uses JNA 5.17.0 and the process handle to obtain the PID and terminate the owned process tree on timeout. The Windows working-directory test compares filesystem identity so that short and long path aliases both work. All 17 Windows-only cases passed in the [Windows CI run](https://github.com/yudaocode/yudao-langchain4j/actions/runs/44442408658).
 - Reactive Streams TCK suites keep upstream capacity limitations: some optional/untested rules and demand-overflow rule 317 skip. Additional real HTTP publisher overflow tests cover both bounded and direct modes; they do not claim to execute skipped TCK rules.
 
 ## Verification status
+
+On 2026-11-19 a clean checkout built and installed all 118 default modules with `-DskipITs`. Surefire reported 11,114 cases, zero failures and errors, and 118 conditional skips. Native JDK 8 passed 9,844 cases, and the upstream modern provider fixtures passed 1,152 on JDK 17. The build skips source and Javadoc attachments. External service integration runs are documented by module. The companion build commands above were verified from the corresponding Spring AI and AgentScope commits.
 
 The 34-module default `verify` checkpoint passed: 7427 test executions, zero failures/errors, 111 skips. Native Java 8 accounted for 6245 executions / 81 skips; OpenAI/Anthropic/Gemini modern-fixture suites used Java 17 for 1182 / 30 skips. The two test-helper executions intentionally repeat cases. External integration tests, Javadoc and initial-major Revapi comparison were skipped and are not claimed as passing.
 
@@ -320,7 +330,7 @@ Java 8 passes 21 unit tests and 128 single-member Coherence integrations. Two ex
 
 The document parser consumes the backported Docling Java 0.7.1 API and optional reference HTTP client managed by the compatibility BOM. The reference client uses Jackson 2 and the Spring AI Java 8 HTTP compatibility artifact. The packaged SPI covers asynchronous conversion, status polling and result retrieval. The upstream Docker integration still targets Docling Serve v1.35.0, and supports a local image override through `docling.serve.image`.
 
-All 32 parser unit cases passed on Java 8. The independent Boot 2 project used the installed client, SPI provider and parser against a loopback HTTP service. The full Docling Serve inference container was not included in the completed run.
+All 32 parser unit cases passed on Java 8. An independent Boot 2.7.18 consumer loaded the installed parser, API and reference client JARs. One loopback fixture verified the ServiceLoader and response handling. The same installed JARs passed five Java 8 cases against a local Docling Serve v1.35.0 process, covering PDF, DOCX, a custom text extractor, asynchronous conversion and hierarchical chunking.
 
 
 ## Documentation chatbot updater on Java 8
@@ -367,7 +377,7 @@ Javadoc reads the generated sources with JDK 17 syntax support. Main Java compil
 
 ## Hibernate 5 pgvector entities on Java 8
 
-The `langchain4j-hibernate-pgvector` artifact maps dense float vectors through a Hibernate 5 UserType and registers five distance modes for typed JPA Criteria searches. It uses the caller's persistence context for managed results, database-side filtering and result limits. Java 8 tests verify PostgreSQL 17.12 with pgvector 0.8.7 and the Boot 2.7.18 JPA stack. The upstream general Hibernate embedding store and the Milvus provider remain separate work.
+The `langchain4j-hibernate-pgvector` artifact maps dense float vectors through a Hibernate 5 UserType and registers five distance modes for typed JPA Criteria searches. It uses the caller's persistence context for managed results, database-side filtering and result limits. Java 8 tests verify PostgreSQL 17.12 with pgvector 0.8.7 and the Boot 2.7.18 JPA stack. The PostgreSQL embedding store and the Milvus provider are documented below.
 
 The same UserType maps half-precision vectors with the `storage=halfvec` parameter. The JPA metamodel retains the mapping for each property; the SQL casts the reference to the mapped type so PostgreSQL can use the matching vector operators. An integration test creates a halfvec HNSW index and checks the emitted SQL, score and result order.
 
