@@ -307,6 +307,18 @@ The independent Boot 2.7.18 project pins `couchbase-client.version=3.13.1`, `mon
 Installed-package tests verify Cosmos bulk operation mapping, Couchbase's SDK JSON serializer, Atlas BSON serialization, and Pinecone Protobuf metadata using local SDK boundary test doubles. Hosted services require their own acceptance runs.
 
 
+The Couchbase module also passes 9 contract tests and 9 real-database integration tests with Corretto 8u472 against Couchbase Server Enterprise 8.0.3 in Docker. The integration suite exercises single and batch writes, text and metadata round trips, and vector search with score thresholds. It clears the store between tests. A separate Boot 2.7.18 application also loads the installed Java 8 JAR and verifies writes, vector retrieval with metadata, and deletion against the same Couchbase version.
+
+Run Maven with JDK 17 and set `JDK8_JAVA` to the Java 8 executable. Set `COUCHBASE_IMAGE` to a compatible Couchbase Enterprise image available to Docker.
+
+```sh
+mvn -pl :langchain4j-couchbase -am \
+  -Dcompat.test.jvm="$JDK8_JAVA" -Djvm="$JDK8_JAVA" \
+  -Dcouchbase.image="$COUCHBASE_IMAGE" -Dit.test=CouchbaseEmbeddingStoreIT \
+  -Dfailsafe.failIfNoSpecifiedTests=false verify
+```
+
+
 ## Azure Container Apps Dynamic Sessions on Java 8
 
 All five upstream unit tests pass. The Boot 2.7.18 installed-artifact test pins the HTTP Client 5/Core 5 pair to 5.6.5/5.4.4 and verifies an arithmetic request and parsed response through the native Java 8 HTTP client, a loopback service, and a synthetic Azure credential. Azure-hosted execution requires a configured session pool and its own service acceptance.
