@@ -1,4 +1,5 @@
 target/
+!/compatibility/docling-serve-api/src/main/java/ai/docling/serve/api/convert/request/target/
 **/.flattened-pom.xml
 
 ### IntelliJ IDEA ###
