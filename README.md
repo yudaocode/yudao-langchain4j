@@ -15,7 +15,9 @@ GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langch
 
 ## JDK 8 / Boot 2 如何使用
 
-切换到 `main-jdk8`。兼容版统一使用 `cn.iocoder.langchain4j`，版本为 `1.24.0-jdk8-SNAPSHOT`，保留对应的 artifactId 与 `dev.langchain4j` Java 包名。**尚未发布 Maven Central 或远端 SNAPSHOT 仓库**；当前需先按兼容分支的构建说明安装到本地 Maven 仓库。正式发布时在官方基线和 JDK 路线后追加日期，未发布上游基线增加 preview；不增加同日序号。stable 与 beta 模块保持各自官方编号，由 BOM 管理。
+Boot 2 / JDK 8 已发布芋道兼容版。导入 [`cn.iocoder.langchain4j:langchain4j-bom:1.24.0-jdk8-20261119`](https://central.sonatype.com/artifact/cn.iocoder.langchain4j/langchain4j-bom/1.24.0-jdk8-20261119)，stable 模块使用 `1.24.0-jdk8-20261119`，beta 模块使用 `1.24.0-beta34-jdk8-20261119`。BOM 管理两类坐标，Java 包名沿用 `dev.langchain4j`。
+
+首批发布 75 个坐标，覆盖核心、Boot 2 starter、已纳入发行的适配器和 Easy RAG 依赖的量化 BGE 模型。其余预训练模型、暂缓的云模块和 Hibernate 仍可按源码说明构建。已发布范围以公开 BOM 为准。
 
 使用官方 `spring-boot-starter-parent:2.7.18` 时，还需设置以下三个属性：Boot 父 POM 直接管理这些依赖，Maven 中导入 BOM 不能覆盖父 POM 的直接声明。仅导入 Boot BOM 的项目应将兼容 BOM 放在 Boot BOM 前，并核对最终依赖树。
 
@@ -31,7 +33,7 @@ GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langch
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-bom</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.24.0-jdk8-20261119</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
