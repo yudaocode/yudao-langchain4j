@@ -15,6 +15,11 @@
             <artifactId>langchain4j-skills</artifactId>
             <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.17.0</version>
+        </dependency>
         <!-- test dependencies -->
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>

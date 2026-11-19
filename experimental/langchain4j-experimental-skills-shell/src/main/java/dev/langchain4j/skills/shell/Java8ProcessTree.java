@@ -1,8 +1,12 @@
 package dev.langchain4j.skills.shell;
 
+import com.sun.jna.Function;
+import com.sun.jna.NativeLibrary;
+import com.sun.jna.Pointer;
 import dev.langchain4j.internal.compat.Java8Platform;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,16 +17,20 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Best-effort descendant cleanup for a process owned by this shell runner.
- * Unix uses a PID/parent snapshot; Java 8 Windows cannot expose every vendor's native process PID.
+ * Unix uses a PID/parent snapshot. Windows resolves the process handle when Java does not expose a PID.
  * @author 芋道源码
  */
 final class Java8ProcessTree {
     private Java8ProcessTree() {}
 
     static void destroyDescendants(Process root) throws Exception {
+        boolean windows = System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
         long rootPid = Java8Platform.pidForLogging(root);
+        if (windows && rootPid <= 0) {
+            rootPid = windowsPid(root);
+        }
         if (rootPid <= 0 || !root.isAlive()) return;
-        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
+        if (windows) {
             run("taskkill", "/PID", Long.toString(rootPid), "/T", "/F");
             return;
         }
@@ -53,6 +61,20 @@ final class Java8ProcessTree {
         }
         for (int index = descendants.size() - 1; index > 0; index--) {
             run("kill", "-KILL", Long.toString(descendants.get(index)));
+        }
+    }
+
+    private static long windowsPid(Process process) {
+        try {
+            // Java 8's Windows ProcessImpl keeps the OS handle instead of the PID.
+            Field handle = process.getClass().getDeclaredField("handle");
+            handle.setAccessible(true);
+            Function getProcessId = NativeLibrary.getInstance("kernel32")
+                    .getFunction("GetProcessId", Function.ALT_CONVENTION);
+            int pid = getProcessId.invokeInt(new Object[] {Pointer.createConstant(handle.getLong(process))});
+            return Integer.toUnsignedLong(pid);
+        } catch (ReflectiveOperationException | SecurityException | LinkageError unavailable) {
+            return -1;
         }
     }
 

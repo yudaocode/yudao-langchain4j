@@ -7,7 +7,9 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -135,7 +137,7 @@ class ShellCommandRunnerTest {
     void should_run_in_specified_working_directory_on_windows(@TempDir Path tempDir) throws IOException, InterruptedException {
         ShellCommandRunner.Result result = ShellCommandRunner.run("cd", tempDir, 10);
 
-        assertThat(result.stdOut()).containsIgnoringCase(tempDir.toRealPath().toString());
+        assertThat(Files.isSameFile(Paths.get(result.stdOut().trim()), tempDir)).isTrue();
     }
 
     @Test
