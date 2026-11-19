@@ -1,0 +1,153 @@
+package dev.langchain4j.service.spring;
+
+import dev.langchain4j.agent.tool.Tool;
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.moderation.ModerationModel;
+import dev.langchain4j.rag.RetrievalAugmentor;
+import dev.langchain4j.rag.content.retriever.ContentRetriever;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.ToolArgumentsErrorHandler;
+import dev.langchain4j.service.tool.ToolExecutionErrorHandler;
+import dev.langchain4j.service.tool.ToolProvider;
+import org.springframework.stereotype.Service;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static dev.langchain4j.service.spring.AiServiceWiringMode.AUTOMATIC;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+/**
+ * An interface annotated with {@code @AiService} will be automatically registered as a bean
+ * and wired with all the following components (beans) available in the context:
+ * <pre>
+ * - {@link ChatModel}
+ * - {@link StreamingChatModel}
+ * - {@link ChatMemory}
+ * - {@link ChatMemoryProvider}
+ * - {@link ContentRetriever}
+ * - {@link RetrievalAugmentor}
+ * - {@link ToolProvider}
+ * - {@link ToolExecutionErrorHandler}
+ * - {@link ToolArgumentsErrorHandler}
+ * - All beans containing methods annotated with {@code @}{@link Tool}
+ * </pre>
+ * You can also explicitly specify which components (beans) should be wired into this AI Service
+ * by setting {@link #wiringMode()} to {@link AiServiceWiringMode#EXPLICIT}
+ * and specifying bean names using the following attributes:
+ * <pre>
+ * - {@link #chatModel()}
+ * - {@link #streamingChatModel()}
+ * - {@link #chatMemory()}
+ * - {@link #chatMemoryProvider()}
+ * - {@link #contentRetriever()}
+ * - {@link #retrievalAugmentor()}
+ * - {@link #moderationModel()}
+ * - {@link #toolProvider()}
+ * - {@link #toolExecutionErrorHandler()}
+ * - {@link #toolArgumentsErrorHandler()}
+ * - {@link #tools()}
+ * </pre>
+ * Property placeholders (e.g., {@code "${my-app.chat-model-bean}"}) are also supported for these attributes.
+ * A placeholder must resolve to a bean name (e.g., {@code "openAiChatModel"}),
+ * not to the name of an LLM model (e.g., {@code "gpt-4o-mini"}).
+ * A placeholder that resolves to an empty value is treated as if the attribute was not set.
+ * <p>
+ * See more information about AI Services <a href="https://docs.langchain4j.dev/tutorials/ai-services">here</a>
+ * and in the Javadoc of {@link AiServices}.
+ *
+ * @see AiServices
+ */
+@Service
+@Target(TYPE)
+@Retention(RUNTIME)
+public @interface AiService {
+
+    /**
+     * Specifies how LangChain4j components (beans) are wired (injected) into this AI Service.
+     */
+    AiServiceWiringMode wiringMode() default AUTOMATIC;
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ChatModel} bean (or a property placeholder
+     * such as {@code "${my-app.chat-model-bean}"}) that should be used by this AI Service.
+     */
+    String chatModel() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link StreamingChatModel} bean (or a property placeholder
+     * such as {@code "${my-app.streaming-chat-model-bean}"}) that should be used by this AI Service.
+     */
+    String streamingChatModel() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ChatMemory} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String chatMemory() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ChatMemoryProvider} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String chatMemoryProvider() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ContentRetriever} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String contentRetriever() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link RetrievalAugmentor} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String retrievalAugmentor() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ModerationModel} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String moderationModel() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ToolProvider} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String toolProvider() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ToolExecutionErrorHandler} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String toolExecutionErrorHandler() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the name of a {@link ToolArgumentsErrorHandler} bean (or a property placeholder)
+     * that should be used by this AI Service.
+     */
+    String toolArgumentsErrorHandler() default "";
+
+    /**
+     * When the {@link #wiringMode()} is set to {@link AiServiceWiringMode#EXPLICIT},
+     * this attribute specifies the names of beans containing methods annotated with {@link Tool} that should be used by this AI Service.
+     * Each element can be a bean name, a comma-separated list of bean names,
+     * or a property placeholder (such as {@code "${my-app.tool-beans}"}) that resolves to either of them
+     * (e.g., {@code my-app.tool-beans=bookingTools,weatherTools}).
+     */
+    String[] tools() default {};
+}

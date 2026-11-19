@@ -19,6 +19,7 @@
         <module>langchain4j-reactive-streaming</module>
         <module>langchain4j-test</module>
         <module>langchain4j</module>
+        <module>spring-boot</module>
         <module>langchain4j-kotlin</module>
 
         <module>langchain4j-easy-rag</module>

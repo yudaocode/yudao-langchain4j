@@ -128,7 +128,7 @@ class DefaultAiServices<T> extends AiServices<T> {
 
     private Object invokeImplementedByProxy(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.isDefault()) {
-            return InvocationHandler.invokeDefault(proxy, method, args);
+            return DefaultMethodInvoker.invoke(proxy, method, args);
         }
         if (method.getDeclaringClass() == Object.class) {
             return switch (method.getName()) {

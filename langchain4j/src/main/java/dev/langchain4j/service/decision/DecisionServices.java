@@ -10,6 +10,7 @@ import static dev.langchain4j.spi.ServiceHelper.loadFactory;
 import dev.langchain4j.Experimental;
 import dev.langchain4j.model.decision.DecisionModel;
 import dev.langchain4j.spi.services.DecisionServicesFactory;
+import dev.langchain4j.service.DefaultMethodInvoker;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -173,7 +174,7 @@ public final class DecisionServices {
                     };
                 }
                 if (method.isDefault()) {
-                    return InvocationHandler.invokeDefault(proxy, method, args);
+                    return DefaultMethodInvoker.invoke(proxy, method, args);
                 }
                 return decisionMethods.get(method).invoke(config, args == null ? new Object[0] : args);
             };

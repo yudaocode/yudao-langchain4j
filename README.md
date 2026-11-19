@@ -8,12 +8,12 @@
 
 | 分支 | 运行环境 | 使用方式 |
 | --- | --- | --- |
-| `main` | JDK 17+；Spring Boot 3.x / 4.x 使用对应官方 starter | 跟踪官方源码，优先使用官方 `dev.langchain4j` 制品 |
+| `main` | JDK 17+；Spring Boot 3.5 / 4.1 | [芋道现代启动器](spring-boot/README.md)提供对应 Boot 制品 |
 | `main-jdk8` | JDK 8；Spring Boot 2.7.18 / Spring 5.3 | 使用 `cn.iocoder.langchain4j` 兼容制品 |
 
 GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langchain4j) · Gitee：[yudaocode/yudao-langchain4j](https://gitee.com/yudaocode/yudao-langchain4j)
 
-跨 Spring Boot 版本共用业务代码时，可以将工具类声明为 `@Component`，并将含默认方法的 `@AiService` 声明为公开可访问的 `public` 接口。同一份代码在 Boot 2.7.18 / JDK 8、Boot 3.5.15 和 Boot 4.1.2 / JDK 17、25 中各通过 1 项独立测试，覆盖工具调用、RAG、默认方法和本地 SSE 流式响应。使用官方现代 starter 时，普通 `@Bean` 工具可按需显式装配。 [官方工具装配说明](https://docs.langchain4j.dev/tutorials/spring-boot-integration/#automatic-component-wiring)
+Boot 3.5.15、Boot 4.1.2 的芋道启动器支持用普通 `@Bean` 工厂方法注册工具，声明返回类型为含 `@Tool` 的具体类。核心支持在 classpath 上调用包级可见 `@AiService` 接口的默认方法。两条现代路线在 JDK 17、25 各通过独立安装包测试，Boot 2.7.18 / JDK 8 使用同一份测试源码也通过。覆盖工具调用、RAG、默认方法和 SSE。见[坐标与复验命令](spring-boot/README.md)。
 
 ## JDK 8 / Boot 2 如何使用
 

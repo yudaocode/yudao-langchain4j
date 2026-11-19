@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>cn.iocoder.langchain4j</groupId>
+        <artifactId>spring-boot-starters</artifactId>
+        <version>1.24.0-beta34-SNAPSHOT</version>
+    </parent>
+    <artifactId>langchain4j-spring-boot-starter</artifactId>
+    <properties>
+        <spring-boot.version>3.5.15</spring-boot.version>
+    </properties>
+</project>
