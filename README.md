@@ -13,7 +13,7 @@
 
 GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langchain4j) · Gitee：[yudaocode/yudao-langchain4j](https://gitee.com/yudaocode/yudao-langchain4j)
 
-跨 Spring Boot 版本共用业务代码时，可以将工具类声明为 `@Component`，并将含默认方法的 `@AiService` 声明为公开可访问的 `public` 接口。同一份代码在 Boot 2.7.18 / JDK 8、Boot 3.5.15 和 Boot 4.1.2 / JDK 17、25 中各通过 1 项独立测试，覆盖工具调用、RAG、默认方法和本地 SSE 流式响应。使用官方现代 starter 时，普通 `@Bean` 工具可按需显式装配。 [官方工具装配说明](https://docs.langchain4j.dev/tutorials/spring-boot-integration/#automatic-component-wiring)
+使用芋道启动器时，普通 `@Bean` 工厂方法可以注册工具，返回类型声明为包含 `@Tool` 方法的具体类。classpath 上包级可见的 `@AiService` 接口也可声明默认方法。同一份安装包测试在 Boot 2.7.18 / JDK 8、Boot 3.5.15 和 Boot 4.1.2 / JDK 17、25 均通过，覆盖工具调用、RAG 和 SSE。见 [现代分支启动器与复验说明](https://github.com/yudaocode/yudao-langchain4j/tree/main/spring-boot)。
 
 ## JDK 8 / Boot 2 如何使用
 
