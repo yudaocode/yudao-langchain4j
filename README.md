@@ -13,6 +13,8 @@
 
 GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langchain4j) · Gitee：[yudaocode/yudao-langchain4j](https://gitee.com/yudaocode/yudao-langchain4j)
 
+跨 Spring Boot 版本共用业务代码时，可以将工具类声明为 `@Component`，并将含默认方法的 `@AiService` 声明为公开可访问的 `public` 接口。同一份代码在 Boot 2.7.18 / JDK 8、Boot 3.5.15 和 Boot 4.1.2 / JDK 17、25 中各通过 1 项独立测试，覆盖工具调用、RAG、默认方法和本地 SSE 流式响应。使用官方现代 starter 时，普通 `@Bean` 工具可按需显式装配。 [官方工具装配说明](https://docs.langchain4j.dev/tutorials/spring-boot-integration/#automatic-component-wiring)
+
 ## JDK 8 / Boot 2 如何使用
 
 Boot 2 / JDK 8 已发布芋道兼容版。导入 [`cn.iocoder.langchain4j:langchain4j-bom:1.24.0-jdk8-20261119`](https://central.sonatype.com/artifact/cn.iocoder.langchain4j/langchain4j-bom/1.24.0-jdk8-20261119)，stable 模块使用 `1.24.0-jdk8-20261119`，beta 模块使用 `1.24.0-beta34-jdk8-20261119`。BOM 管理两类坐标，Java 包名沿用 `dev.langchain4j`。
