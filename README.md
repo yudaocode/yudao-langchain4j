@@ -72,6 +72,10 @@ public interface Assistant {
 
 通过 Spring 注入 `Assistant` 后调用 `chat`。独立 Java 项目可以引入兼容版 `langchain4j` 和 `langchain4j-open-ai`，使用原有 builder API。不要在同一个运行时混用官方与兼容版同名核心模块；它们的 Java 包名相同。Java 8 的 `Flow` 等新 JDK API 使用窄桥接类型，不能将它视为与官方 JDK 17 制品完全二进制兼容。
 
+## Jackson 2／3 JSON 互读
+
+同一套工具参数、消息和结构化输出样例，覆盖 Boot 2.7.18／JDK 8 与 Boot 3.5.15、4.1.2 各在 JDK 17、25 上的双向读写。使用 Boot 3.5.15 BOM 与 Jackson 3.3.0 时，显式管理 `jackson-annotations:2.23`。见 [覆盖示例与复验命令](compatibility-tests/jackson-wire)。
+
 ## GraalVM 独立 worker
 
 GraalVM Polyglot 模块提供独立 worker 入口，可与 Boot 2 / JDK 8 应用配套。实际执行使用 JDK 17 或 25，并复用模块的 JavaScript 和 Python 引擎。见 [worker 说明](code-execution-engines/langchain4j-code-execution-engine-graalvm-polyglot/README-PROCESS.md)。
