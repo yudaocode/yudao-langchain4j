@@ -1,6 +1,6 @@
 # 芋道 LangChain4j 兼容版
 
-上游源码已对齐至 `ca2cbf993`。源码开发版为 1.25.0-jdk8-SNAPSHOT、1.25.0-beta35-jdk8-SNAPSHOT。Boot 2.7.18 已通过原生 JDK 8 独立消费测试。Azure 模块继续使用 Java 8 可用的 Azure SDK BOM 1.3.9 和 Netty 4.1。
+上游源码已对齐至 `c5f5d093f`。源码开发版为 1.25.0-jdk8-SNAPSHOT、1.25.0-beta35-jdk8-SNAPSHOT。Boot 2.7.18 已通过原生 JDK 8 独立消费测试。Azure 模块继续使用 Java 8 可用的 Azure SDK BOM 1.3.9 和 Netty 4.1。
 
 > 版本命名：保留当前源码基线的官方版本号；共用现代制品不加 JDK 后缀，隔离维护的兼容路线添加 `jdk8` / `jdk17` / `jdk25`。SNAPSHOT 尚未发布 Maven Central。JDK 路线后缀不等于最低字节码版本，框架依赖仍按 Boot 版本选择。
 > 完整版本规则与预览命名见 [VERSIONING.md](VERSIONING.md)。
@@ -292,7 +292,7 @@ module=internal/langchain4j-docu-chatbot-updater
 
 ## Infinispan（JDK 8）
 
-导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-infinispan`，使用 `InfinispanEmbeddingStore` 和 `InfinispanChatMemoryStore` 接入服务。Boot 2 项目可设置 `infinispan.version=13.0.22.Final`，对齐 JDK 8 客户端版本。已连接使用 SCRAM-SHA-512 的 Infinispan 16.3.1。单节点经 Docker 端口映射或 NAT 接入且服务端通告地址不可达时，可在传入的客户端配置上设置 `clientIntelligence(ClientIntelligence.BASIC)`。Infinispan 批次覆盖 115 个默认模块。
+导入兼容 BOM 后添加 `cn.iocoder.langchain4j:langchain4j-infinispan`，使用 `InfinispanEmbeddingStore` 和 `InfinispanChatMemoryStore` 接入服务。Boot 2 项目可设置 `infinispan.version=13.0.22.Final`，对齐 JDK 8 客户端版本。已连接使用 SCRAM-SHA-512 的 Infinispan 16.3.1。单节点经 Docker 端口映射或 NAT 接入且服务端通告地址不可达时，可在传入的客户端配置上设置 `clientIntelligence(ClientIntelligence.BASIC)`。Infinispan 批次覆盖 115 个默认模块。 向量查询的异步接口在后台执行 Hot Rod 13 同步查询，聊天记忆仍使用 Hot Rod 原生异步读写。
 
 ## 响应式流（JDK 8）
 

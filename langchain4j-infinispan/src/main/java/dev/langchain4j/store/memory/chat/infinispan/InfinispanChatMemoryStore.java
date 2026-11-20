@@ -1,5 +1,6 @@
 package dev.langchain4j.store.memory.chat.infinispan;
 
+import static dev.langchain4j.internal.CompletableFutureUtils.failOnThrow;
 import static dev.langchain4j.internal.ValidationUtils.ensureNotBlank;
 import static dev.langchain4j.internal.ValidationUtils.ensureNotNull;
 
@@ -9,6 +10,7 @@ import dev.langchain4j.data.message.ChatMessageSerializer;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -119,8 +121,7 @@ public class InfinispanChatMemoryStore implements ChatMemoryStore {
     @Override
     public List<ChatMessage> getMessages(Object memoryId) {
         ensureNotNull(memoryId, "memoryId");
-        String json = remoteCache.get(memoryId.toString());
-        return json == null ? new ArrayList<>() : ChatMessageDeserializer.messagesFromJson(json);
+        return toMessages(remoteCache.get(memoryId.toString()));
     }
 
     @Override
@@ -135,6 +136,36 @@ public class InfinispanChatMemoryStore implements ChatMemoryStore {
     public void deleteMessages(Object memoryId) {
         ensureNotNull(memoryId, "memoryId");
         remoteCache.remove(memoryId.toString());
+    }
+
+    @Override
+    public CompletableFuture<List<ChatMessage>> getMessagesAsync(Object memoryId) {
+        return failOnThrow(() -> {
+            ensureNotNull(memoryId, "memoryId");
+            return remoteCache.getAsync(memoryId.toString()).thenApply(InfinispanChatMemoryStore::toMessages);
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> updateMessagesAsync(Object memoryId, List<ChatMessage> messages) {
+        return failOnThrow(() -> {
+            ensureNotNull(memoryId, "memoryId");
+            ensureNotNull(messages, "messages");
+            String json = ChatMessageSerializer.messagesToJson(messages);
+            return remoteCache.putAsync(memoryId.toString(), json).thenApply(ignored -> null);
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> deleteMessagesAsync(Object memoryId) {
+        return failOnThrow(() -> {
+            ensureNotNull(memoryId, "memoryId");
+            return remoteCache.removeAsync(memoryId.toString()).thenApply(ignored -> null);
+        });
+    }
+
+    private static List<ChatMessage> toMessages(String json) {
+        return json == null ? new ArrayList<>() : ChatMessageDeserializer.messagesFromJson(json);
     }
 
     public static Builder builder() {

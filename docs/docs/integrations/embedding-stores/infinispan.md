@@ -34,6 +34,11 @@ From 15.2 Infinispan Server and above, metadata filtering is supported.
 - `InfinispanEmbeddingStore`
 - `InfinispanChatMemoryStore`
 
+`InfinispanEmbeddingStore.searchAsync` dispatches the synchronous Hot Rod 13 query to the configured
+LangChain4j executor. The asynchronous chat memory methods use the native Hot Rod client APIs.
+Chat memory continuations may run on Hot Rod I/O threads, so keep them non-blocking.
+See [Non-blocking and Reactive](/tutorials/non-blocking).
+
 ### InfinispanChatMemoryStore
 
 A `ChatMemoryStore` backed by an Infinispan cache. Messages are serialized to JSON
