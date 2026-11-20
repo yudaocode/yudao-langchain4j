@@ -92,6 +92,11 @@ Boot 4.1.2／JDK 17、25 已通过 Milvus 2.6.27 Standalone 的标量 HQL、带�
 Boot 4.1.2／JDK 17、25 已使用 Docker PostgreSQL 17 和 pgvector 0.8.6 验证标量 HQL、带过滤的余弦距离 HQL、`HibernateEmbeddingStore` 检索和 JPA 提交。显式 flush 后回滚，独立 PostgreSQL JDBC 连接确认对应记录为 0 行。[Docker 复验](compatibility-tests/hibernate-pgvector-boot4)
 
 
+## Hibernate pgvector（Boot 3）
+
+Boot 3.5.15／JDK 17、25 使用默认 Hibernate ORM 6.6.53.Final，验证了 Docker pgvector 的 HQL、提交、flush 后回滚及批量删除。Boot 3 parent 下显式添加与 `hibernate.version` 一致的 `hibernate-vector`，以 `EmbeddingStore<TextSegment>` 接口调用存储。[依赖与复验步骤](compatibility-tests/hibernate-pgvector-boot3)
+
+
 ---
 
 # LangChain4j: idiomatic, open-source Java library for building LLM-powered applications on the JVM

@@ -145,7 +145,6 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
     protected final DistanceFunction distanceFunction;
     protected final Map<String, Object> queryHints;
 
-    private final JpaCriteriaDelete<?> deleteByIds;
     private final JpaCriteriaInsertValues<?> insertValues;
 
     /**
@@ -278,17 +277,6 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         }
 
         final HibernateCriteriaBuilder criteriaBuilder = sessionFactory.getCriteriaBuilder();
-        final JpaCriteriaDelete<?> delete = criteriaBuilder.createCriteriaDelete(entityClass);
-        @SuppressWarnings("unchecked")
-        final JpaParameterExpression<List<?>> idListParameter =
-                (JpaParameterExpression<List<?>>) (JpaParameterExpression<?>)
-                        criteriaBuilder.listParameter(idType.getJavaTypeClass(), idAttributeMapping.getAttributeName());
-        final JpaRoot<?> root = delete.getTarget();
-        delete.where(criteriaBuilder
-                .in(root.get(idAttributeMapping.getAttributeName()))
-                .value(idListParameter));
-        this.deleteByIds = delete;
-
         final JpaCriteriaInsertValues<?> criteriaInsertValues = criteriaBuilder.createCriteriaInsertValues(entityClass);
         final JpaRoot<?> target = criteriaInsertValues.getTarget();
         final JpaParameterExpression<Object> idParameter =
@@ -354,7 +342,6 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         this.metadataAttributeMappings = null;
         this.distanceFunction = null;
         this.queryHints = null;
-        this.deleteByIds = null;
         this.insertValues = null;
     }
 
@@ -448,11 +435,12 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         if (isNullOrEmpty(ids)) {
             return;
         }
+        // HQL supports collection parameters across Hibernate 6 and 7.
+        String hql = "delete from " + entityPersister.getEntityName() + " e where e."
+                + idAttributeMapping.getAttributeName() + " in :ids";
         sessionFactory.inTransaction(session -> {
-            session.createMutationQuery(deleteByIds)
-                    .setParameter(
-                            idAttributeMapping.getAttributeName(),
-                            ids.stream().map(idType::fromString).collect(Collectors.toList()))
+            session.createMutationQuery(hql)
+                    .setParameterList("ids", ids.stream().map(idType::fromString).collect(Collectors.toList()))
                     .executeUpdate();
         });
     }
