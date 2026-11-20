@@ -1,6 +1,6 @@
 # 芋道 LangChain4j 兼容版
 
-上游源码已对齐至 `ca2cbf993`。源码开发版为 1.25.0-SNAPSHOT、1.25.0-beta35-SNAPSHOT。现代 starter 已复验 Boot 3.5.15 与 4.2.0。
+上游源码已对齐至 `c5f5d093f`。源码开发版为 1.25.0-SNAPSHOT、1.25.0-beta35-SNAPSHOT。现代 starter 已复验 Boot 3.5.15 与 4.2.0。 Infinispan 16.3.1 的向量查询与聊天记忆已使用 Hot Rod 原生异步接口，并通过 JDK 17、25 真库回归。
 
 > 版本命名：保留当前源码基线的官方版本号；共用现代制品不加 JDK 后缀，隔离维护的兼容路线添加 `jdk8` / `jdk17` / `jdk25`。SNAPSHOT 尚未发布 Maven Central。JDK 路线后缀不等于最低字节码版本，框架依赖仍按 Boot 版本选择。
 > 完整版本规则与预览命名见 [VERSIONING.md](VERSIONING.md)。
@@ -10,7 +10,7 @@
 
 | 分支 | 运行环境 | 使用方式 |
 | --- | --- | --- |
-| `main` | JDK 17+；Spring Boot 3.5 / 4.1 | [芋道现代启动器](spring-boot/README.md)提供对应 Boot 制品 |
+| `main` | JDK 17+，Spring Boot 3.5 / 4.1 / 4.2 | [芋道现代启动器](spring-boot/README.md)提供对应 Boot 制品 |
 | `main-jdk8` | JDK 8；Spring Boot 2.7.18 / Spring 5.3 | 使用 `cn.iocoder.langchain4j` 兼容制品 |
 
 GitHub：[yudaocode/yudao-langchain4j](https://github.com/yudaocode/yudao-langchain4j) · Gitee：[yudaocode/yudao-langchain4j](https://gitee.com/yudaocode/yudao-langchain4j)

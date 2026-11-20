@@ -13,10 +13,13 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.ToolExecutionResultMessage;
 import dev.langchain4j.data.message.UserMessage;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.infinispan.client.hotrod.RemoteCacheManager;
+import org.infinispan.client.hotrod.configuration.ClientIntelligence;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
+import org.infinispan.client.hotrod.exceptions.RemoteCacheManagerNotStartedException;
 import org.infinispan.commons.util.Version;
 import org.infinispan.testcontainers.InfinispanContainer;
 import org.junit.jupiter.api.AfterAll;
@@ -25,6 +28,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class InfinispanChatMemoryStoreIT {
+
+    private static final Duration TIMEOUT = Duration.ofSeconds(30);
 
     static InfinispanContainer infinispan = new InfinispanContainer(IMAGE_BASENAME + ":" + Version.getVersion());
     InfinispanChatMemoryStore chatMemoryStore;
@@ -42,7 +47,7 @@ class InfinispanChatMemoryStoreIT {
     @BeforeEach
     void setUp() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        builder.uri(infinispan.getConnectionURI()).clientIntelligence(ClientIntelligence.BASIC);
         chatMemoryStore = InfinispanChatMemoryStore.builder()
                 .infinispanConfigBuilder(builder)
                 .build();
@@ -169,7 +174,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_work_with_remote_cache_manager() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        builder.uri(infinispan.getConnectionURI()).clientIntelligence(ClientIntelligence.BASIC);
         RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
         InfinispanChatMemoryStore store = InfinispanChatMemoryStore.builder()
@@ -192,7 +197,7 @@ class InfinispanChatMemoryStoreIT {
                 + "</distributed-cache>";
 
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        builder.uri(infinispan.getConnectionURI()).clientIntelligence(ClientIntelligence.BASIC);
         InfinispanChatMemoryStore store = InfinispanChatMemoryStore.builder()
                 .infinispanConfigBuilder(builder)
                 .cacheName("custom-chat-memory")
@@ -207,7 +212,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_not_create_cache_when_disabled() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        builder.uri(infinispan.getConnectionURI()).clientIntelligence(ClientIntelligence.BASIC);
         RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
         assertThatThrownBy(() -> InfinispanChatMemoryStore.builder()
@@ -224,7 +229,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_fail_when_cache_does_not_exist_and_creation_is_disabled_with_configuration_builder() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        builder.uri(infinispan.getConnectionURI()).clientIntelligence(ClientIntelligence.BASIC);
 
         assertThatThrownBy(() -> InfinispanChatMemoryStore.builder()
                         .infinispanConfigBuilder(builder)
@@ -238,7 +243,7 @@ class InfinispanChatMemoryStoreIT {
     @Test
     void should_create_cache_by_default() {
         ConfigurationBuilder builder = new ConfigurationBuilder();
-        builder.uri(infinispan.getConnectionURI());
+        builder.uri(infinispan.getConnectionURI()).clientIntelligence(ClientIntelligence.BASIC);
         RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
 
         InfinispanChatMemoryStore.builder()
@@ -247,5 +252,102 @@ class InfinispanChatMemoryStoreIT {
                 .build();
 
         assertThat(remoteCacheManager.getCache("cache-created")).isNotNull();
+    }
+
+    @Test
+    void should_get_messages_async() {
+        List<ChatMessage> messages = List.of(UserMessage.from("Hello async"), AiMessage.from("Hi from async!"));
+
+        chatMemoryStore.updateMessages("async-get", messages);
+
+        assertThat(chatMemoryStore.getMessagesAsync("async-get"))
+                .succeedsWithin(TIMEOUT)
+                .isEqualTo(messages);
+    }
+
+    @Test
+    void should_get_empty_messages_async_for_unknown_id() {
+        assertThat(chatMemoryStore.getMessagesAsync("unknown-async"))
+                .succeedsWithin(TIMEOUT)
+                .isEqualTo(List.of());
+    }
+
+    @Test
+    void should_update_messages_async() {
+        List<ChatMessage> messages = List.of(UserMessage.from("Stored async"));
+
+        assertThat(chatMemoryStore.updateMessagesAsync("async-update", messages))
+                .succeedsWithin(TIMEOUT);
+
+        assertThat(chatMemoryStore.getMessages("async-update")).isEqualTo(messages);
+    }
+
+    @Test
+    void should_delete_messages_async() {
+        chatMemoryStore.updateMessages("async-delete", List.of(UserMessage.from("To be deleted")));
+
+        assertThat(chatMemoryStore.deleteMessagesAsync("async-delete")).succeedsWithin(TIMEOUT);
+
+        assertThat(chatMemoryStore.getMessages("async-delete")).isEmpty();
+    }
+
+    @Test
+    void should_fail_async_methods_through_the_future_when_arguments_are_null() {
+        assertThat(chatMemoryStore.getMessagesAsync(null))
+                .failsWithin(TIMEOUT)
+                .withThrowableThat()
+                .havingCause()
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .withMessage("memoryId cannot be null");
+
+        assertThat(chatMemoryStore.updateMessagesAsync(null, List.of()))
+                .failsWithin(TIMEOUT)
+                .withThrowableThat()
+                .havingCause()
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .withMessage("memoryId cannot be null");
+
+        assertThat(chatMemoryStore.updateMessagesAsync("async-null-messages", null))
+                .failsWithin(TIMEOUT)
+                .withThrowableThat()
+                .havingCause()
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .withMessage("messages cannot be null");
+
+        assertThat(chatMemoryStore.deleteMessagesAsync(null))
+                .failsWithin(TIMEOUT)
+                .withThrowableThat()
+                .havingCause()
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .withMessage("memoryId cannot be null");
+    }
+
+    @Test
+    void should_fail_async_methods_through_the_future_when_remote_cache_manager_is_stopped() {
+        ConfigurationBuilder builder = new ConfigurationBuilder();
+        builder.uri(infinispan.getConnectionURI()).clientIntelligence(ClientIntelligence.BASIC);
+        RemoteCacheManager remoteCacheManager = new RemoteCacheManager(builder.build());
+        InfinispanChatMemoryStore store = InfinispanChatMemoryStore.builder()
+                .remoteCacheManager(remoteCacheManager)
+                .build();
+        remoteCacheManager.stop();
+
+        assertThat(store.getMessagesAsync("stopped"))
+                .failsWithin(TIMEOUT)
+                .withThrowableThat()
+                .havingCause()
+                .isExactlyInstanceOf(RemoteCacheManagerNotStartedException.class);
+
+        assertThat(store.updateMessagesAsync("stopped", List.of(UserMessage.from("Hello"))))
+                .failsWithin(TIMEOUT)
+                .withThrowableThat()
+                .havingCause()
+                .isExactlyInstanceOf(RemoteCacheManagerNotStartedException.class);
+
+        assertThat(store.deleteMessagesAsync("stopped"))
+                .failsWithin(TIMEOUT)
+                .withThrowableThat()
+                .havingCause()
+                .isExactlyInstanceOf(RemoteCacheManagerNotStartedException.class);
     }
 }
