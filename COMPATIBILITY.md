@@ -5,7 +5,7 @@
 - LangChain4j upstream main: `886c258b91090d41c941e69ab58edf6aa020a9c9` (1.24.0 / beta34 development sources).
 - Selected official Spring starter sources: `langchain4j/langchain4j-spring` at `e00111bdccae9f091f0cc3a2fc4b56be0c273f99`; see `spring-boot2/UPSTREAM.md`.
 - Original sources, packages, authors and licenses remain. Newly written compatibility classes use `@author 芋道源码`.
-- Version `1.24.0-jdk8-SNAPSHOT`, group `cn.iocoder.langchain4j`; no Maven Central or remote SNAPSHOT publication yet.
+- Version `1.25.0-jdk8-SNAPSHOT`, group `cn.iocoder.langchain4j`; no Maven Central or remote SNAPSHOT publication yet.
 
 ## Supported build scope
 

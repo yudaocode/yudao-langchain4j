@@ -1,5 +1,7 @@
 # 芋道 LangChain4j 兼容版
 
+上游源码已对齐至 `70dc8fec3`。源码开发版为 1.25.0-jdk8-SNAPSHOT、1.25.0-beta35-jdk8-SNAPSHOT。Boot 2.7.18 已通过原生 JDK 8 独立消费测试。Azure 模块继续使用 Java 8 可用的 Azure SDK BOM 1.3.9 和 Netty 4.1。
+
 > 版本命名：保留当前源码基线的官方版本号；共用现代制品不加 JDK 后缀，隔离维护的兼容路线添加 `jdk8` / `jdk17` / `jdk25`。SNAPSHOT 尚未发布 Maven Central。JDK 路线后缀不等于最低字节码版本，框架依赖仍按 Boot 版本选择。
 > 完整版本规则与预览命名见 [VERSIONING.md](VERSIONING.md)。
 
@@ -177,7 +179,7 @@ Easy RAG 批次覆盖 78 个 Java 8 默认模块。
 
 ## Agentic A2A（JDK 8）
 
-导入 `cn.iocoder.langchain4j:langchain4j-bom:1.24.0-jdk8-SNAPSHOT` 后引入 `cn.iocoder.langchain4j:langchain4j-agentic-a2a`，通过 `AgenticServices.a2aBuilder(url, MyAgent.class)` 连接 A2A 服务。A2A Java SDK 1.5.1.Final 由 [AgentScope Java 8 兼容分支](https://github.com/yudaocode/yudao-agentscope-java/tree/main-jdk8) 提供，请先安装其 `agentscope-a2a-sdk-java8:2.1.0-jdk8-SNAPSHOT`。同一应用只使用一套 A2A SDK 制品。
+导入 `cn.iocoder.langchain4j:langchain4j-bom:1.25.0-jdk8-SNAPSHOT` 后引入 `cn.iocoder.langchain4j:langchain4j-agentic-a2a`，通过 `AgenticServices.a2aBuilder(url, MyAgent.class)` 连接 A2A 服务。A2A Java SDK 1.5.1.Final 由 [AgentScope Java 8 兼容分支](https://github.com/yudaocode/yudao-agentscope-java/tree/main-jdk8) 提供，请先安装其 `agentscope-a2a-sdk-java8:2.1.0-jdk8-SNAPSHOT`。同一应用只使用一套 A2A SDK 制品。
 
 Boot 2.7.18 应用按 [AgentScope A2A 接入说明](https://github.com/yudaocode/yudao-agentscope-java/blob/main-jdk8/JAVA8-COMPATIBILITY.md#a2anacos-与聚合包) 对齐 Gson、Jackson、HTTP Client 与 Reactor。A2A 批次覆盖 82 个默认模块。
 

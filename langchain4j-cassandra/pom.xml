@@ -5,7 +5,7 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+        <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
 
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
             <classifier>tests</classifier>
             <type>test-jar</type>
             <scope>test</scope>
@@ -57,13 +57,13 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -4,11 +4,11 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+        <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
     <artifactId>langchain4j-core</artifactId>
-    <version>1.24.0-jdk8-SNAPSHOT</version>
+    <version>1.25.0-jdk8-SNAPSHOT</version>
     <name>LangChain4j :: Core</name>
     <description>Core classes and interfaces of LangChain4j</description>
     <dependencies>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>cn.iocoder.spring-ai</groupId>
             <artifactId>spring-ai-jspecify-compat</artifactId>
-            <version>2.1.0-jdk8-SNAPSHOT</version>
+            <version>2.1.1-jdk8-SNAPSHOT</version>
         </dependency>
         <!-- test dependencies -->
         <!-- the model mocks copied from langchain4j-test (see below) need it -->
@@ -39,7 +39,7 @@
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-mutiny-zero-compat</artifactId>
             <scope>test</scope>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -65,12 +65,12 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-java8-compat</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.spring-ai</groupId>
             <artifactId>spring-ai-jdk-http-compat</artifactId>
-            <version>2.1.0-jdk8-SNAPSHOT</version>
+            <version>2.1.1-jdk8-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>

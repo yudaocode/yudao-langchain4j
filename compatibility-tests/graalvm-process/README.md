@@ -1,6 +1,6 @@
 # JDK 8 应用接入 GraalVM 独立执行
 
-Boot 2 应用使用 `cn.iocoder.langchain4j:langchain4j-code-execution-engine-graalvm-process:1.24.0-beta34-jdk8-SNAPSHOT`。该版本也由本分支的 SNAPSHOT BOM 管理。
+Boot 2 应用使用 `cn.iocoder.langchain4j:langchain4j-code-execution-engine-graalvm-process:1.25.0-beta35-jdk8-SNAPSHOT`。该版本也由本分支的 SNAPSHOT BOM 管理。
 
 从本仓库的 `main` 分支构建现代 worker。
 

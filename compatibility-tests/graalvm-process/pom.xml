@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.langchain4j.compatibility</groupId>
     <artifactId>graalvm-process-consumer</artifactId>
-    <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+    <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
     <properties>
         <boot.version>2.7.18</boot.version>
         <maven.compiler.release>8</maven.compiler.release>

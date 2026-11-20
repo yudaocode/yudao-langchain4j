@@ -9,7 +9,7 @@
     </parent>
     <groupId>cn.iocoder.langchain4j.compatibility</groupId>
     <artifactId>boot2-opensearch</artifactId>
-    <version>1.24.0-jdk8-SNAPSHOT</version>
+    <version>1.25.0-jdk8-SNAPSHOT</version>
     <properties>
         <java.version>8</java.version>
         <httpclient5.version>5.6.5</httpclient5.version>
@@ -28,7 +28,7 @@
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-bom</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

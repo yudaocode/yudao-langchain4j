@@ -4,17 +4,17 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+        <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
         <relativePath>../langchain4j-parent/pom.xml</relativePath>
     </parent>
     <artifactId>langchain4j-bom</artifactId>
-    <version>1.24.0-jdk8-SNAPSHOT</version>
+    <version>1.25.0-jdk8-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LangChain4j :: BOM</name>
     <description>Java 8 compatibility BOM: only modules included in the supported default reactor.</description>
     <properties>
-        <langchain4j.stable.version>1.24.0-jdk8-SNAPSHOT</langchain4j.stable.version>
-        <langchain4j.beta.version>1.24.0-beta34-jdk8-SNAPSHOT</langchain4j.beta.version>
+        <langchain4j.stable.version>1.25.0-jdk8-SNAPSHOT</langchain4j.stable.version>
+        <langchain4j.beta.version>1.25.0-beta35-jdk8-SNAPSHOT</langchain4j.beta.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -232,142 +232,142 @@
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-java8-compat</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-core</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client-jdk</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client-apache</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-http-client-okhttp</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-open-ai</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-test</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-skills</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-mcp</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-reactive-streaming</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-anthropic</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-google-ai-gemini</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-ollama</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-mistral-ai</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-cohere</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-local-ai</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-hugging-face</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-workers-ai</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-voyage-ai</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-document-parser-apache-tika</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-experimental-skills-shell</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-mutiny-zero-compat</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-spring-boot-starter</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
-                <version>1.24.0-jdk8-SNAPSHOT</version>
+                <version>1.25.0-jdk8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
@@ -430,25 +430,25 @@
                 <artifactId>logback-core</artifactId>
                 <version>1.2.13</version>
             </dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-apache-pdfbox</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-apache-poi</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-markdown</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-yaml</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-transformer-jsoup</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-code-execution-engine-judge0</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-apache-pdfbox</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-apache-poi</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-markdown</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-yaml</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-transformer-jsoup</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-code-execution-engine-judge0</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
             <dependency>
                 <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-code-execution-engine-graalvm-process</artifactId>
-                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+                <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
             </dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-github</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-jina</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-nomic</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-ovh-ai</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-google-custom</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-searchapi</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-tavily</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
-        <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-typesafe</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-agentic</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-agentic-patterns</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-guardrails</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embedding-store-filter-parser-sql</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-open-ai-official</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-agentic-mcp</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-azure-open-ai</artifactId><version>1.24.0-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-micrometer-metrics</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-observation</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-pgvector</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-mariadb</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-chroma</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-e5-small-v2</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-zh-v15</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-zh-v15-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en-v15</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en-v15-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-e5-small-v2-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-amazon-s3</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-azure-storage-blob</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-google-cloud-storage</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-playwright</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-selenium</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-tencent-cos</artifactId><version>${langchain4j.beta.version}</version></dependency></dependencies>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-github</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-jina</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-nomic</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-ovh-ai</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-google-custom</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-searchapi</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+            <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-web-search-engine-tavily</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency>
+        <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-typesafe</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-agentic</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-agentic-patterns</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-guardrails</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embedding-store-filter-parser-sql</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-open-ai-official</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-agentic-mcp</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-azure-open-ai</artifactId><version>1.25.0-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-micrometer-metrics</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-observation</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-pgvector</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-mariadb</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-chroma</artifactId><version>1.25.0-beta35-jdk8-SNAPSHOT</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-e5-small-v2</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-zh-v15</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-zh-v15-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en-v15</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en-v15-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-embeddings-e5-small-v2-q</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-amazon-s3</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-azure-storage-blob</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-google-cloud-storage</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-playwright</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-selenium</artifactId><version>${langchain4j.beta.version}</version></dependency><dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-tencent-cos</artifactId><version>${langchain4j.beta.version}</version></dependency></dependencies>
     </dependencyManagement>
     <build>
         <plugins>

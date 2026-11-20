@@ -4,7 +4,7 @@
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-parent</artifactId>
-        <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+        <version>1.25.0-beta35-jdk8-SNAPSHOT</version>
         <relativePath>../../langchain4j-parent/pom.xml</relativePath>
     </parent>
     <artifactId>langchain4j-document-loader-google-cloud-storage</artifactId>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-core</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>1.24.0-jdk8-SNAPSHOT</version>
+            <version>1.25.0-jdk8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
