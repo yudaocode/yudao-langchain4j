@@ -10,9 +10,9 @@
 </dependency>
 ```
 
-通过 `HibernateEmbeddingStore.builder(EntityType.class)` 使用应用的 SessionFactory，将结果声明为 `EmbeddingStore<TextSegment>`。本批覆盖已映射向量实体、HQL 标量和向量查询、`EmbeddingStore.search` 和 `removeAll(ids)`。Hibernate 7 签名中的 `Restriction` 与 JSON Criteria API 仍沿用 Hibernate 7 路线。
+通过 `HibernateEmbeddingStore.builder(EntityType.class)` 使用应用的 SessionFactory，将结果声明为 `EmbeddingStore<TextSegment>`。测试覆盖已映射向量实体、HQL 标量和向量查询、`EmbeddingStore.search` 和 `removeAll(ids)`。同一用例通过存储接口写入 JSON 元数据，组合列与 JSON 条件进行向量检索和 `removeAll(filter)`。覆盖数值比较、集合条件、UUID、含通配字符的文本、缺失字段和过滤后的 topK。Hibernate 6.6 使用 PostgreSQL JSON 路径提取实现通用过滤接口。使用公开的 Hibernate `Restriction` 重载时，运行环境仍需 Hibernate 7。
 
-按 [Boot 4 复验](../hibernate-pgvector-boot4/README.md) 的容器命令启动专用 PostgreSQL pgvector，并启用 `vector` 扩展。记录映射到本机的 `host:port` 为 `PGVECTOR_ADDRESS`。测试使用数据库 `fixture` 和表 `lc4j_hibernate_pgvector_boot3`，Hibernate 会创建并删除该表。
+已在 PostgreSQL 16 和 17 上验证。按 [Boot 4 复验](../hibernate-pgvector-boot4/README.md) 的容器命令启动专用 PostgreSQL pgvector，并启用 `vector` 扩展。记录映射到本机的 `host:port` 为 `PGVECTOR_ADDRESS`。测试使用数据库 `fixture` 和表 `lc4j_hibernate_pgvector_boot3`，Hibernate 会创建并删除该表。
 
 在当前分支仓库根目录以 JDK 17 启动 Maven。设置 `TEST_JAVA_HOME` 和对应的 `TEST_JAVA_SPEC`（`17` 或 `25`）。
 

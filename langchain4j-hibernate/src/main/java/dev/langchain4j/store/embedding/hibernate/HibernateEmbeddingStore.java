@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
+import org.hibernate.Version;
 import org.hibernate.boot.ResourceStreamLocator;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.classloading.internal.ClassLoaderServiceImpl;
@@ -116,6 +117,7 @@ import org.hibernate.type.descriptor.java.JavaType;
 public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
     private static final Json.JsonCodec CODEC =
             ProviderJson.codec(ProviderJsonSpec.builder().build());
+    private static final boolean IS_HIBERNATE_ORM_6 = Version.getVersionString().startsWith("6.");
     private static final boolean IS_HIBERNATE_ORM_7_1;
 
     static {
@@ -450,7 +452,7 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         ensureNotNull(filter, "filter");
         final HibernateCriteriaBuilder criteriaBuilder = sessionFactory.getCriteriaBuilder();
         final JpaCriteriaDelete<?> delete = criteriaBuilder.createCriteriaDelete(entityClass);
-        delete.where(createPredicateFromFilter(delete.getTarget(), filter, criteriaBuilder));
+        delete.where(createPredicateFromFilter(delete.getRoot(), filter, criteriaBuilder));
         sessionFactory.inTransaction(session -> {
             session.createMutationQuery(delete).executeUpdate();
         });
@@ -951,14 +953,28 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         }
     }
 
+    private <T> JpaExpression<T> jsonMetadataValue(
+            JpaRoot<?> root, HibernateCriteriaBuilder criteriaBuilder, String key, Class<T> type) {
+        JpaPath<?> metadata = root.get(unmappedMetadataAttributeMapping.getAttributeName());
+        JpaExpression<String> path = criteriaBuilder.literal("$." + key);
+        if (IS_HIBERNATE_ORM_6 && databaseKind == DatabaseKind.POSTGRESQL) {
+            // Hibernate 6.6 has SQL pattern support but lacks the JSON value Criteria API.
+            JpaExpression<String> text = criteriaBuilder.sql(
+                    "jsonb_path_query_first(cast(? as jsonb), cast(? as jsonpath)) #>> '{}'",
+                    String.class,
+                    metadata,
+                    path);
+            return type == String.class ? text.as(type) : text.cast(type);
+        }
+        return criteriaBuilder.jsonValue(metadata, path, type);
+    }
+
     private JpaPredicate mapContains(
             JpaRoot<?> root, HibernateCriteriaBuilder criteriaBuilder, ContainsString containsString) {
         final AttributeMapping attributeMapping = metadataAttributeMappings.get(containsString.key());
         final JpaExpression<String> expression = attributeMapping != null
                 ? get(root, containsString.key())
-                : criteriaBuilder.jsonValue(
-                        root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                        criteriaBuilder.literal("$." + containsString.key()));
+                : jsonMetadataValue(root, criteriaBuilder, containsString.key(), String.class);
         return criteriaBuilder.and(
                 expression.isNotNull(),
                 criteriaBuilder.like(
@@ -982,10 +998,7 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
             return criteriaBuilder.and(
                     valueExpression.isNotNull(), criteriaBuilder.equal(valueExpression, domainValue));
         } else {
-            final JpaExpression<?> valueExpression = criteriaBuilder.jsonValue(
-                    root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                    criteriaBuilder.literal("$." + isEqualTo.key()),
-                    isEqualTo.comparisonValue().getClass());
+            final JpaExpression<?> valueExpression = jsonMetadataValue(root, criteriaBuilder, isEqualTo.key(), isEqualTo.comparisonValue().getClass());
             return criteriaBuilder.and(
                     valueExpression.isNotNull(), criteriaBuilder.equal(valueExpression, isEqualTo.comparisonValue()));
         }
@@ -1000,10 +1013,7 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
             final Object domainValue = toDomainValue(attributeMapping.getJavaType(), comparisonValue);
             return criteriaBuilder.or(valueExpression.isNull(), criteriaBuilder.notEqual(valueExpression, domainValue));
         } else {
-            final JpaExpression<?> valueExpression = criteriaBuilder.jsonValue(
-                    root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                    criteriaBuilder.literal("$." + isNotEqualTo.key()),
-                    isNotEqualTo.comparisonValue().getClass());
+            final JpaExpression<?> valueExpression = jsonMetadataValue(root, criteriaBuilder, isNotEqualTo.key(), isNotEqualTo.comparisonValue().getClass());
             return criteriaBuilder.or(
                     valueExpression.isNull(),
                     criteriaBuilder.notEqual(valueExpression, isNotEqualTo.comparisonValue()));
@@ -1022,15 +1032,10 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
             final JpaExpression<?> valueExpression;
             final Collection<?> values;
             if (valueClass != null) {
-                valueExpression = criteriaBuilder.jsonValue(
-                        root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                        criteriaBuilder.literal("$." + isIn.key()),
-                        valueClass);
+                valueExpression = jsonMetadataValue(root, criteriaBuilder, isIn.key(), valueClass);
                 values = isIn.comparisonValues();
             } else {
-                valueExpression = criteriaBuilder.jsonValue(
-                        root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                        criteriaBuilder.literal("$." + isIn.key()));
+                valueExpression = jsonMetadataValue(root, criteriaBuilder, isIn.key(), String.class);
                 values = isIn.comparisonValues().stream().map(Object::toString).collect(Collectors.toList());
             }
             //noinspection unchecked
@@ -1053,15 +1058,10 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
             final JpaExpression<?> valueExpression;
             final Collection<?> values;
             if (valueClass != null) {
-                valueExpression = criteriaBuilder.jsonValue(
-                        root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                        criteriaBuilder.literal("$." + isNotIn.key()),
-                        valueClass);
+                valueExpression = jsonMetadataValue(root, criteriaBuilder, isNotIn.key(), valueClass);
                 values = isNotIn.comparisonValues();
             } else {
-                valueExpression = criteriaBuilder.jsonValue(
-                        root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                        criteriaBuilder.literal("$." + isNotIn.key()));
+                valueExpression = jsonMetadataValue(root, criteriaBuilder, isNotIn.key(), String.class);
                 values = isNotIn.comparisonValues().stream()
                         .map(Object::toString)
                         .collect(Collectors.toList());
@@ -1124,10 +1124,7 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         } else {
             //noinspection unchecked
             return criteriaBuilder.greaterThan(
-                    criteriaBuilder.jsonValue(
-                            root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                            criteriaBuilder.literal("$." + isGreaterThan.key()),
-                            (Class<Y>) isGreaterThan.comparisonValue().getClass()),
+                    jsonMetadataValue(root, criteriaBuilder, isGreaterThan.key(), (Class<Y>) isGreaterThan.comparisonValue().getClass()),
                     (Y) isGreaterThan.comparisonValue());
         }
     }
@@ -1151,10 +1148,7 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         } else {
             //noinspection unchecked
             return criteriaBuilder.greaterThanOrEqualTo(
-                    criteriaBuilder.jsonValue(
-                            root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                            criteriaBuilder.literal("$." + isGreaterThanOrEqualTo.key()),
-                            (Class<Y>) isGreaterThanOrEqualTo.comparisonValue().getClass()),
+                    jsonMetadataValue(root, criteriaBuilder, isGreaterThanOrEqualTo.key(), (Class<Y>) isGreaterThanOrEqualTo.comparisonValue().getClass()),
                     (Y) isGreaterThanOrEqualTo.comparisonValue());
         }
     }
@@ -1177,10 +1171,7 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         } else {
             //noinspection unchecked
             return criteriaBuilder.lessThan(
-                    criteriaBuilder.jsonValue(
-                            root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                            criteriaBuilder.literal("$." + isLessThan.key()),
-                            (Class<Y>) isLessThan.comparisonValue().getClass()),
+                    jsonMetadataValue(root, criteriaBuilder, isLessThan.key(), (Class<Y>) isLessThan.comparisonValue().getClass()),
                     (Y) isLessThan.comparisonValue());
         }
     }
@@ -1204,10 +1195,7 @@ public class HibernateEmbeddingStore<E> implements EmbeddingStore<TextSegment> {
         } else {
             //noinspection unchecked
             return criteriaBuilder.lessThanOrEqualTo(
-                    criteriaBuilder.jsonValue(
-                            root.get(unmappedMetadataAttributeMapping.getAttributeName()),
-                            criteriaBuilder.literal("$." + isLessThanOrEqualTo.key()),
-                            (Class<Y>) isLessThanOrEqualTo.comparisonValue().getClass()),
+                    jsonMetadataValue(root, criteriaBuilder, isLessThanOrEqualTo.key(), (Class<Y>) isLessThanOrEqualTo.comparisonValue().getClass()),
                     (Y) isLessThanOrEqualTo.comparisonValue());
         }
     }

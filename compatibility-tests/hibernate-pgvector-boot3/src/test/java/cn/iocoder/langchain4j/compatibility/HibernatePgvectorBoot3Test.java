@@ -1,17 +1,21 @@
 package cn.iocoder.langchain4j.compatibility;
 
+import static dev.langchain4j.store.embedding.filter.MetadataFilterBuilder.metadataKey;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
+import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.hibernate.DatabaseKind;
 import dev.langchain4j.store.embedding.hibernate.EmbeddedText;
 import dev.langchain4j.store.embedding.hibernate.EmbeddingVector;
 import dev.langchain4j.store.embedding.hibernate.HibernateEmbeddingStore;
+import dev.langchain4j.store.embedding.hibernate.MetadataAttribute;
 import dev.langchain4j.store.embedding.hibernate.UnmappedMetadata;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +28,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.Array;
@@ -128,6 +133,54 @@ class HibernatePgvectorBoot3Test {
     }
 
     @Test
+    void filtersAndRemovesMetadataBeforeRanking() {
+        UUID tenant = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        store.addAll(
+                List.of("metadata-in", "metadata-out", "metadata-missing"),
+                List.of(
+                        Embedding.from(new float[] {0.8f, 0.6f, 0}),
+                        Embedding.from(new float[] {1, 0, 0}),
+                        Embedding.from(new float[] {1, 0, 0})),
+                List.of(
+                        TextSegment.from("inside", new Metadata()
+                                .put("locale", "metadata-zh")
+                                .put("label", "芋道_100%")
+                                .put("priority", 12)
+                                .put("tenant", tenant)),
+                        TextSegment.from("closer", new Metadata()
+                                .put("locale", "metadata-zh")
+                                .put("label", "芋道X100Y")
+                                .put("priority", 2)),
+                        TextSegment.from("missing", new Metadata().put("locale", "metadata-zh"))));
+
+        Filter scope = metadataKey("locale").isEqualTo("metadata-zh");
+        Filter present = metadataKey("priority").isGreaterThan(9)
+                .and(metadataKey("priority").isLessThanOrEqualTo(12))
+                .and(metadataKey("priority").isIn(10, 12))
+                .and(metadataKey("label").containsString("_100%"))
+                .and(metadataKey("tenant").isEqualTo(tenant));
+        assertThat(matchingIds(scope.and(present), 1)).containsExactly("metadata-in");
+        assertThat(matchingIds(scope.and(metadataKey("priority").isNotEqualTo(12)), 10))
+                .containsExactlyInAnyOrder("metadata-out", "metadata-missing");
+        assertThat(matchingIds(scope.and(metadataKey("priority").isNotIn(12, 2)), 10))
+                .containsExactly("metadata-missing");
+
+        store.removeAll(scope.and(present));
+        assertThat(textFor("metadata-in")).isEmpty();
+        assertThat(textFor("metadata-out")).containsExactly("closer");
+        assertThat(textFor("metadata-missing")).containsExactly("missing");
+    }
+
+    private static List<String> matchingIds(Filter filter, int maxResults) {
+        return store.search(EmbeddingSearchRequest.builder()
+                        .queryEmbedding(Embedding.from(new float[] {1, 0, 0}))
+                        .filter(filter)
+                        .maxResults(maxResults)
+                        .build())
+                .matches().stream().map(EmbeddingMatch::embeddingId).toList();
+    }
+
+    @Test
     void rollbackBeforeFlushDiscardsPendingEntity() {
         transactions.executeWithoutResult(status -> {
             em.persist(new Document("unflushed", "pending", "zh", new float[] {1, 0, 0}));
@@ -212,6 +265,7 @@ class HibernatePgvectorBoot3Test {
         @Column(length = 200)
         private String text;
 
+        @MetadataAttribute
         @Column(length = 16)
         private String locale;
 

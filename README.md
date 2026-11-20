@@ -94,7 +94,7 @@ Boot 4.1.2／JDK 17、25 已使用 Docker PostgreSQL 17 和 pgvector 0.8.6 验�
 
 ## Hibernate pgvector（Boot 3）
 
-Boot 3.5.15／JDK 17、25 使用默认 Hibernate ORM 6.6.53.Final，验证了 Docker pgvector 的 HQL、提交、flush 后回滚及批量删除。Boot 3 parent 下显式添加与 `hibernate.version` 一致的 `hibernate-vector`，以 `EmbeddingStore<TextSegment>` 接口调用存储。[依赖与复验步骤](compatibility-tests/hibernate-pgvector-boot3)
+Boot 3.5.15／JDK 17、25 使用默认 Hibernate ORM 6.6.53.Final，在 Docker PostgreSQL 16、17 上验证了 pgvector HQL、提交、flush 后回滚、批量删除及 JSON 元数据过滤。通过 `EmbeddingStore<TextSegment>` 写入元数据、按条件检索和删除，过滤在向量结果截断前执行。Boot 3 parent 下显式添加与 `hibernate.version` 一致的 `hibernate-vector`。[依赖与复验步骤](compatibility-tests/hibernate-pgvector-boot3)
 
 
 ---
