@@ -3,11 +3,13 @@ package dev.langchain4j.web.search.tavily;
 import dev.langchain4j.web.search.WebSearchRequest;
 import dev.langchain4j.web.search.WebSearchResults;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
@@ -21,6 +23,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  * cancellation reaching the HTTP call the socket would stay open and the assertion would time out.
  */
 class TavilyWebSearchEngineAsyncTest {
+
+    @Test
+    void searchAsync_returns_a_failed_future_instead_of_throwing() {
+        TavilyWebSearchEngine engine = TavilyWebSearchEngine.builder()
+                .baseUrl("http://localhost:1")
+                .apiKey("test-key")
+                .build();
+
+        CompletableFuture<WebSearchResults> future = engine.searchAsync(null);
+
+        assertThat(future)
+                .failsWithin(Duration.ofSeconds(1))
+                .withThrowableThat()
+                .havingCause()
+                .isInstanceOf(NullPointerException.class);
+    }
 
     @RepeatedTest(10)
     void searchAsync_cancellation_aborts_the_in_flight_http_call() throws Exception {
