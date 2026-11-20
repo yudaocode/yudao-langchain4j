@@ -7,9 +7,32 @@ Boot 3 和 Boot 4 的 starter 版本均为 `1.25.0-beta35-preview-20261120`。�
 | Spring Boot | Maven 依赖 | 开发版本 |
 | --- | --- | --- |
 | 3.5.x | `cn.iocoder.langchain4j:langchain4j-spring-boot-starter` | `1.25.0-beta35-SNAPSHOT` |
-| 4.1.x | `cn.iocoder.langchain4j:langchain4j-spring-boot4-starter` | `1.25.0-beta35-SNAPSHOT` |
+| 4.1.x / 4.2.x | `cn.iocoder.langchain4j:langchain4j-spring-boot4-starter` | `1.25.0-beta35-SNAPSHOT` |
 
-在仓库根目录用 JDK 17 安装核心与启动器。
+在 Boot 3 应用里导入发布版 BOM，并引入 starter。Boot 4 应用将 starter 的 artifactId 换成上表中的 `langchain4j-spring-boot4-starter`。
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>cn.iocoder.langchain4j</groupId>
+            <artifactId>langchain4j-bom</artifactId>
+            <version>1.25.0-preview-20261120</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>cn.iocoder.langchain4j</groupId>
+        <artifactId>langchain4j-spring-boot-starter</artifactId>
+    </dependency>
+</dependencies>
+```
+
+构建开发版本时，在仓库根目录用 JDK 17 安装核心与启动器。
 
 ```bash
 mvn -pl :langchain4j-spring-boot-starter,:langchain4j-spring-boot4-starter \
