@@ -2,7 +2,7 @@
 
 现代源码的核心、BOM 和 starter 统一使用 `cn.iocoder.langchain4j`。将官方提供的模型 starter 与芋道核心搭配时，排除它传入的官方 LangChain4j 核心，保持类路径中只有一份。
 
-发版记录见[芋道变更日志](CHANGELOG-YUDAO.md)。
+现代路线已发布 [BOM `1.25.0-preview-20261120`](https://central.sonatype.com/artifact/cn.iocoder.langchain4j/langchain4j-bom/1.25.0-preview-20261120)，涵盖核心、Boot 3 和 4 starter、OpenAI、MCP、Skills 和 Infinispan 等共 14 个坐标。stable 与 beta 模块按 BOM 管理。发版记录见[芋道变更日志](CHANGELOG-YUDAO.md)。
 
 上游源码已对齐至 `c5f5d093f`。源码开发版为 1.25.0-SNAPSHOT、1.25.0-beta35-SNAPSHOT。现代 starter 已复验 Boot 3.5.15 与 4.2.0。 Infinispan 16.3.1 的向量查询与聊天记忆已使用 Hot Rod 原生异步接口，并通过 JDK 17、25 真库回归。
 

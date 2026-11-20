@@ -1,5 +1,7 @@
 # LangChain4j Spring Boot 启动器
 
+Boot 3 和 Boot 4 的 starter 版本均为 `1.25.0-beta35-preview-20261120`。导入芋道 [LangChain4j BOM `1.25.0-preview-20261120`](https://central.sonatype.com/artifact/cn.iocoder.langchain4j/langchain4j-bom/1.25.0-preview-20261120) 后选择对应的 starter。
+
 `main` 提供下列启动器。两者使用 Java 17 字节码，Java 包名沿用上游。
 
 | Spring Boot | Maven 依赖 | 开发版本 |
