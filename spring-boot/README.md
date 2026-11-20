@@ -52,9 +52,10 @@ mvn -f spring-boot/compatibility-tests/consumer/pom.xml clean test \
   -Dcompat.test.jvm=/path/to/jdk17/bin/java -Dexpected.boot=3.5.15 -Dexpected.jdk=17
 
 mvn -f spring-boot/compatibility-tests/consumer/pom.xml clean test \
-  -Dcompat.test.jvm=/path/to/jdk17/bin/java -Dexpected.boot=4.1.2 -Dexpected.jdk=17 \
-  -Dboot.version=4.1.2 -Dstarter.artifactId=langchain4j-spring-boot4-starter \
-  -Dopenai.starter.artifactId=langchain4j-open-ai-spring-boot4-starter
+  -Dcompat.test.jvm=/path/to/jdk17/bin/java -Dexpected.boot=4.2.0 -Dexpected.jdk=17 \
+  -Dboot.version=4.2.0 -Dstarter.artifactId=langchain4j-spring-boot4-starter \
+  -Dopenai.starter.artifactId=langchain4j-open-ai-spring-boot4-starter \
+  -Dopenai.transport.artifactId=langchain4j-http-client-spring-boot4-restclient
 
 mvn -f spring-boot/compatibility-tests/consumer/pom-boot2.xml clean test \
   -Dcompat.test.jvm=/path/to/jdk8/bin/java -Dexpected.boot=2.7.18 -Dexpected.jdk=1.8
