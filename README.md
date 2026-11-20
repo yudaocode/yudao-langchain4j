@@ -82,6 +82,11 @@ GraalVM Polyglot 模块提供独立 worker 入口，可与 Boot 2 / JDK 8 应用
 
 支持范围、构建步骤与验证边界见 **`main-jdk8` 分支的 [COMPATIBILITY.md](https://github.com/yudaocode/yudao-langchain4j/blob/main-jdk8/COMPATIBILITY.md)**。BOM 仅列入已纳入兼容构建的模块；其余上游模块源码保留，不代表已经支持 Java 8。
 
+## Hibernate Milvus（Boot 4）
+
+Boot 4.1.2／JDK 17、25 已通过 Milvus 2.6.27 Standalone 的标量 HQL、带过滤的向量 HQL 和 `HibernateEmbeddingStore` 检索。Spring 的 JPA 事务边界可以提交 Hibernate 待写实体。flush 前回滚会丢弃待写实体，flush 后回滚仍可查到已写入 Milvus 的数据。当前 Hibernate NoSQL Milvus 驱动缺少数据库级回滚。[Docker 复验](compatibility-tests/hibernate-milvus-boot4)
+
+
 ---
 
 # LangChain4j: idiomatic, open-source Java library for building LLM-powered applications on the JVM
