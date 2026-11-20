@@ -23,7 +23,15 @@ import java.util.Set;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 
-abstract class OllamaBaseChatModel {
+/**
+ * Shared base for the synchronous and streaming Ollama models.
+ *
+ * <p>The public model builders inherit methods whose erased return type is a nested class
+ * of this class. Java 8 consumers must be able to resolve its enclosing type.
+ */
+public abstract class OllamaBaseChatModel {
+
+    OllamaBaseChatModel() {}
 
     protected OllamaClient client;
     protected OllamaChatRequestParameters defaultRequestParameters;

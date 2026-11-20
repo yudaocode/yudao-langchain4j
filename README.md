@@ -235,6 +235,8 @@ MongoDB Atlas Local 7.0.9 在 ARM64 Docker 和原生 JDK 8 下通过 130 项真�
 
 原生 JDK 8 使用 ARM64 Docker 中的 Ollama 0.40.9 与 `all-minilm`，通过 17 项向量集成测试。另有维度、输入类型和图像相关的 4 项公共用例按能力条件跳过。可用 `OLLAMA_BASE_URL` 指向本地实例，配合 `-Dit.test=OllamaEmbeddingModelIT` 复验。
 
+Java 8 上，外部包使用同步或流式 Ollama builder 时，JUnit 等框架反射调用 `getDeclaredClasses()` 曾抛出 `IllegalAccessError`。本分支已修复 builder 继承类型的可访问性。`langchain4j-ollama` 定向单测 123 项通过，并从本地安装的 JAR 通过 LangGraph4j Javelit 的真实 Ollama 工具回合。
+
 ## Oracle Coherence（JDK 8）
 
 导入兼容 BOM 后引入 `cn.iocoder.langchain4j:langchain4j-coherence`。先安装 [Spring AI Java 8 Coherence 兼容包](https://github.com/yudaocode/yudao-spring-ai/tree/main-jdk8/compatibility/coherence-ai) `cn.iocoder.spring-ai:spring-ai-coherence-ai-compat:2.1.0-jdk8-SNAPSHOT`。构造 `CoherenceEmbeddingStore` 或 `CoherenceChatMemoryStore` 时可以传入 Java 8 的 `Session.create()` 结果，也可以使用默认缓存工厂。字符串命名 Session 属于现代版本路线。POF 应用使用 `coherence.pof.config=langchain4j-coherence-java8-pof-config.xml` 或在自己的 POF 配置中包含它。Coherence 批次覆盖 103 个默认模块。
