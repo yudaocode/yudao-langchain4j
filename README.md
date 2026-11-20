@@ -1,6 +1,6 @@
 # 芋道 LangChain4j 兼容版
 
-上游源码已对齐至 `70dc8fec3`。源码开发版为 1.25.0-SNAPSHOT、1.25.0-beta35-SNAPSHOT。现代 starter 已复验 Boot 3.5.15 与 4.2.0。
+上游源码已对齐至 `ca2cbf993`。源码开发版为 1.25.0-SNAPSHOT、1.25.0-beta35-SNAPSHOT。现代 starter 已复验 Boot 3.5.15 与 4.2.0。
 
 > 版本命名：保留当前源码基线的官方版本号；共用现代制品不加 JDK 后缀，隔离维护的兼容路线添加 `jdk8` / `jdk17` / `jdk25`。SNAPSHOT 尚未发布 Maven Central。JDK 路线后缀不等于最低字节码版本，框架依赖仍按 Boot 版本选择。
 > 完整版本规则与预览命名见 [VERSIONING.md](VERSIONING.md)。
