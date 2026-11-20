@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>spring-boot-starters</artifactId>
-    <version>1.24.0-beta34-SNAPSHOT</version>
+    <version>1.25.0-beta35-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LangChain4j Spring Boot starters</name>
 
@@ -17,7 +17,7 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.5.15</spring-boot.version>
-        <langchain4j.version>1.24.0-SNAPSHOT</langchain4j.version>
+        <langchain4j.version>1.25.0-SNAPSHOT</langchain4j.version>
     </properties>
 
     <licenses>

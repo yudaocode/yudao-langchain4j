@@ -4,8 +4,8 @@
 
 | Spring Boot | Maven 依赖 | 开发版本 |
 | --- | --- | --- |
-| 3.5.x | `cn.iocoder.langchain4j:langchain4j-spring-boot-starter` | `1.24.0-beta34-SNAPSHOT` |
-| 4.1.x | `cn.iocoder.langchain4j:langchain4j-spring-boot4-starter` | `1.24.0-beta34-SNAPSHOT` |
+| 3.5.x | `cn.iocoder.langchain4j:langchain4j-spring-boot-starter` | `1.25.0-beta35-SNAPSHOT` |
+| 4.1.x | `cn.iocoder.langchain4j:langchain4j-spring-boot4-starter` | `1.25.0-beta35-SNAPSHOT` |
 
 在仓库根目录用 JDK 17 安装核心与启动器。
 

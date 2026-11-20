@@ -9,7 +9,7 @@
     </parent>
     <groupId>cn.iocoder.langchain4j.compatibility</groupId>
     <artifactId>hibernate-pgvector-boot3</artifactId>
-    <version>1.24.0-beta34-SNAPSHOT</version>
+    <version>1.25.0-beta35-SNAPSHOT</version>
     <properties>
         <java.version>17</java.version>
         <maven.compiler.release>17</maven.compiler.release>
