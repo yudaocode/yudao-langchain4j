@@ -436,6 +436,11 @@
             <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-parser-yaml</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
             <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-transformer-jsoup</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
             <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-code-execution-engine-judge0</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
+            <dependency>
+                <groupId>cn.iocoder.langchain4j</groupId>
+                <artifactId>langchain4j-code-execution-engine-graalvm-process</artifactId>
+                <version>1.24.0-beta34-jdk8-SNAPSHOT</version>
+            </dependency>
             <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-document-loader-github</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
             <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-jina</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>
             <dependency><groupId>cn.iocoder.langchain4j</groupId><artifactId>langchain4j-nomic</artifactId><version>1.24.0-beta34-jdk8-SNAPSHOT</version></dependency>

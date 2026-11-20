@@ -44,6 +44,7 @@
         <module>document-parsers/langchain4j-document-parser-yaml</module>
         <module>document-transformers/langchain4j-document-transformer-jsoup</module>
         <module>code-execution-engines/langchain4j-code-execution-engine-judge0</module>
+        <module>code-execution-engines/langchain4j-code-execution-engine-graalvm-process</module>
         <module>document-loaders/langchain4j-document-loader-github</module>
         <module>langchain4j-jina</module>
         <module>langchain4j-nomic</module>

@@ -72,6 +72,10 @@ public interface Assistant {
 
 通过 Spring 注入 `Assistant` 后调用 `chat`。独立 Java 项目可以引入兼容版 `langchain4j` 和 `langchain4j-open-ai`，使用原有 builder API。不要在同一个运行时混用官方与兼容版同名核心模块；它们的 Java 包名相同。Java 8 的 `Flow` 等新 JDK API 使用窄桥接类型，不能将它视为与官方 JDK 17 制品完全二进制兼容。
 
+### GraalVM 独立执行
+
+Boot 2 / JDK 8 可引入芋道 GraalVM 进程客户端，通过 `CodeExecutionEngine` 启动 JDK 17 或 25 worker，执行 JavaScript 和 Python。客户端接收 UTF-8 结果并在超时或调用中断时终止 worker。见 [接入与复验命令](compatibility-tests/graalvm-process)。
+
 ## 源码分支兼容记录
 
 以下各模块的测试与用法对应源码开发版本。
