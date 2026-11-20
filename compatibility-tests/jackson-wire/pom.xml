@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.langchain4j.compatibility</groupId>
     <artifactId>jackson-wire-consumer</artifactId>
-    <version>1.25.0-SNAPSHOT</version>
+    <version>1.25.0-preview-20261120</version>
     <properties>
         <boot.version>4.1.2</boot.version>
         <maven.compiler.release>8</maven.compiler.release>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-jackson3</artifactId>
-            <version>1.25.0-beta35-SNAPSHOT</version>
+            <version>1.25.0-beta35-preview-20261120</version>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.langchain4j</groupId>

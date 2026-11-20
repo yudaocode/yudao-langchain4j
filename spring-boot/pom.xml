@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>spring-boot-starters</artifactId>
-    <version>1.25.0-beta35-SNAPSHOT</version>
+    <version>1.25.0-beta35-preview-20261120</version>
     <packaging>pom</packaging>
     <name>LangChain4j Spring Boot starters</name>
 
@@ -17,7 +17,7 @@
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.5.15</spring-boot.version>
-        <langchain4j.version>1.25.0-SNAPSHOT</langchain4j.version>
+        <langchain4j.version>1.25.0-preview-20261120</langchain4j.version>
     </properties>
 
     <licenses>
@@ -97,4 +97,13 @@
             </plugin>
         </plugins>
     </build>
-</project>
+<description>LangChain4j Spring Boot starters</description><url>https://github.com/yudaocode/yudao-langchain4j/tree/v1.25.0-preview-20261120</url><developers>
+        <developer>
+            <id>dliubarskyi</id>
+            <name>Dmytro Liubarskyi</name>
+            <email>info@langchain4j.dev</email>
+            <url>https://github.com/dliubarskyi</url>
+        </developer>
+    </developers>
+
+    <scm><connection>scm:git:https://github.com/yudaocode/yudao-langchain4j.git</connection><developerConnection>scm:git:ssh://git@github.com/yudaocode/yudao-langchain4j.git</developerConnection><url>https://github.com/yudaocode/yudao-langchain4j/tree/v1.25.0-preview-20261120</url><tag>v1.25.0-preview-20261120</tag></scm></project>

@@ -1,13 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>spring-boot-starters</artifactId>
-        <version>1.25.0-beta35-SNAPSHOT</version>
+        <version>1.25.0-beta35-preview-20261120</version>
     </parent>
     <artifactId>langchain4j-spring-boot4-starter</artifactId>
     <properties>
         <spring-boot.version>4.2.0</spring-boot.version>
     </properties>
-</project>
+<name>langchain4j-spring-boot4-starter</name><description>langchain4j-spring-boot4-starter</description><url>https://github.com/yudaocode/yudao-langchain4j/tree/v1.25.0-preview-20261120</url><licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>dliubarskyi</id>
+            <name>Dmytro Liubarskyi</name>
+            <email>info@langchain4j.dev</email>
+            <url>https://github.com/dliubarskyi</url>
+        </developer>
+    </developers>
+
+    <scm><connection>scm:git:https://github.com/yudaocode/yudao-langchain4j.git</connection><developerConnection>scm:git:ssh://git@github.com/yudaocode/yudao-langchain4j.git</developerConnection><url>https://github.com/yudaocode/yudao-langchain4j/tree/v1.25.0-preview-20261120</url><tag>v1.25.0-preview-20261120</tag></scm></project>

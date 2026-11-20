@@ -1,16 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>langchain4j-parent</artifactId>
-    <version>1.25.0-beta35-SNAPSHOT</version>
+    <version>1.25.0-beta35-preview-20261120</version>
     <packaging>pom</packaging>
 
     <name>LangChain4j :: Parent POM</name>
     <description>${project.name}</description>
-    <url>https://github.com/yudaocode/yudao-langchain4j/tree/main</url>
-
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -28,14 +26,8 @@
         </developer>
     </developers>
 
-    <scm>
-        <connection>scm:git:https://github.com/yudaocode/yudao-langchain4j.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/yudaocode/yudao-langchain4j.git</developerConnection>
-        <url>https://github.com/yudaocode/yudao-langchain4j/tree/main</url>
-    </scm>
-
     <properties>
-        <langchain4j.beta.version>1.25.0-beta35-SNAPSHOT</langchain4j.beta.version>
+        <langchain4j.beta.version>1.25.0-beta35-preview-20261120</langchain4j.beta.version>
         <java.version>17</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <kotlin.code.style>official</kotlin.code.style>
@@ -45,7 +37,7 @@
         <kotlin-compiler.version>2.1.21</kotlin-compiler.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.outputTimestamp>1795018226</project.build.outputTimestamp>
-        <argLine></argLine>
+        <argLine />
         <!-- Dependency Versions -->
         <dokka.version>2.1.0-Beta</dokka.version>
         <ai-mocks.version>0.4.6</ai-mocks.version>
@@ -713,7 +705,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.16.0</version>
                 <configuration>
-                    <annotationProcessorPaths></annotationProcessorPaths>
+                    <annotationProcessorPaths />
                 </configuration>
                 <executions>
                     <!-- Disabling default-compile/testCompile via skipMain/skip so that
@@ -877,12 +869,12 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <banDuplicatePomDependencyVersions></banDuplicatePomDependencyVersions>
-                                <dependencyConvergence></dependencyConvergence>
+                                <banDuplicatePomDependencyVersions />
+                                <dependencyConvergence />
                                 <requireMavenVersion>
                                     <version>3.8</version>
                                 </requireMavenVersion>
-                                <requireUpperBoundDeps></requireUpperBoundDeps>
+                                <requireUpperBoundDeps />
                             </rules>
                         </configuration>
                     </execution>
@@ -1092,4 +1084,4 @@
 
     </profiles>
 
-</project>
+<url>https://github.com/yudaocode/yudao-langchain4j/tree/v1.25.0-preview-20261120</url><scm><connection>scm:git:https://github.com/yudaocode/yudao-langchain4j.git</connection><developerConnection>scm:git:ssh://git@github.com/yudaocode/yudao-langchain4j.git</developerConnection><url>https://github.com/yudaocode/yudao-langchain4j/tree/v1.25.0-preview-20261120</url><tag>v1.25.0-preview-20261120</tag></scm></project>

@@ -5,7 +5,7 @@
 
     <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>langchain4j-internal-test-retry</artifactId>
-    <version>1.25.0-beta35-SNAPSHOT</version>
+    <version>1.25.0-beta35-preview-20261120</version>
     <name>LangChain4j :: Test Retry</name>
     <description>Internal LangChain4j JUnit extension for retrying flaky tests</description>
     <url>https://github.com/langchain4j/langchain4j/tree/main</url>
