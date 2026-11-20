@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.langchain4j</groupId>
+    <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>langchain4j-parent</artifactId>
     <version>1.25.0-beta35-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>LangChain4j :: Parent POM</name>
     <description>${project.name}</description>
-    <url>https://github.com/langchain4j/langchain4j/tree/main</url>
+    <url>https://github.com/yudaocode/yudao-langchain4j/tree/main</url>
 
     <licenses>
         <license>
@@ -29,9 +29,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/langchain4j/langchain4j.git</connection>
-        <developerConnection>scm:git:git@github.com:langchain4j/langchain4j.git</developerConnection>
-        <url>https://github.com/langchain4j/langchain4j/tree/main</url>
+        <connection>scm:git:https://github.com/yudaocode/yudao-langchain4j.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/yudaocode/yudao-langchain4j.git</developerConnection>
+        <url>https://github.com/yudaocode/yudao-langchain4j/tree/main</url>
     </scm>
 
     <properties>
@@ -136,7 +136,7 @@
             </dependency>
 
             <dependency>
-                <groupId>dev.langchain4j</groupId>
+                <groupId>cn.iocoder.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings-all-minilm-l6-v2-q</artifactId>
                 <version>${langchain4j.beta.version}</version>
             </dependency>
@@ -368,7 +368,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-internal-test-retry</artifactId>
             <version>${langchain4j.beta.version}</version>
             <scope>test</scope>

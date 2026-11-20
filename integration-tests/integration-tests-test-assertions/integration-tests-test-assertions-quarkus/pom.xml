@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>dev.langchain4j</groupId>
+        <groupId>cn.iocoder.langchain4j</groupId>
         <artifactId>langchain4j-integration-tests-parent</artifactId>
         <version>1.25.0-beta35-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
@@ -55,7 +55,7 @@
         </dependency>
 
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
             <version>1.25.0-SNAPSHOT</version>
         </dependency>
@@ -73,7 +73,7 @@
         </dependency>
 
         <dependency>
-            <groupId>dev.langchain4j</groupId>
+            <groupId>cn.iocoder.langchain4j</groupId>
             <artifactId>langchain4j-test</artifactId>
             <version>1.25.0-beta35-SNAPSHOT</version>
             <scope>test</scope>
@@ -103,7 +103,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <classpathDependencyExcludes>
-                        <exclude>dev.langchain4j:langchain4j-internal-test-retry</exclude>
+                        <exclude>cn.iocoder.langchain4j:langchain4j-internal-test-retry</exclude>
                     </classpathDependencyExcludes>
                 </configuration>
             </plugin>

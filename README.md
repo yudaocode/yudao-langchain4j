@@ -1,5 +1,9 @@
 # 芋道 LangChain4j 兼容版
 
+现代源码的核心、BOM 和 starter 统一使用 `cn.iocoder.langchain4j`。将官方提供的模型 starter 与芋道核心搭配时，排除它传入的官方 LangChain4j 核心，保持类路径中只有一份。
+
+发版记录见[芋道变更日志](CHANGELOG-YUDAO.md)。
+
 上游源码已对齐至 `c5f5d093f`。源码开发版为 1.25.0-SNAPSHOT、1.25.0-beta35-SNAPSHOT。现代 starter 已复验 Boot 3.5.15 与 4.2.0。 Infinispan 16.3.1 的向量查询与聊天记忆已使用 Hot Rod 原生异步接口，并通过 JDK 17、25 真库回归。
 
 > 版本命名：保留当前源码基线的官方版本号；共用现代制品不加 JDK 后缀，隔离维护的兼容路线添加 `jdk8` / `jdk17` / `jdk25`。SNAPSHOT 尚未发布 Maven Central。JDK 路线后缀不等于最低字节码版本，框架依赖仍按 Boot 版本选择。

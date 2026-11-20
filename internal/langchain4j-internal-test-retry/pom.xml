@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.langchain4j</groupId>
+    <groupId>cn.iocoder.langchain4j</groupId>
     <artifactId>langchain4j-internal-test-retry</artifactId>
     <version>1.25.0-beta35-SNAPSHOT</version>
     <name>LangChain4j :: Test Retry</name>
